@@ -7,7 +7,7 @@ class Object2D(object):
     def __init__(self, position=(0, 0), rotation=0, scale=(1, 1), *args, **kwargs):
         #super().__init__(*args, **kwargs)
         self.position = Cartesian2D(*position)
-        self.rotation = 0
+        self.rotation = rotation
         self.scale = Cartesian2D(*scale)
         self._model_matrix = eye(4, dtype=float32)
 

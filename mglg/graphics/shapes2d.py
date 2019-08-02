@@ -146,7 +146,6 @@ class Circle(Shape2D):
 
 
 if __name__ == '__main__':
-    # MESA_GL_VERSION_OVERRIDE=4.5 python mglg/graphics/shapes2d.py
     from drop2.visuals.window import ExpWindow as Win
     from drop2.visuals.transform import height_ortho
     from mglg.graphics.drawable import DrawableGroup
