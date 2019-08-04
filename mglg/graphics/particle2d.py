@@ -40,11 +40,17 @@ class ParticleBurst2D(Drawable2D):
         # if the scale isn't set immediately, then end up with garbage?
         pos_alpha = np.zeros(num_particles, dtype=[('vertices_alpha', np.float32, 8)])
         r, theta = random_on_circle(self.scale.y * 0.85, num_particles)
-        pos_alpha['vertices_alpha'][:, :2] = np.array([np.cos(theta) * r, np.sin(theta) * r]).T
-        pos_alpha['vertices_alpha'][:, 3] = np.random.uniform(0.9, 1.0, num_particles)
+        pos_alpha['vertices_alpha'][:, 4:6] = np.array([np.cos(theta) * r, np.sin(theta) * r]).T
+        pos_alpha['vertices_alpha'][:, 7] = np.random.uniform(0.5, 1.0, num_particles)
         # it looks like the moderngl example allocates 2x the amount, so the first 4
         # are from the current timestep and the last 4 are from the previous timestep
         # then during rendering, the previous timestep is ignored (treated as padding)
+
+        r_speed, theta_speed = random_on_circle(2, self.num_particles)
+
+        speed = np.zeros(num_particles, dtype=[('speed', np.float32, 4)])
+        speed['speed'][:, :2] = np.array([r_speed * np.cos(theta_speed),
+                                          r_speed * np.sin(theta_speed)]).T
 
         # vbo_render is what ends up being rendered
         # vbo_trans is an intermediary for transform feedback
@@ -68,6 +74,7 @@ class ParticleBurst2D(Drawable2D):
 
         # set the data of the original state
         context.copy_buffer(self.vbo_orig, self.vbo_render)
+        context.point_size = 2.0
 
     def draw(self, camera: Camera):
         self._tracker -= 0.016
@@ -78,10 +85,13 @@ class ParticleBurst2D(Drawable2D):
             np.dot(self.model_matrix, camera.vp, self.mvp)
             self.shader.render['mvp'].write(self._mvp_ubyte_view)
             self.shader.transform['accel'].value = (0, -0.001)
-            self.shader.transform['dt'].value = 1/120
-            self.vao_trans.transform(self.vbo_trans, mgl.POINTS, self.num_particles)
+            self.shader.transform['dt'].value = 1/60
+            # update particles
+            self.vao_trans.transform(self.vbo_trans, mgl.POINTS)
+            # copy transformed data
             self.context.copy_buffer(self.vbo_render, self.vbo_trans)
-            self.vao_render.render(mgl.POINTS, self.num_particles)
+            # draw
+            self.vao_render.render(mgl.POINTS)
 
     def reset(self):
         # TODO: to get a non-totally-repeating effect, rotate the particles by n degrees

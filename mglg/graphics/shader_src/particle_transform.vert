@@ -12,6 +12,7 @@ void main()
 {
     out_pos_alpha.xy = in_pos_alpha.xy * 2.0 - in_prev_pos_alpha.xy + accel;
     out_pos_alpha.z = 0; // fix this axis
-    out_pos_alpha.w -= dt; // fade out particle
+    out_pos_alpha.w = in_pos_alpha.w - dt; // fade out particle
+    //out_pos_alpha.w = 1.0;
     out_prev_pos_alpha = in_pos_alpha;
 }
