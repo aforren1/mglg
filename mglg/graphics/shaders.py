@@ -28,3 +28,12 @@ def StippleShader(context: mgl.Context):
 
 def TextShader(context: mgl.Context):
     return make_simple_program(context, 'text.vert', 'text.frag')
+
+
+class ParticleShader(object):
+    def __init__(self, context: mgl.Context):
+        self.render = make_simple_program(context, 'particle.vert', 'particle.frag')
+        trans_prog = res.read_text(shader_src, 'particle_transform.vert')
+        self.transform = context.program(vertex_shader=trans_prog,
+                                         varyings=['out_pos_alpha',
+                                                   'out_prev_pos_alpha'])
