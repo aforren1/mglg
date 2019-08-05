@@ -1,6 +1,5 @@
 #version 330
 uniform sampler2D atlas_data;
-uniform vec2 atlas_shape;
 uniform vec4 color;
 uniform vec2 viewport;
 

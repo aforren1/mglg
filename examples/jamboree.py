@@ -1,15 +1,17 @@
+from timeit import default_timer
 import numpy as np
 import moderngl as mgl
 
 from drop2.visuals.window import ExpWindow as Win
 from drop2.visuals.transform import height_ortho
 from mglg.graphics.drawable import DrawableGroup
-from mglg.graphics.shaders import FlatShader, ImageShader, ParticleShader, StippleShader
+from mglg.graphics.shaders import FlatShader, ImageShader, ParticleShader, StippleShader, TextShader
 from mglg.graphics.shape2d import Square, Circle, Arrow, Polygon, Cross
 from mglg.graphics.camera import Camera
 from mglg.graphics.image2d import Image2D
 from mglg.graphics.particle2d import ParticleBurst2D
 from mglg.graphics.stipple2d import StippleArrow
+from mglg.graphics.text2d import FontManager, Text2D
 
 win = Win()
 ortho = height_ortho(win.width, win.height)
@@ -19,6 +21,7 @@ prog = FlatShader(context)
 img_prog = ImageShader(context)
 part_prog = ParticleShader(context)
 stip_prog = StippleShader(context)
+text_prog = TextShader(context)
 
 sqr = Square(context, prog, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
 circle = Circle(context, prog, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1))
@@ -41,10 +44,17 @@ particles = ParticleBurst2D(context, part_prog, scale=(0.05, 0.05), num_particle
 stiparrow = StippleArrow(context, stip_prog, win.width, win.height, scale=(0.1, 0.1),
                          position=(0.2, -0.3), pattern=0xadfa)
 
+# bump up font size for crisper look
+font = FontManager.get('examples/UbuntuMono-B.ttf', size=16)
+bases = Text2D(context, text_prog, win.width, win.height,
+               scale=(0.2, 0.1), color=(1, 0.1, 0.1, 0.7),
+               text='\u2620TURN BACK\u2620', font=font, position=(0, -0.4))
+
 dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
 pix = DrawableGroup([check])
 prt = DrawableGroup([particles])
 stp = DrawableGroup([stiparrow])
+txt = DrawableGroup([bases])
 
 cam = Camera(projection=ortho)
 
@@ -64,6 +74,7 @@ for i in range(300):
     pix.draw(cam)
     prt.draw(cam)
     stp.draw(cam)
+    txt.draw(cam)
     win.flip()
     if win.dt > 0.03:
         print(win.dt)

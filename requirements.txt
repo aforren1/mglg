@@ -2,3 +2,4 @@ numpy
 pillow
 moderngl # implicitly gets numpy, pillow, ...
 importlib_resources
+freetype-py
