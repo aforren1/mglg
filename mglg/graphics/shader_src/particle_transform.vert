@@ -17,7 +17,7 @@ float rand(vec2 co)
 float rescale(float x)
 {
     // scale from [0, 1] to [0.001, 0.05]
-    return (0.05 - 0.001) * x + 0.001;
+    return (0.05 - 0.01) * x + 0.01;
 }
 
 void main()

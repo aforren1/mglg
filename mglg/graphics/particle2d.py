@@ -39,7 +39,7 @@ class ParticleBurst2D(Drawable2D):
         # think about this-- should we just delay until ready to draw the first time?
         # if the scale isn't set immediately, then end up with garbage?
         pos_alpha = np.zeros(num_particles, dtype=[('vertices_alpha', np.float32, 8)])
-        r, theta = random_on_circle(self.scale.y * 0.5, num_particles)
+        r, theta = random_on_circle(self.scale.y * 0.8, num_particles)
         pos_alpha['vertices_alpha'][:, 0:2] = np.array([np.cos(theta) * r, np.sin(theta) * r]).T
         pos_alpha['vertices_alpha'][:, 3] = np.random.uniform(0.5, 1.0, num_particles)
         # it looks like the moderngl example allocates 2x the amount, so the first 4
@@ -84,10 +84,9 @@ class ParticleBurst2D(Drawable2D):
         #shader.transform['dt'].value = 1/60
 
     def draw(self, camera: Camera):
-        self._tracker -= 0.016
+        self._tracker -= 0.008
         if self._tracker < 0:
             self.visible = False
-
         if self.visible:
             np.dot(self.model_matrix, camera.vp, self.mvp)
             self.shader.render['mvp'].write(self._mvp_ubyte_view)
