@@ -85,10 +85,10 @@ class AggFont(object):
             offset = left, top
             advance = face.glyph.advance.x, face.glyph.advance.y
 
-            u0 = (x + 0.0)/float(self.atlas.width)
-            v0 = (y + 0.0)/float(self.atlas.height)
-            u1 = (x + w - 0.0)/float(self.atlas.width)
-            v1 = (y + h - 0.0)/float(self.atlas.height)
+            u0 = (x + 0.0)/float(self.atlas.shape[0])
+            v0 = (y + 0.0)/float(self.atlas.shape[1])
+            u1 = (x + w - 0.0)/float(self.atlas.shape[0])
+            v1 = (y + h - 0.0)/float(self.atlas.shape[1])
             texcoords = (u0, v0, u1, v1)
             glyph = Glyph(charcode, size, offset, advance, texcoords)
             self.glyphs[charcode] = glyph

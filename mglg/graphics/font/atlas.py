@@ -18,7 +18,6 @@ Example usage:
 """
 import sys
 import numpy as np
-#from . texture import Texture2D
 
 
 class Atlas(np.ndarray):
@@ -48,11 +47,6 @@ class Atlas(np.ndarray):
         GL_LUMINANCE is assumed.
     """
 
-    def __init__(self):
-        super().__init__()
-        self.nodes = [(0, 0, self.width), ]
-        self.used = 0
-
     def allocate(self, shape):
         """
         Allocate a new region of given shape.
@@ -67,6 +61,9 @@ class Atlas(np.ndarray):
         ------
             Texture2D or None
         """
+        if not hasattr(self, 'nodes'):
+            self.nodes = [(0, 0, self.shape[0]), ]
+            self.used = 0
 
         height, width = shape
         best_height = sys.maxsize
@@ -137,14 +134,14 @@ class Atlas(np.ndarray):
         x, y = node[0], node[1]
         width_left = width
 
-        if x+width > self.width:
+        if x+width > self.shape[0]:
             return -1
 
         i = index
         while width_left > 0:
             node = self.nodes[i]
             y = max(y, node[1])
-            if y+height > self.height:
+            if y+height > self.shape[1]:
                 return -1
             width_left -= node[2]
             i += 1

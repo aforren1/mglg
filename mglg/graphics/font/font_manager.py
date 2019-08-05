@@ -5,8 +5,8 @@
 """ Font Manager """
 import os
 import numpy as np
-#from . atlas import Atlas
-from glumpy.gloo.atlas import Atlas
+from . atlas import Atlas
+#from glumpy.gloo.atlas import Atlas
 from . agg_font import AggFont
 
 

@@ -45,16 +45,19 @@ stiparrow = StippleArrow(context, stip_prog, win.width, win.height, scale=(0.1, 
                          position=(0.2, -0.3), pattern=0xadfa)
 
 # bump up font size for crisper look
-font = FontManager.get('examples/UbuntuMono-B.ttf', size=16)
+font = FontManager.get('/usr/share/fonts/truetype/freefont/FreeMono.ttf', size=64)
 bases = Text2D(context, text_prog, win.width, win.height,
-               scale=(0.2, 0.1), color=(1, 0.1, 0.1, 0.7),
+               scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
                text='\u2620TURN BACK\u2620', font=font, position=(0, -0.4))
+bases2 = Text2D(context, text_prog, win.width, win.height,
+                scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
+                text='\u2611COME HITHER\u2611', font=font, position=(-0.4, 0), rotation=90)
 
 dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
 pix = DrawableGroup([check])
 prt = DrawableGroup([particles])
 stp = DrawableGroup([stiparrow])
-txt = DrawableGroup([bases])
+txt = DrawableGroup([bases, bases2])
 
 cam = Camera(projection=ortho)
 
