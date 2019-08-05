@@ -5,7 +5,7 @@ from drop2.visuals.window import ExpWindow as Win
 from drop2.visuals.transform import height_ortho
 from mglg.graphics.drawable import DrawableGroup
 from mglg.graphics.shaders import FlatShader, ImageShader, ParticleShader, StippleShader
-from mglg.graphics.shapes2d import Square, Circle, Arrow, Polygon, Cross
+from mglg.graphics.shape2d import Square, Circle, Arrow, Polygon, Cross
 from mglg.graphics.camera import Camera
 from mglg.graphics.image2d import Image2D
 from mglg.graphics.particle2d import ParticleBurst2D
