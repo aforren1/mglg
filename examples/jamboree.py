@@ -45,7 +45,7 @@ stiparrow = StippleArrow(context, stip_prog, win.width, win.height, scale=(0.1, 
                          position=(0.2, -0.3), pattern=0xadfa)
 
 # bump up font size for crisper look
-font = FontManager.get('/usr/share/fonts/truetype/freefont/FreeMono.ttf', size=64)
+font = FontManager.get('examples/UbuntuMono-B.ttf', size=64)
 bases = Text2D(context, text_prog, win.width, win.height,
                scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
                text='\u2620TURN BACK\u2620', font=font, position=(0, -0.4))

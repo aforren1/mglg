@@ -28,6 +28,7 @@ class Text2D(Drawable2D):
                                         index_buffer=ibo)
 
         shader['viewport'].value = width, height
+        self.atlas.use()
 
     def draw(self, camera: Camera):
         if self.visible:
