@@ -5,8 +5,6 @@ from . import shader_src
 # TODO: do we need to do a singleton sort of thing? What happens if
 # the same shader is made in several different places?
 
-# TODO: camel case or snake case?
-
 
 def make_simple_program(context, v_file, f_file):
     vert = res.read_text(shader_src, v_file)

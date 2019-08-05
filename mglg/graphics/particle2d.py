@@ -39,19 +39,19 @@ class ParticleBurst2D(Drawable2D):
         # think about this-- should we just delay until ready to draw the first time?
         # if the scale isn't set immediately, then end up with garbage?
         pos_alpha = np.zeros(num_particles, dtype=[('vertices_alpha', np.float32, 8)])
-        r, theta = random_on_circle(self.scale.y * 0.8, num_particles)
+        r, theta = random_on_circle(self.scale.y * 0.2, num_particles)
         pos_alpha['vertices_alpha'][:, 0:2] = np.array([np.cos(theta) * r, np.sin(theta) * r]).T
         pos_alpha['vertices_alpha'][:, 3] = np.random.uniform(0.5, 1.0, num_particles)
         # it looks like the moderngl example allocates 2x the amount, so the first 4
         # are from the current timestep and the last 4 are from the previous timestep
         # then during rendering, the previous timestep is ignored (treated as padding)
 
-        r_speed, theta_speed = random_on_circle(0.015, self.num_particles)
+        r_accel, theta_accel = random_on_circle(0.015, self.num_particles)
 
-        speed = np.zeros(num_particles, dtype=[('speed', np.float32, 4)])
-        speed['speed'][:, :2] = np.array([r_speed * np.cos(theta_speed),
-                                          r_speed * np.sin(theta_speed)]).T
-        speed2 = context.buffer(speed.view(np.ubyte))
+        accel = np.zeros(num_particles, dtype=[('accel', np.float32, 4)])
+        accel['accel'][:, :2] = np.array([r_accel * np.cos(theta_accel),
+                                          r_accel * np.sin(theta_accel)]).T
+        accel = context.buffer(accel.view(np.ubyte))
         # vbo_render is what ends up being rendered
         # vbo_trans is an intermediary for transform feedback
         # vbo_orig is the original state, which we use to "reset" the explosion
@@ -61,14 +61,10 @@ class ParticleBurst2D(Drawable2D):
         self.vbo_trans = context.buffer(reserve=self.vbo_render.size)
         self.vbo_orig = context.buffer(reserve=self.vbo_render.size)
 
-        # self.vao_trans = context.simple_vertex_array(shader.transform,
-        #                                              self.vbo_render,
-        #                                              'in_pos_alpha',
-        #                                              'in_prev_pos_alpha')
         self.vao_trans = context.vertex_array(shader.transform,
                                               [
                                                   (self.vbo_render, '4f 4f', 'in_pos_alpha', 'in_prev_pos_alpha'),
-                                                  (speed2, '4f', 'accel')
+                                                  (accel, '4f', 'accel')
                                               ])
         # self.vao_trans = context.simple_vertex_array(..., self.vbo_trans, ???)
         self.vao_render = context.vertex_array(shader.render,
@@ -76,15 +72,12 @@ class ParticleBurst2D(Drawable2D):
                                                    (self.vbo_render, '4f 4x4', 'vertices_alpha'),
                                                    (color_size2, '4f', 'color_size')
                                                ])
-
         # set the data of the original state
         context.copy_buffer(self.vbo_orig, self.vbo_render)
         context.point_size = 2.0  # TODO: set point size as intended
-        #shader.transform['accel'].value = (0, 0)
-        #shader.transform['dt'].value = 1/60
 
     def draw(self, camera: Camera):
-        self._tracker -= 0.008
+        self._tracker -= 0.008  # at some point, change to invisible so we don't do excess work
         if self._tracker < 0:
             self.visible = False
         if self.visible:

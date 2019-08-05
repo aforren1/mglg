@@ -39,7 +39,7 @@ assert sqr.vao_fill == sqr2.vao_fill
 particles = ParticleBurst2D(context, part_prog, scale=(0.05, 0.05), num_particles=1e5)
 
 stiparrow = StippleArrow(context, stip_prog, win.width, win.height, scale=(0.1, 0.1),
-                         position=(0.2, -0.3), pattern=0xadf0)
+                         position=(0.2, -0.3), pattern=0xadfa)
 
 dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
 pix = DrawableGroup([check])
@@ -59,7 +59,6 @@ for i in range(300):
     stiparrow.rotation = -counter
     if not particles.visible:
         particles.reset()
-        particles.rotation += 30
         particles.visible = True
     dg.draw(cam)
     pix.draw(cam)
