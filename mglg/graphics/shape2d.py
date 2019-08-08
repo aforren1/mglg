@@ -58,6 +58,7 @@ class Shape2D(Drawable2D):
         self.fill_color = Color(*fill_color)
         self.outline_color = Color(*outline_color)
 
+    @profile
     def draw(self, camera: Camera):
         if self.visible:
             np.dot(self.model_matrix, camera.vp, self.mvp)
@@ -144,10 +145,9 @@ class Circle(Shape2D):
     _static = True
     _vertices, _indices = _make_2d_indexed(make_poly_outline(256))
 
-
 if __name__ == '__main__':
     from drop2.visuals.window import ExpWindow as Win
-    from drop2.visuals.transform import height_ortho
+    from drop2.visuals.projection import height_ortho
     from mglg.graphics.drawable import DrawableGroup
     from mglg.graphics.shaders import FlatShader
 
@@ -164,7 +164,7 @@ if __name__ == '__main__':
     arrow.position.x -= 0.2
     sqr2 = Square(context, prog, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 0.1, 0.6))
     poly = Polygon(context, prog, segments=7, scale=(0.08, 0.08), position=(-0.2, -0.2),
-                   fill_color=(0.9, 0.2, 0.2, 0.5), outline_color=(0.1, 0.1, 0.1, 1))
+                    fill_color=(0.9, 0.2, 0.2, 0.5), outline_color=(0.1, 0.1, 0.1, 1))
     crs = Cross(context, prog, fill_color=(0.2, 0.1, 0.9, 0.7), is_outlined=False,
                 scale=(0.12, 0.10), position=(0.3, 0.3))
 
@@ -177,13 +177,13 @@ if __name__ == '__main__':
 
     counter = 0
     for i in range(300):
-        counter += 2
-        sqr2.position.xy = np.sin(counter/200)/2
+        counter += 1
+        sqr2.position.x = np.sin(counter/200)/2
+        #sqr2.position.y = sqr2.position.x
         sqr2.rotation = counter
-        if counter > 50:
-            sqr.rotation = -counter
-            arrow.rotation = counter
-            circle.rotation = counter
+        sqr.rotation = -counter
+        arrow.rotation = counter
+        circle.rotation = counter
         dg.draw(cam)
         win.flip()
         if win.dt > 0.03:
