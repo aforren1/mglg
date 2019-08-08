@@ -1,6 +1,7 @@
 import timeit
 
 # from https://github.com/mosra/magnum-bindings/blob/master/src/python/magnum/test/benchmark_math.py#L39
+# TODO: funky when importing from elsewhere?
 
 
 def timethat(expr, number=int(1e5), setup='pass', globs=globals()):

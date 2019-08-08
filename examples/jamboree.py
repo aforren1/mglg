@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from timeit import default_timer
 import numpy as np
 import moderngl as mgl
@@ -45,13 +46,13 @@ stiparrow = StippleArrow(context, stip_prog, win.width, win.height, scale=(0.1, 
                          position=(0.2, -0.3), pattern=0xadfa)
 
 # bump up font size for crisper look
-font = FontManager.get('examples/UbuntuMono-B.ttf', size=64)
+font = FontManager.get('examples/UbuntuMono-B.ttf', size=128)
 bases = Text2D(context, text_prog, win.width, win.height,
                scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
-               text='\u2620RED TEXT\u2620', font=font, position=(0, -0.4))
+               text='\u2620Tengo un gatito pequeñito\u2620', font=font, position=(0, -0.4))
 bases2 = Text2D(context, text_prog, win.width, win.height,
                 scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
-                text='\u2611GREEN TEXT\u2611', font=font, position=(-0.4, 0), rotation=90)
+                text='\u2611pequeño\u2611', font=font, position=(-0.4, 0), rotation=90)
 
 dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
 pix = DrawableGroup([check])
@@ -62,6 +63,7 @@ txt = DrawableGroup([bases, bases2])
 cam = Camera(projection=ortho)
 
 counter = 0
+vals = []
 for i in range(300):
     counter += 2
     sqr2.position.xy = np.sin(counter/200)/2
@@ -73,11 +75,19 @@ for i in range(300):
     if not particles.visible:
         particles.reset()
         particles.visible = True
+    t0 = default_timer()
     dg.draw(cam)
     pix.draw(cam)
     prt.draw(cam)
     stp.draw(cam)
     txt.draw(cam)
+    vals.append(default_timer() - t0)
     win.flip()
     if win.dt > 0.03:
         print(win.dt)
+
+
+fix, ax = plt.subplots(tight_layout=True)
+ax.hist(vals)
+plt.show()
+print('mean: %f, std: %f' % (np.mean(vals), np.std(vals)))
