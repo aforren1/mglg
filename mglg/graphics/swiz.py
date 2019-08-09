@@ -16,7 +16,22 @@ def generate_swiz(input_str):
             idx = []
             for inp in p:
                 idx.append(input_str.find(inp))
-            indices.append(np.array(idx, dtype=np.intp))
+            # Detect if we can use a slice instead
+            dff = np.diff(idx)
+            if dff.shape[0] != 0 and (abs(dff) == 1).all() and np.unique(dff).size == 1:
+                sgn = np.sign(dff[0])
+                # if positive, pos slice
+                # otherwise, negative slice
+                imin = min(idx)
+                imax = max(idx)
+                if sgn > 0:
+                    indices.append(slice(imin, imax+1, 1))
+                else:
+                    if imin == 0:
+                        imin = None
+                    indices.append(slice(imax, imin, -1))
+            else:
+                indices.append(np.array(idx, dtype=np.intp))
         for i, j in zip(perms, indices):
             out.update({i: j})
     return out
@@ -35,15 +50,15 @@ class Value(object):
 
 class VectorBase(object):
 
-    _pos_xyzw = 'xyzw'
-    _pos_rgba = 'rgba'
+    _xyzw = 'xyzw'
+    _rgba = 'rgba'
 
     def __init_subclass__(cls, length, dtype, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._length = length
         cls._dtype = dtype
-        swiz = generate_swiz(cls._pos_xyzw[:length])
-        swiz.update(generate_swiz(cls._pos_rgba[:length]))
+        swiz = generate_swiz(cls._xyzw[:length])
+        swiz.update(generate_swiz(cls._rgba[:length]))
 
         for key in swiz.keys():
             setattr(cls, key, Value(swiz[key]))
@@ -87,18 +102,21 @@ if __name__ == '__main__':
 
     slc = slice(0, 3)
     dmb = [0, 1, 2]
-    smt = np.array(dmb, dtype=np.int)
+    smt = np.array(dmb, dtype=np.intp)
+    sm2 = np.array([1], dtype=np.intp)
 
     timethat('x[slc]')
     timethat('x[dmb]')
     timethat('x[smt]')
+    timethat('x[sm2]')
     timethat('x[0]')
 
     timethat('y[slc]')
+    timethat('y._array[slc]')
     timethat('y[dmb]')
     timethat('y[smt]')
     timethat('y[0]')
 
     timethat('y.x')
-    timethat('y.xyz')
+    timethat('y.xyzw')
     timethat('y.xwy')
