@@ -1,5 +1,34 @@
 import numpy as np
 
+# TODO: rather than slices, could do logical indexing
+# just a little bit slower (~200-300ns?), and then
+# we could write something to auto-generate all swizzle
+# combinations? But that doesn't help if we need to
+# get a reversed version, e.g. Vec4f.yx
+
+# but it looks like indexing with a numpy array (e.g. np.array([0, 1, 2]))
+# is ever faster than slicing? So then we *can* pregenerate all
+# combinations xxxx, xxxy, xxxz, xxxw, yxxxx, yxxy,
+# and have pretty good perf
+
+
+def generate_swiz(input_str):
+    lst = list(input_str)
+    ln = len(lst)
+
+    grid = np.array(np.meshgrid(*([lst] * ln))).T.reshape(-1, ln)
+    idxing = np.empty_like(grid, dtype=np.int)
+    grid2 = [''.join(q) for q in grid]
+
+    for i in range(grid.shape[0]):
+        for j in range(grid.shape[1]):
+            idxing[i, j] = input_str.find(grid[i, j])
+
+    out_dct = {}
+    for i, j in zip(grid2, idxing):
+        out_dct[i] = j
+    return out_dct
+
 
 class Value(object):
     def __init__(self, slc=None):
@@ -25,6 +54,9 @@ class VectorBase(object):
 
     def __repr__(self):
         return self._array.__repr__()
+
+
+class Tmp(VectorBase):
 
 
 class Vector2f(VectorBase):
