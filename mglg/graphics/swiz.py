@@ -16,7 +16,7 @@ def generate_swiz(input_str):
             idx = []
             for inp in p:
                 idx.append(input_str.find(inp))
-            indices.append(np.array(idx, dtype=np.int32))
+            indices.append(np.array(idx, dtype=np.intp))
         for i, j in zip(perms, indices):
             out.update({i: j})
     return out
@@ -73,3 +73,32 @@ class Vector3f(VectorBase, length=3, dtype=np.float32):
 
 class Vector4f(VectorBase, length=4, dtype=np.float32):
     pass
+
+
+if __name__ == '__main__':
+    import timeit
+
+    def timethat(expr, number=int(1e6), setup='pass', globs=globals()):
+        title = expr
+        print('{:60} {:8.5f} µs'.format(title, timeit.timeit(expr, number=number, globals=globs, setup=setup)*1000000.0/number))
+
+    x = np.array([1, 2, 3, 4], dtype=np.float32)
+    y = Vector4f([1, 2, 3, 4])
+
+    slc = slice(0, 3)
+    dmb = [0, 1, 2]
+    smt = np.array(dmb, dtype=np.int)
+
+    timethat('x[slc]')
+    timethat('x[dmb]')
+    timethat('x[smt]')
+    timethat('x[0]')
+
+    timethat('y[slc]')
+    timethat('y[dmb]')
+    timethat('y[smt]')
+    timethat('y[0]')
+
+    timethat('y.x')
+    timethat('y.xyz')
+    timethat('y.xwy')
