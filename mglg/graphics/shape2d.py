@@ -3,8 +3,8 @@ import numpy as np
 import moderngl as mgl
 from mglg.ext import earcut, flatten
 from mglg.graphics.camera import Camera
-from mglg.graphics.color import Color
 from mglg.graphics.drawable import Drawable2D
+from mglg.graphics.vector import Vector4f
 
 
 def _make_2d_indexed(outline):
@@ -55,8 +55,8 @@ class Shape2D(Drawable2D):
 
         self.is_filled = is_filled
         self.is_outlined = is_outlined
-        self.fill_color = Color(*fill_color)
-        self.outline_color = Color(*outline_color)
+        self.fill_color = Vector4f(fill_color)
+        self.outline_color = Vector4f(outline_color)
 
     def draw(self, camera: Camera):
         if self.visible:
@@ -75,7 +75,7 @@ class Shape2D(Drawable2D):
 
     @fill_color.setter
     def fill_color(self, color):
-        if isinstance(color, Color):
+        if isinstance(color, Vector4f):
             self._fill_color = color
         else:
             self._fill_color[:] = color
@@ -86,7 +86,7 @@ class Shape2D(Drawable2D):
 
     @outline_color.setter
     def outline_color(self, color):
-        if isinstance(color, Color):
+        if isinstance(color, Vector4f):
             self._outline_color = color
         else:
             self._outline_color[:] = color
@@ -177,7 +177,7 @@ if __name__ == '__main__':
 
     counter = 0
     for i in range(300):
-        counter += 1
+        counter += 3
         sqr2.position.x = np.sin(counter/200)/2
         #sqr2.position.y = sqr2.position.x
         sqr2.rotation = counter
@@ -186,5 +186,5 @@ if __name__ == '__main__':
         circle.rotation = counter
         dg.draw(cam)
         win.flip()
-        if win.dt > 0.03:
+        if win.dt > 0.02:
             print(win.dt)

@@ -68,6 +68,7 @@ class VectorBase(np.ndarray):
         obj = super(VectorBase, cls).__new__(cls, shape=cls._length,
                                              dtype=cls._dtype, buffer=arr,
                                              offset=0, strides=None, order='C')
+        obj._ubyte_view = obj.view(np.ubyte)
         return obj
 
 

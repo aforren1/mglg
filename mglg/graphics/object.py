@@ -1,21 +1,21 @@
 from math import cos, sin
 from numpy import pi, float32, eye
-from mglg.graphics.cartesian import Cartesian2D, Cartesian3D
+from mglg.graphics.vector import Vector2f
 
 
 class Object2D(object):
     def __init__(self, position=(0, 0), rotation=0, scale=(1, 1), *args, **kwargs):
         #super().__init__(*args, **kwargs)
-        self.position = Cartesian2D(*position)
+        self.position = Vector2f(position)
         self.rotation = rotation
-        self.scale = Cartesian2D(*scale)
+        self.scale = Vector2f(scale)
         self._model_matrix = eye(4, dtype=float32)
 
     @property
     def model_matrix(self):
         # TODO: any caching?
         mm = self._model_matrix
-        make_2d_mm(self.position._array, self.rotation, self.scale._array, mm)
+        make_2d_mm(self.position, self.rotation, self.scale, mm)
         return mm
 
 

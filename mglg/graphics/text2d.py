@@ -4,7 +4,7 @@ import numpy as np
 
 import moderngl as mgl
 from mglg.graphics.camera import Camera
-from mglg.graphics.color import Color
+from mglg.graphics.vector import Vector4f
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.font.font_manager import FontManager
 
@@ -14,7 +14,7 @@ class Text2D(Drawable2D):
                  text, font, color=(1, 1, 1, 1),
                  *args, **kwargs):
         super().__init__(context, shader, *args, **kwargs)
-        self.color = Color(*color)
+        self.color = Vector4f(color)
         vertices, indices = self.bake(text, font)
         manager = FontManager()
         atlas = manager.atlas_agg
@@ -128,7 +128,7 @@ class Text2D(Drawable2D):
 
     @color.setter
     def color(self, color):
-        if isinstance(color, Color):
+        if isinstance(color, Vector4f):
             self._color = color
         else:
             self._color[:] = color

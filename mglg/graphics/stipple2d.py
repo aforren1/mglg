@@ -4,7 +4,7 @@ import moderngl as mgl
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.shape2d import _make_2d_indexed
 from mglg.graphics.shape2d import square_vertices, line_vertices, arrow_vertices
-from mglg.graphics.color import Color
+from mglg.graphics.vector import Vector4f
 from mglg.graphics.camera import Camera
 
 
@@ -20,7 +20,7 @@ class Stipple2D(Drawable2D):
 
         vbo = context.buffer(self._vertices.view(np.ubyte))
         self.vao = context.simple_vertex_array(shader, vbo, 'vertices')
-        self.color = Color(*color)
+        self.color = Vector4f(color)
         self.window_dims = width, height
         self.pattern = pattern
         shader['u_resolution'].value = width, height
@@ -40,7 +40,7 @@ class Stipple2D(Drawable2D):
 
     @color.setter
     def color(self, color):
-        if isinstance(color, Color):
+        if isinstance(color, Vector4f):
             self._color = color
         else:
             self._color[:] = color
