@@ -42,14 +42,13 @@ class Value(object):
         self.slc = slc
 
     def __get__(self, instance, owner):
-        return instance._array[self.slc]
+        return instance[self.slc]
 
     def __set__(self, instance, value):
-        instance._array[self.slc] = value
+        instance[self.slc] = value
 
 
-class VectorBase(object):
-
+class VectorBase(np.ndarray):
     _xyzw = 'xyzw'
     _rgba = 'rgba'
 
@@ -63,19 +62,13 @@ class VectorBase(object):
         for key in swiz.keys():
             setattr(cls, key, Value(swiz[key]))
 
-    def __init__(self, initial=0):
-        self._array = np.zeros(self._length, dtype=self._dtype)
-        self._array[:] = initial
-        self._ubyte_view = self._array.view(np.ubyte)
-
-    def __getitem__(self, key):
-        return self._array.__getitem__(key)
-
-    def __setitem__(self, key, value):
-        self._array.__setitem__(key, value)
-
-    def __repr__(self):
-        return self._array.__repr__()
+    def __new__(cls, input_array=0):
+        arr = np.zeros(cls._length, dtype=cls._dtype)
+        arr[:] = input_array
+        obj = super(VectorBase, cls).__new__(cls, shape=cls._length,
+                                             dtype=cls._dtype, buffer=arr,
+                                             offset=0, strides=None, order='C')
+        return obj
 
 
 class Vector2f(VectorBase, length=2, dtype=np.float32):
@@ -93,7 +86,7 @@ class Vector4f(VectorBase, length=4, dtype=np.float32):
 if __name__ == '__main__':
     import timeit
 
-    def timethat(expr, number=int(1e6), setup='pass', globs=globals()):
+    def timethat(expr, number=int(1e5), setup='pass', globs=globals()):
         title = expr
         print('{:60} {:8.5f} µs'.format(title, timeit.timeit(expr, number=number, globals=globs, setup=setup)*1000000.0/number))
 
@@ -112,7 +105,6 @@ if __name__ == '__main__':
     timethat('x[0]')
 
     timethat('y[slc]')
-    timethat('y._array[slc]')
     timethat('y[dmb]')
     timethat('y[smt]')
     timethat('y[0]')
