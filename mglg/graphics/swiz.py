@@ -86,7 +86,7 @@ class Vector4f(VectorBase, length=4, dtype=np.float32):
 if __name__ == '__main__':
     import timeit
 
-    def timethat(expr, number=int(1e5), setup='pass', globs=globals()):
+    def timethat(expr, number=int(1e6), setup='pass', globs=globals()):
         title = expr
         print('{:60} {:8.5f} µs'.format(title, timeit.timeit(expr, number=number, globals=globs, setup=setup)*1000000.0/number))
 
