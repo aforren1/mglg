@@ -19,7 +19,7 @@ def generate_swiz(input_str):
             # Detect if we can use a slice instead
             dff = np.diff(idx)
             if dff.shape[0] != 0 and (abs(dff) == 1).all() and np.unique(dff).size == 1:
-                sgn = np.sign(dff[0])
+                sgn = dff[0] > 0
                 # if positive, pos slice
                 # otherwise, negative slice
                 imin = min(idx)
@@ -80,6 +80,18 @@ class Vector3f(VectorBase, length=3, dtype=np.float32):
 
 
 class Vector4f(VectorBase, length=4, dtype=np.float32):
+    pass
+
+
+class Vector2i(VectorBase, length=2, dtype=np.int32):
+    pass
+
+
+class Vector3i(VectorBase, length=3, dtype=np.int32):
+    pass
+
+
+class Vector4i(VectorBase, length=4, dtype=np.int32):
     pass
 
 
