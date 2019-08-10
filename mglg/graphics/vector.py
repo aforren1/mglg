@@ -63,11 +63,10 @@ class VectorBase(np.ndarray):
             setattr(cls, key, Value(swiz[key]))
 
     def __new__(cls, input_array=0):
-        arr = np.zeros(cls._length, dtype=cls._dtype)
-        arr[:] = input_array
         obj = super(VectorBase, cls).__new__(cls, shape=cls._length,
-                                             dtype=cls._dtype, buffer=arr,
+                                             dtype=cls._dtype, buffer=None,
                                              offset=0, strides=None, order='C')
+        obj[:] = input_array
         obj._ubyte_view = obj.view(np.ubyte)
         return obj
 
