@@ -97,6 +97,7 @@ class Vector4i(VectorBase, length=4, dtype=np.int32):
 
 if __name__ == '__main__':
     import timeit
+    from numpy import ubyte
 
     def timethat(expr, number=int(1e6), setup='pass', globs=globals()):
         title = expr
@@ -124,3 +125,10 @@ if __name__ == '__main__':
     timethat('y.x')
     timethat('y.xyzw')
     timethat('y.xwy')
+
+    #
+    timethat('x.view(ubyte)')
+    timethat('memoryview(x)')
+    timethat('y.view(ubyte)')
+    timethat('y._ubyte_view')
+    timethat('memoryview(y)')

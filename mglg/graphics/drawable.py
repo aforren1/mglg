@@ -2,7 +2,6 @@ import abc
 import numpy as np
 from mglg.graphics.object import Object2D
 from mglg.graphics.camera import Camera
-# this is only 2D brea
 from moderngl import Context, Program
 
 
