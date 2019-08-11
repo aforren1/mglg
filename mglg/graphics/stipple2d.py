@@ -4,7 +4,7 @@ import moderngl as mgl
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.shape2d import _make_2d_indexed
 from mglg.graphics.shape2d import square_vertices, line_vertices, arrow_vertices
-from mglg.graphics.vector import Vector4f
+from mglg.math.vector import Vector4f
 from mglg.graphics.camera import Camera
 
 

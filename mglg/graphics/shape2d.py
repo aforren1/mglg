@@ -4,7 +4,7 @@ import moderngl as mgl
 from mglg.ext import earcut, flatten
 from mglg.graphics.camera import Camera
 from mglg.graphics.drawable import Drawable2D
-from mglg.graphics.vector import Vector4f
+from mglg.math.vector import Vector4f
 
 
 def _make_2d_indexed(outline):

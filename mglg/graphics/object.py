@@ -1,6 +1,6 @@
 from math import cos, sin
 from numpy import pi, float32, eye
-from mglg.graphics.vector import Vector2f
+from mglg.math.vector import Vector2f
 
 
 class Object2D(object):
