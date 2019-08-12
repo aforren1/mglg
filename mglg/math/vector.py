@@ -1,6 +1,13 @@
 import numpy as np
 from itertools import product
 
+# Shortcomings/TODO:
+# - Subset of Vector4f *could* be a Vector2/3f, but it currently carries through the 4f
+# - Creating always copies data, should we do a view instead?
+# - I *think* having all swizzle combinations makes things globally slower-- does it matter?
+# - subclass array.array instead? What's lost/gained?
+# - Could ask for assigning to swizzled things in pyglm, e.g. arr.xy = 3, 4
+
 
 def generate_swiz(input_str):
     ln = len(input_str) + 1

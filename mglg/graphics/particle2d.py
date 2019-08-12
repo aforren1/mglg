@@ -10,6 +10,8 @@ def random_on_circle(radius, size):
     theta = np.random.uniform(0, 2*np.pi, size=size)
     return r, theta
 
+# TODO: GL_DYNAMIC_COPY?
+
 
 class ParticleBurst2D(Drawable2D):
     # make sure to set scale in the init, else the initial particle positiions will
