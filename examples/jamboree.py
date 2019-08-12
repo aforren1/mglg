@@ -1,3 +1,4 @@
+import os.path as op
 import matplotlib.pyplot as plt
 from timeit import default_timer
 import numpy as np
@@ -35,7 +36,8 @@ poly = Polygon(context, prog, segments=7, scale=(0.08, 0.08), position=(-0.2, -0
 crs = Cross(context, prog, fill_color=(0.2, 0.1, 0.9, 0.7), is_outlined=False,
             scale=(0.12, 0.10), position=(0.3, 0.3))
 
-check = Image2D(context, img_prog, 'examples/check_small.png', position=(-0.2, 0.3),
+check_path = op.join(op.dirname(__file__), 'check_small.png')
+check = Image2D(context, img_prog, check_path, position=(-0.2, 0.3),
                 scale=(0.1, 0.1), rotation=70)
 # check that they *do* share the same vertex buffer
 assert sqr.vao_fill == sqr2.vao_fill
@@ -46,7 +48,8 @@ stiparrow = StippleArrow(context, stip_prog, win.width, win.height, scale=(0.1, 
                          position=(0.2, -0.3), pattern=0xadfa)
 
 # bump up font size for crisper look
-font = FontManager.get('examples/UbuntuMono-B.ttf', size=128)
+font_path = op.join(op.dirname(__file__), 'UbuntuMono-B.ttf')
+font = FontManager.get(font_path, size=128)
 bases = Text2D(context, text_prog, win.width, win.height,
                scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
                text='\u2620Tengo un gatito pequeñito\u2620', font=font, position=(0, -0.4))
