@@ -10,7 +10,7 @@ from mglg.graphics.drawable import DrawableGroup
 from mglg.graphics.shaders import FlatShader, ImageShader, ParticleShader, StippleShader, TextShader
 from mglg.graphics.shape2d import Square, Circle, Arrow, Polygon, Cross
 from mglg.graphics.camera import Camera
-from mglg.graphics.image2d import Image2D
+from mglg.graphics.image2d import Image2D, texture_cache
 from mglg.graphics.particle2d import ParticleBurst2D
 from mglg.graphics.stipple2d import StippleArrow
 from mglg.graphics.text2d import FontManager, Text2D
@@ -39,6 +39,10 @@ crs = Cross(context, prog, fill_color=(0.2, 0.1, 0.9, 0.7), is_outlined=False,
 check_path = op.join(op.dirname(__file__), 'check_small.png')
 check = Image2D(context, img_prog, check_path, position=(-0.2, 0.3),
                 scale=(0.1, 0.1), rotation=70)
+
+check2 = Image2D(context, img_prog, check_path, position=(0.5, 0),
+                 scale=(0.05, 0.05), rotation=0)
+print(texture_cache)
 # check that they *do* share the same vertex buffer
 assert sqr.vao_fill == sqr2.vao_fill
 
@@ -58,7 +62,7 @@ bases2 = Text2D(context, text_prog, win.width, win.height,
                 text='\u2611pequeño\u2611', font=font, position=(-0.4, 0), rotation=90)
 
 dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
-pix = DrawableGroup([check])
+pix = DrawableGroup([check, check2])
 prt = DrawableGroup([particles])
 stp = DrawableGroup([stiparrow])
 txt = DrawableGroup([bases, bases2])

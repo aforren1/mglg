@@ -5,6 +5,9 @@ import moderngl as mgl
 from mglg.graphics.camera import Camera
 from mglg.graphics.drawable import Drawable2D
 
+# avoid making new textures if we already have the exact texture
+texture_cache = {}
+
 
 class Image2D(Drawable2D):
     vao = None
@@ -12,7 +15,13 @@ class Image2D(Drawable2D):
     def __init__(self, context, shader, image_path, alpha=1.0, *args, **kwargs):
         super().__init__(context, shader, *args, **kwargs)
         image = Image.open(image_path).convert('RGBA')
-        self.texture = context.texture(image.size, 4, image.tobytes())
+        img_bytes = image.tobytes()
+        img_hash = hash(img_bytes)
+        if img_hash in texture_cache.keys():
+            self.texture = texture_cache[img_hash]
+        else:
+            self.texture = context.texture(image.size, 4, img_bytes)
+            texture_cache[img_hash] = self.texture
         self.alpha = alpha
 
         if self.vao is None:
