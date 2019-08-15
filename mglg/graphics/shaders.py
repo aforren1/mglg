@@ -32,6 +32,10 @@ def TextShader(context: mgl.Context):
     return make_simple_program(context, 'text.vert', 'text.frag')
 
 
+def VertexColorShader(context: mgl.Context):
+    return make_simple_program(context, 'vertex_color.vert', 'vertex_color.frag')
+
+
 class ParticleShader(object):
     def __init__(self, context: mgl.Context):
         self.render = make_simple_program(context, 'particle.vert', 'particle.frag')
