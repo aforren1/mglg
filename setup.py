@@ -18,6 +18,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://none",
     packages=setuptools.find_packages(),
+    package_data={'mglg': ['graphics/shader_src*']},
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
