@@ -6,9 +6,6 @@ except ImportError:
 import moderngl as mgl
 from . import shader_src
 
-# TODO: do we need to do a singleton sort of thing? What happens if
-# the same shader is made in several different places?
-
 flat_shader = None
 image_shader = None
 stipple_shader = None
