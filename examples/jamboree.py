@@ -4,8 +4,8 @@ from timeit import default_timer
 import numpy as np
 import moderngl as mgl
 
-from drop2.visuals.window import ExpWindow as Win
-from drop2.visuals.projection import height_ortho
+from drop3.visuals.window import ExpWindow as Win
+from drop3.visuals.projection import height_ortho
 from mglg.graphics.drawable import DrawableGroup
 from mglg.graphics.shaders import FlatShader, ImageShader, ParticleShader, StippleShader, TextShader
 from mglg.graphics.shape2d import Square, Circle, Arrow, Polygon, Cross
@@ -93,7 +93,7 @@ for i in range(300):
     if win.dt > 0.03:
         print(win.dt)
 
-
+win.close()
 fix, ax = plt.subplots(tight_layout=True)
 ax.hist(vals)
 plt.show()

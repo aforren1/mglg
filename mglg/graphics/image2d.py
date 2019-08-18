@@ -27,10 +27,10 @@ class Image2D(Drawable2D):
         if self.vao is None:
             vertex_texcoord = np.zeros(4, dtype=[('vertices', np.float32, 3),
                                                  ('texcoord', np.float32, 2)])
-            vertex_texcoord['vertices'] = [(-1, -1, 0), (-1, 1, 0),
-                                           (1, -1, 0), (1, 1, 0)]
-            vertex_texcoord['texcoord'] = [(0, 1), (0, 0),
-                                           (1, 1), (1, 0)]
+            vertex_texcoord['vertices'] = [(-0.5, -0.5, 0), (0.5, -0.5, 0),
+                                           (-0.5, 0.5, 0), (0.5, 0.5, 0)]
+            vertex_texcoord['texcoord'] = [(0, 0), (1, 0),
+                                           (0, 1), (1, 1)]
             vbo = context.buffer(vertex_texcoord.view(np.ubyte))
             self.set_vao(context, shader, vbo)
 
