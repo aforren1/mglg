@@ -3,7 +3,7 @@ import numpy as np
 import moderngl as mgl
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.shape2d import _make_2d_indexed
-from mglg.graphics.shape2d import square_vertices, line_vertices, arrow_vertices
+from mglg.graphics.shape2d import square_vertices, line_vertices, arrow_vertices, circle_vertices
 from mglg.math.vector import Vector4f
 from mglg.graphics.camera import Camera
 
@@ -57,3 +57,7 @@ class StippleLine(Stipple2D):
 
 class StippleArrow(Stipple2D):
     _vertices, _ = _make_2d_indexed(arrow_vertices)
+
+
+class StippleCircle(Stipple2D):
+    _vertices, _ = _make_2d_indexed(circle_vertices)

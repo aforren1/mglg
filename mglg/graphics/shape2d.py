@@ -140,9 +140,12 @@ class Polygon(Shape2D):
         super().__init__(context=context, shader=shader, vertices=vertices, *args, **kwargs)
 
 
+circle_vertices = make_poly_outline(256)
+
+
 class Circle(Shape2D):
     _static = True
-    _vertices, _indices = _make_2d_indexed(make_poly_outline(256))
+    _vertices, _indices = _make_2d_indexed(circle_vertices)
 
 
 if __name__ == '__main__':

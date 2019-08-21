@@ -46,7 +46,7 @@ print(texture_cache)
 # check that they *do* share the same vertex buffer
 assert sqr.vao_fill == sqr2.vao_fill
 
-particles = ParticleBurst2D(context, part_prog, scale=(0.05, 0.05), num_particles=1e5)
+particles = ParticleBurst2D(context, part_prog, scale=(0.025, 0.025), num_particles=1e5)
 
 stiparrow = StippleArrow(context, stip_prog, win.width, win.height, scale=(0.1, 0.1),
                          position=(0.2, -0.3), pattern=0xadfa)
@@ -94,7 +94,7 @@ for i in range(300):
         print(win.dt)
 
 win.close()
-fix, ax = plt.subplots(tight_layout=True)
-ax.hist(vals)
-plt.show()
+#fix, ax = plt.subplots(tight_layout=True)
+# ax.hist(vals)
+# plt.show()
 print('mean: %f, std: %f' % (np.mean(vals), np.std(vals)))
