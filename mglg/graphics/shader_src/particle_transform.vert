@@ -10,7 +10,7 @@ float accel_to_alpha(vec2 accel)
 {
     vec2 abs_accel = abs(accel);
     float mag = abs_accel.x + abs_accel.y;
-    return mag + 0.015;
+    return mag + 0.02;
 }
 
 void main()

@@ -48,7 +48,7 @@ class ParticleBurst2D(Drawable2D):
         # are from the current timestep and the last 4 are from the previous timestep
         # then during rendering, the previous timestep is ignored (treated as padding)
 
-        r_accel, theta_accel = random_on_circle(0.05, self.num_particles)
+        r_accel, theta_accel = random_on_circle(0.08, self.num_particles)
 
         accel = np.zeros(num_particles, dtype=[('accel', np.float32, 4)])
         accel['accel'][:, :2] = np.array([r_accel * np.cos(theta_accel),
@@ -79,7 +79,7 @@ class ParticleBurst2D(Drawable2D):
         context.point_size = 2.0  # TODO: set point size as intended
 
     def draw(self, camera: Camera):
-        self._tracker -= 0.01  # at some point, change to invisible so we don't do excess work
+        self._tracker -= 0.012  # at some point, change to invisible so we don't do excess work
         if self._tracker < 0:
             self.visible = False
         if self.visible:
