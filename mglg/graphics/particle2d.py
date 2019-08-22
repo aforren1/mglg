@@ -79,10 +79,10 @@ class ParticleBurst2D(Drawable2D):
         context.point_size = 2.0  # TODO: set point size as intended
 
     def draw(self, camera: Camera):
-        self._tracker -= 0.012  # at some point, change to invisible so we don't do excess work
-        if self._tracker < 0:
-            self.visible = False
         if self.visible:
+            self._tracker -= 0.012  # at some point, change to invisible so we don't do excess work
+            if self._tracker < 0:
+                self.visible = False
             np.dot(self.model_matrix, camera.vp, self.mvp)
             self.shader.render['mvp'].write(self._mvp_ubyte_view)
             # update particles
