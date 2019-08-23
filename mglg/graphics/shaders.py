@@ -5,7 +5,7 @@ except ImportError:
     import importlib_resources as res
 import moderngl as mgl
 from . import shader_src
-
+from .shader_src.src import *
 flat_shader = None
 image_shader = None
 stipple_shader = None
@@ -23,43 +23,43 @@ def make_simple_program(context, v_file, f_file):
 def FlatShader(context: mgl.Context):
     global flat_shader
     if flat_shader is None:
-        flat_shader = make_simple_program(context, 'flat.vert', 'flat.frag')
+        flat_shader = context.program(vertex_shader=flat_vert, fragment_shader=flat_frag)
     return flat_shader
 
 
 def ImageShader(context: mgl.Context):
     global image_shader
     if image_shader is None:
-        image_shader = make_simple_program(context, 'image.vert', 'image.frag')
+        image_shader = context.program(vertex_shader=image_vert, fragment_shader=image_frag)
     return image_shader
 
 
 def StippleShader(context: mgl.Context):
     global stipple_shader
     if stipple_shader is None:
-        stipple_shader = make_simple_program(context, 'stipple.vert', 'stipple.frag')
+        stipple_shader = context.program(vertex_shader=stipple_vert, fragment_shader=stipple_frag)
     return stipple_shader
 
 
 def TextShader(context: mgl.Context):
     global text_shader
     if text_shader is None:
-        text_shader = make_simple_program(context, 'text.vert', 'text.frag')
+        text_shader = context.program(vertex_shader=text_vert, fragment_shader=text_frag)
     return text_shader
 
 
 def VertexColorShader(context: mgl.Context):
     global vertex_color_shader
     if vertex_color_shader is None:
-        vertex_color_shader = make_simple_program(context, 'vertex_color.vert', 'vertex_color.frag')
+        vertex_color_shader = context.program(vertex_shader=vertex_color_vert, fragment_shader=vertex_color_frag)
     return vertex_color_shader
 
 
 class _ParticleShader(object):
     def __init__(self, context: mgl.Context):
-        self.render = make_simple_program(context, 'particle.vert', 'particle.frag')
-        trans_prog = res.read_text(shader_src, 'particle_transform.vert')
-        self.transform = context.program(vertex_shader=trans_prog,
+        self.render = context.program(vertex_shader=particle_vert, fragment_shader=particle_frag)
+        #trans_prog = res.read_text(shader_src, 'particle_transform.vert')
+        self.transform = context.program(vertex_shader=particle_transform_vert,
                                          varyings=['out_pos_alpha',
                                                    'out_prev_pos_alpha'])
 

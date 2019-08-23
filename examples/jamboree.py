@@ -1,5 +1,4 @@
 import os.path as op
-import matplotlib.pyplot as plt
 from timeit import default_timer
 import numpy as np
 import moderngl as mgl
