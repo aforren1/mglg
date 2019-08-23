@@ -11,10 +11,12 @@ from mglg.graphics.font.font_manager import FontManager
 
 class Text2D(Drawable2D):
     def __init__(self, context: mgl.Context, shader, width, height,
-                 text, font, color=(1, 1, 1, 1),
-                 *args, **kwargs):
+                 text, font, color=(1, 1, 1, 1), anchor_x='center',
+                 anchor_y='center', *args, **kwargs):
         super().__init__(context, shader, *args, **kwargs)
         self.color = Vector4f(color)
+        self.anchor_x = anchor_x
+        self.anchor_y = anchor_y
         vertices, indices = self.bake(text, font)
         manager = FontManager()
         atlas = manager.atlas_agg
@@ -39,7 +41,8 @@ class Text2D(Drawable2D):
             self.vao.render(mgl.TRIANGLES)
 
     def bake(self, text, font):
-        anchor_x = anchor_y = 'center'
+        anchor_x = self.anchor_x
+        anchor_y = self.anchor_y
         n = len(text) - text.count('\n')
         indices = np.zeros((n, 6), dtype=np.uint32)
         vertices = np.zeros((n, 4), dtype=[('vertices', np.float32, 2),
