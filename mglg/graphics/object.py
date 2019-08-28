@@ -5,7 +5,6 @@ from mglg.math.vector import Vector2f
 
 class Object2D(object):
     def __init__(self, position=(0, 0), rotation=0, scale=(1, 1), *args, **kwargs):
-        #super().__init__(*args, **kwargs)
         self.position = Vector2f(position)
         self.rotation = rotation
         self.scale = Vector2f(scale)
@@ -17,6 +16,36 @@ class Object2D(object):
         mm = self._model_matrix
         make_2d_mm(self.position, self.rotation, self.scale, mm)
         return mm
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        if isinstance(value, Vector2f):
+            self._position = value
+        else:
+            self._position[:] = value
+
+    @property
+    def rotation(self):
+        return self._rotation
+
+    @rotation.setter
+    def rotation(self, value):
+        self._rotation = value
+
+    @property
+    def scale(self):
+        return self._scale
+
+    @scale.setter
+    def scale(self, value):
+        if isinstance(value, Vector2f):
+            self._scale = value
+        else:
+            self._scale[:] = value
 
 
 def make_2d_mm(pos, rot, scal, out):
