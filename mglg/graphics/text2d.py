@@ -47,7 +47,7 @@ class Text2D(Drawable2D):
         indices = np.zeros((n, 6), dtype=np.uint32)
         vertices = np.zeros((n, 4), dtype=[('vertices', np.float32, 2),
                                            ('texcoord', np.float32, 2),
-                                           ('offset', np.float32, 1)])
+                                           ('offset', np.float32)])
 
         start = 0
         pen = [0, 0]
