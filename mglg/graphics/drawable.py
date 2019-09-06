@@ -6,9 +6,9 @@ from moderngl import Context, Program
 
 
 class Drawable(abc.ABC):
-    def __init__(self, context: Context, shader: Program, *args, **kwargs):
+    def __init__(self, context: Context, shader: Program, visible=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.visible = True
+        self.visible = visible
         self.shader = shader
         self.mvp = np.eye(4, dtype=np.float32)
         self._mvp_ubyte_view = self.mvp.view(np.ubyte)  # use this one for sending to moderngl
