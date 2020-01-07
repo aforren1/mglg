@@ -36,8 +36,8 @@ class Text2D(Drawable2D):
         if self.visible:
             self.atlas.use()
             mvp = camera.vp * self.model_matrix
-            self.shader['mvp'].write(bytes(mvp))
-            self.shader['color'].write(bytes(self.color))
+            self.shader['mvp'].write(memoryview(mvp))
+            self.shader['color'].write(memoryview(self.color))
             self.vao.render(mgl.TRIANGLES)
 
     def bake(self, text, font):

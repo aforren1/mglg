@@ -61,12 +61,12 @@ class Shape2D(Drawable2D):
     def draw(self, camera: Camera):
         if self.visible:
             mvp = camera.vp * self.model_matrix
-            self.shader['mvp'].write(bytes(mvp))
+            self.shader['mvp'].write(memoryview(mvp))
             if self.is_filled:
-                self.shader['color'].write(bytes(self.fill_color))
+                self.shader['color'].write(memoryview(self.fill_color))
                 self.vao_fill.render(mgl.TRIANGLES)
             if self.is_outlined:
-                self.shader['color'].write(bytes(self.outline_color))
+                self.shader['color'].write(memoryview(self.outline_color))
                 self.vao_outline.render(mgl.LINE_LOOP)
 
     @property

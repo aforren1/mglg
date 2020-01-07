@@ -30,8 +30,8 @@ class Stipple2D(Drawable2D):
     def draw(self, camera: Camera):
         if self.visible:
             mvp = camera.vp * self.model_matrix
-            self.shader['mvp'].write(bytes(mvp))
-            self.shader['color'].write(bytes(self.color))
+            self.shader['mvp'].write(memoryview(mvp))
+            self.shader['color'].write(memoryview(self.color))
             self.vao.render(mgl.LINE_LOOP)
 
     @property
