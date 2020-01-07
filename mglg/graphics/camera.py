@@ -4,4 +4,4 @@ from glm import mat4
 
 class Camera(object):
     def __init__(self, view=mat4(), projection=mat4()):
-        self.vp = view * projection
+        self.vp = projection * view
