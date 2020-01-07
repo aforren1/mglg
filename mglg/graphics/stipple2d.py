@@ -4,7 +4,7 @@ import moderngl as mgl
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.shape2d import _make_2d_indexed
 from mglg.graphics.shape2d import square_vertices, line_vertices, arrow_vertices, circle_vertices
-from mglg.math.vector import Vector4f
+from mglg.math.vector import Vec4
 from mglg.graphics.camera import Camera
 
 
@@ -20,7 +20,7 @@ class Stipple2D(Drawable2D):
 
         vbo = context.buffer(self._vertices.view(np.ubyte))
         self.vao = context.simple_vertex_array(shader, vbo, 'vertices')
-        self.color = Vector4f(color)
+        self._color = Vec4(color)
         self.window_dims = width, height
         self.pattern = pattern
         shader['u_resolution'].value = width, height
@@ -29,9 +29,9 @@ class Stipple2D(Drawable2D):
 
     def draw(self, camera: Camera):
         if self.visible:
-            np.dot(self.model_matrix, camera.vp, self.mvp)
-            self.shader['mvp'].write(self._mvp_ubyte_view)
-            self.shader['color'].write(self.color._ubyte_view)
+            mvp = camera.vp * self.model_matrix
+            self.shader['mvp'].write(bytes(mvp))
+            self.shader['color'].write(bytes(self.color))
             self.vao.render(mgl.LINE_LOOP)
 
     @property
@@ -40,10 +40,7 @@ class Stipple2D(Drawable2D):
 
     @color.setter
     def color(self, color):
-        if isinstance(color, Vector4f):
-            self._color = color
-        else:
-            self._color[:] = color
+        self._color.rgba = color
 
 
 class StippleSquare(Stipple2D):

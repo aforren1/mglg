@@ -36,8 +36,8 @@ class Image2D(Drawable2D):
 
     def draw(self, camera: Camera):
         if self.visible:
-            np.dot(self.model_matrix, camera.vp, self.mvp)
-            self.shader['mvp'].write(self._mvp_ubyte_view)
+            mvp = camera.vp * self.model_matrix
+            self.shader['mvp'].write(bytes(mvp))
             self.texture.use()
             self.shader['alpha'].value = self.alpha
             self.vao.render(mgl.TRIANGLE_STRIP)

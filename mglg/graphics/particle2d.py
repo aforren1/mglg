@@ -78,13 +78,14 @@ class ParticleBurst2D(Drawable2D):
         context.copy_buffer(self.vbo_orig, self.vbo_render)
         context.point_size = 2.0  # TODO: set point size as intended
 
+    @profile
     def draw(self, camera: Camera):
         if self.visible:
             self._tracker -= 0.012  # at some point, change to invisible so we don't do excess work
             if self._tracker < 0:
                 self.visible = False
-            np.dot(self.model_matrix, camera.vp, self.mvp)
-            self.shader.render['mvp'].write(self._mvp_ubyte_view)
+            mvp = camera.vp * self.model_matrix
+            self.shader.render['mvp'].write(bytes(mvp))
             # update particles
             self.vao_trans.transform(self.vbo_trans, mgl.POINTS)
             # copy transformed data

@@ -4,7 +4,7 @@ import numpy as np
 
 import moderngl as mgl
 from mglg.graphics.camera import Camera
-from mglg.math.vector import Vector4f
+from mglg.math.vector import Vec4
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.font.font_manager import FontManager
 
@@ -14,7 +14,7 @@ class Text2D(Drawable2D):
                  text, font, color=(1, 1, 1, 1), anchor_x='center',
                  anchor_y='center', *args, **kwargs):
         super().__init__(context, shader, *args, **kwargs)
-        self.color = Vector4f(color)
+        self._color = Vec4(color)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
         vertices, indices = self.bake(text, font)
@@ -34,10 +34,10 @@ class Text2D(Drawable2D):
 
     def draw(self, camera: Camera):
         if self.visible:
-            np.dot(self.model_matrix, camera.vp, self.mvp)
             self.atlas.use()
-            self.shader['mvp'].write(self._mvp_ubyte_view)
-            self.shader['color'].write(self.color._ubyte_view)
+            mvp = camera.vp * self.model_matrix
+            self.shader['mvp'].write(bytes(mvp))
+            self.shader['color'].write(bytes(self.color))
             self.vao.render(mgl.TRIANGLES)
 
     def bake(self, text, font):
@@ -131,7 +131,4 @@ class Text2D(Drawable2D):
 
     @color.setter
     def color(self, color):
-        if isinstance(color, Vector4f):
-            self._color = color
-        else:
-            self._color[:] = color
+        self._color.rgba = color

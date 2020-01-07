@@ -150,7 +150,7 @@ if __name__ == '__main__':
     import glm
 
     win = Win()
-    ortho = glm.orthoLH(-0.5/(win.height/win.width), 0.5/(win.height/win.width), -0.5, 0.5, -100, 100)
+    ortho = glm.ortho(-0.5/(win.height/win.width), 0.5/(win.height/win.width), -0.5, 0.5)
     context = mgl.create_context(330)
     context.line_width = 3.0
     prog = FlatShader(context)

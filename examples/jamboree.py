@@ -3,8 +3,8 @@ from timeit import default_timer
 import numpy as np
 import moderngl as mgl
 
-from drop3.visuals.window import ExpWindow as Win
-from drop3.visuals.projection import height_ortho
+from drop2.visuals.window import ExpWindow as Win
+import glm
 from mglg.graphics.drawable import DrawableGroup
 from mglg.graphics.shaders import FlatShader, ImageShader, ParticleShader, StippleShader, TextShader
 from mglg.graphics.shape2d import Square, Circle, Arrow, Polygon, Cross
@@ -15,7 +15,8 @@ from mglg.graphics.stipple2d import StippleArrow
 from mglg.graphics.text2d import FontManager, Text2D
 
 win = Win()
-ortho = height_ortho(win.width, win.height)
+#ortho = height_ortho(win.width, win.height)
+ortho = glm.ortho(-0.5/(win.height/win.width), 0.5/(win.height/win.width), -0.5, 0.5)
 context = mgl.create_context(330)
 context.line_width = 3.0
 prog = FlatShader(context)
@@ -92,7 +93,7 @@ for i in range(300):
     if win.dt > 0.03:
         print(win.dt)
 
-win.close()
+#win.close()
 #fix, ax = plt.subplots(tight_layout=True)
 # ax.hist(vals)
 # plt.show()
