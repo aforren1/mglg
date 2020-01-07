@@ -4,7 +4,7 @@ import moderngl as mgl
 from mglg.ext import earcut, flatten
 from mglg.graphics.camera import Camera
 from mglg.graphics.drawable import Drawable2D
-from mglg.math.vector import Vector4f
+from mglg.math.vector import Vec4
 
 
 def _make_2d_indexed(outline):
@@ -55,18 +55,18 @@ class Shape2D(Drawable2D):
 
         self.is_filled = is_filled
         self.is_outlined = is_outlined
-        self.fill_color = Vector4f(fill_color)
-        self.outline_color = Vector4f(outline_color)
+        self._fill_color = Vec4(fill_color)
+        self._outline_color = Vec4(outline_color)
 
     def draw(self, camera: Camera):
         if self.visible:
-            np.dot(self.model_matrix, camera.vp, self.mvp)
-            self.shader['mvp'].write(self._mvp_ubyte_view)
+            mvp = camera.vp * self.model_matrix
+            self.shader['mvp'].write(bytes(mvp))
             if self.is_filled:
-                self.shader['color'].write(self.fill_color._ubyte_view)
+                self.shader['color'].write(bytes(self.fill_color))
                 self.vao_fill.render(mgl.TRIANGLES)
             if self.is_outlined:
-                self.shader['color'].write(self.outline_color._ubyte_view)
+                self.shader['color'].write(bytes(self.outline_color))
                 self.vao_outline.render(mgl.LINE_LOOP)
 
     @property
@@ -75,10 +75,7 @@ class Shape2D(Drawable2D):
 
     @fill_color.setter
     def fill_color(self, color):
-        if isinstance(color, Vector4f):
-            self._fill_color = color
-        else:
-            self._fill_color[:] = color
+        self._fill_color.rgba = color
 
     @property
     def outline_color(self):
@@ -86,10 +83,7 @@ class Shape2D(Drawable2D):
 
     @outline_color.setter
     def outline_color(self, color):
-        if isinstance(color, Vector4f):
-            self._outline_color = color
-        else:
-            self._outline_color[:] = color
+        self._outline_color.rgba = color
 
     @classmethod
     def store_vaos(cls, context, shader, vbo, ibo):
@@ -153,9 +147,10 @@ if __name__ == '__main__':
     from drop2.visuals.projection import height_ortho
     from mglg.graphics.drawable import DrawableGroup
     from mglg.graphics.shaders import FlatShader
+    import glm
 
     win = Win()
-    ortho = height_ortho(win.width, win.height)
+    ortho = glm.orthoLH(-0.5/(win.height/win.width), 0.5/(win.height/win.width), -0.5, 0.5, -100, 100)
     context = mgl.create_context(330)
     context.line_width = 3.0
     prog = FlatShader(context)

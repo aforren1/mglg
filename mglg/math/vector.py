@@ -7,7 +7,7 @@ class Vec(object):
         try:
             vals[0]
             isiter = True
-        except TypeError:
+        except (TypeError, IndexError):
             isiter = False
         for i in range(len(keys)):
             k = keys[i]

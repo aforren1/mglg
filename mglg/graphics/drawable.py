@@ -10,8 +10,6 @@ class Drawable(abc.ABC):
         super().__init__(*args, **kwargs)
         self.visible = visible
         self.shader = shader
-        self.mvp = np.eye(4, dtype=np.float32)
-        self._mvp_ubyte_view = self.mvp.view(np.ubyte)  # use this one for sending to moderngl
 
     @abc.abstractmethod
     def draw(self, camera: Camera):
