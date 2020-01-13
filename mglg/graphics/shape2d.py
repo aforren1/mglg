@@ -2,10 +2,9 @@ import numpy as np
 
 import moderngl as mgl
 from mglg.ext import earcut, flatten
-from mglg.graphics.camera import Camera
 from mglg.graphics.drawable import Drawable2D
 from mglg.math.vector import Vec4
-
+from mglg.graphics.shaders import FlatShader
 
 def _make_2d_indexed(outline):
     outline = np.array(outline, dtype=np.float32)
@@ -26,14 +25,16 @@ class Shape2D(Drawable2D):
     _indices = None
     _static = False  # user can subclass with `_static = True` to re-use VAO for all class instances
 
-    def __init__(self, context, shader,
+    def __init__(self, window,
                  vertices=None,
                  is_filled=True, is_outlined=True,
                  fill_color=white, outline_color=white,
                  *args, **kwargs):
         # context & shader go to Drawable,
         # kwargs should be position/ori/scale
-        super().__init__(context, shader, *args, **kwargs)
+        super().__init__(window, *args, **kwargs)
+        shader = FlatShader(window.ctx)
+        self.shader = shader
 
         if not hasattr(self, 'vao_fill'):
             if self._vertices is None:
@@ -41,6 +42,7 @@ class Shape2D(Drawable2D):
             else:
                 vertices, indices = self._vertices, self._indices
 
+            context = window.ctx
             vbo = context.buffer(vertices.view(np.ubyte))
             ibo = context.buffer(indices.view(np.ubyte))
 
@@ -58,9 +60,9 @@ class Shape2D(Drawable2D):
         self._fill_color = Vec4(fill_color)
         self._outline_color = Vec4(outline_color)
 
-    def draw(self, camera: Camera):
+    def draw(self):
         if self.visible:
-            mvp = camera.vp * self.model_matrix
+            mvp = self.win.vp * self.model_matrix
             self.shader['mvp'].write(memoryview(mvp))
             if self.is_filled:
                 self.shader['color'].write(memoryview(self.fill_color))
@@ -129,9 +131,9 @@ def make_poly_outline(segments=64):
 
 
 class Polygon(Shape2D):
-    def __init__(self, context, shader, segments=32, *args, **kwargs):
+    def __init__(self, window, segments=32, *args, **kwargs):
         vertices = make_poly_outline(segments)
-        super().__init__(context=context, shader=shader, vertices=vertices, *args, **kwargs)
+        super().__init__(window, vertices=vertices, *args, **kwargs)
 
 
 circle_vertices = make_poly_outline(256)
@@ -143,27 +145,22 @@ class Circle(Shape2D):
 
 
 if __name__ == '__main__':
-    from drop2.visuals.window import ExpWindow as Win
-    from drop2.visuals.projection import height_ortho
     from mglg.graphics.drawable import DrawableGroup
     from mglg.graphics.shaders import FlatShader
+    from mglg.graphics.mglw import Win, run_window_config
     import glm
 
-    win = Win()
-    ortho = glm.ortho(-0.5/(win.height/win.width), 0.5/(win.height/win.width), -0.5, 0.5)
-    context = mgl.create_context(330)
-    context.line_width = 3.0
-    prog = FlatShader(context)
+    win = run_window_config(Win)
 
-    sqr = Square(context, prog, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1))
-    circle = Circle(context, prog, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1))
-    arrow = Arrow(context, prog, scale=(0.15, 0.1), fill_color=(0.9, 0.7, 0.2, 1))
+    sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1))
+    circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1))
+    arrow = Arrow(win, scale=(0.15, 0.1), fill_color=(0.9, 0.7, 0.2, 1))
     circle.position.x += 0.2
     arrow.position.x -= 0.2
-    sqr2 = Square(context, prog, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 0.1, 0.6))
-    poly = Polygon(context, prog, segments=7, scale=(0.08, 0.08), position=(-0.2, -0.2),
+    sqr2 = Square(win, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 0.1, 0.6))
+    poly = Polygon(win, segments=7, scale=(0.08, 0.08), position=(-0.2, -0.2),
                    fill_color=(0.9, 0.2, 0.2, 0.5), outline_color=(0.1, 0.1, 0.1, 1))
-    crs = Cross(context, prog, fill_color=(0.2, 0.1, 0.9, 0.7), is_outlined=False,
+    crs = Cross(win, fill_color=(0.2, 0.1, 0.9, 0.7), is_outlined=False,
                 scale=(0.12, 0.10), position=(0.3, 0.3))
 
     # check that they *do* share the same vertex buffer
@@ -171,10 +168,9 @@ if __name__ == '__main__':
 
     dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
 
-    cam = Camera(projection=ortho)
-
     counter = 0
     for i in range(300):
+        win.clear()
         counter += 3
         sqr2.position.x = np.sin(counter/200)/2
         #sqr2.position.y = sqr2.position.x
@@ -182,7 +178,9 @@ if __name__ == '__main__':
         sqr.rotation = -counter
         arrow.rotation = counter
         circle.rotation = counter
-        dg.draw(cam)
-        win.flip()
-        if win.dt > 0.02:
-            print(win.dt)
+        dg.draw()
+        win.swap_buffers()
+
+        # if win.dt > 0.02:
+        #     print(win.dt)
+    win.destroy()

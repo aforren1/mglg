@@ -3,17 +3,18 @@
 import numpy as np
 
 import moderngl as mgl
-from mglg.graphics.camera import Camera
 from mglg.math.vector import Vec4
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.font.font_manager import FontManager
-
+from mglg.graphics.shaders import TextShader
 
 class Text2D(Drawable2D):
-    def __init__(self, context: mgl.Context, shader, width, height,
-                 text, font, color=(1, 1, 1, 1), anchor_x='center',
-                 anchor_y='center', *args, **kwargs):
-        super().__init__(context, shader, *args, **kwargs)
+    def __init__(self, window, text, font, color=(1, 1, 1, 1), 
+                 anchor_x='center', anchor_y='center', *args, **kwargs):
+        super().__init__(window, *args, **kwargs)
+        context = self.win.ctx
+        width, height = self.win.size
+        self.shader = TextShader(context)
         self._color = Vec4(color)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
@@ -23,19 +24,19 @@ class Text2D(Drawable2D):
         self.atlas = context.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
         vbo = context.buffer(vertices.view(np.ubyte))
         ibo = context.buffer(indices.view(np.ubyte))
-        self.vao = context.vertex_array(shader,
+        self.vao = context.vertex_array(self.shader,
                                         [   # TODO: pad? maybe doesn't matter 'cause we're not streaming
                                             (vbo, '2f 2f 1f', 'vertices', 'texcoord', 'offset')
                                         ],
                                         index_buffer=ibo)
 
-        shader['viewport'].value = width, height
+        self.shader['viewport'].value = width, height
         self.atlas.use()
 
-    def draw(self, camera: Camera):
+    def draw(self):
         if self.visible:
             self.atlas.use()
-            mvp = camera.vp * self.model_matrix
+            mvp = self.win.vp * self.model_matrix
             self.shader['mvp'].write(memoryview(mvp))
             self.shader['color'].write(memoryview(self.color))
             self.vao.render(mgl.TRIANGLES)

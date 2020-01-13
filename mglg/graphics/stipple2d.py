@@ -5,31 +5,31 @@ from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.shape2d import _make_2d_indexed
 from mglg.graphics.shape2d import square_vertices, line_vertices, arrow_vertices, circle_vertices
 from mglg.math.vector import Vec4
-from mglg.graphics.camera import Camera
-
+from mglg.graphics.shaders import StippleShader
 
 class Stipple2D(Drawable2D):
-    def __init__(self, context, shader,
-                 width, height, vertices=None,
+    def __init__(self, window, vertices=None,
                  pattern=0xff00, color=(1, 1, 1, 1),
                  *args, **kwargs):
-        super().__init__(context, shader, *args, **kwargs)
+        super().__init__(window, *args, **kwargs)
 
+        context = window.ctx
+        width, height = window.size
+        self.shader = StippleShader(context)
         if not hasattr(self, '_vertices'):
             self._vertices, _ = _make_2d_indexed(vertices)
 
         vbo = context.buffer(self._vertices.view(np.ubyte))
-        self.vao = context.simple_vertex_array(shader, vbo, 'vertices')
+        self.vao = context.simple_vertex_array(self.shader, vbo, 'vertices')
         self._color = Vec4(color)
-        self.window_dims = width, height
         self.pattern = pattern
-        shader['u_resolution'].value = width, height
-        shader['u_factor'].value = 2.0
-        shader['u_pattern'].value = pattern
+        self.shader['u_resolution'].value = width, height
+        self.shader['u_factor'].value = 2.0
+        self.shader['u_pattern'].value = pattern
 
-    def draw(self, camera: Camera):
+    def draw(self):
         if self.visible:
-            mvp = camera.vp * self.model_matrix
+            mvp = self.win.vp * self.model_matrix
             self.shader['mvp'].write(memoryview(mvp))
             self.shader['color'].write(memoryview(self.color))
             self.vao.render(mgl.LINE_LOOP)
