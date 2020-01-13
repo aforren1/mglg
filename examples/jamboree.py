@@ -3,7 +3,6 @@ from timeit import default_timer
 import numpy as np
 import moderngl as mgl
 from mglg.graphics.mglw import Win, run_window_config
-
 import glm
 from mglg.graphics.drawable import DrawableGroup
 
@@ -34,8 +33,7 @@ if __name__ == '__main__':
 
     check2 = Image2D(win, check_path, position=(0.5, 0),
                     scale=(0.05, 0.05), rotation=0)
-    print(texture_cache)
-    # check that they *do* share the same vertex buffer
+    # check that they *do* share the same vertex array
     assert sqr.vao_fill == sqr2.vao_fill
 
     particles = ParticleBurst2D(win, scale=(0.025, 0.025), num_particles=1e5)
@@ -83,8 +81,11 @@ if __name__ == '__main__':
         if win.dt > 0.02:
             print(win.dt)
         vals.append(default_timer() - t0)
+        if win.is_closing:
+            break
     #win.close()
     #fix, ax = plt.subplots(tight_layout=True)
     # ax.hist(vals)
     # plt.show()
+    win.destroy()
     print('mean: %f, std: %f, max: %f' % (np.mean(vals), np.std(vals), max(vals)))
