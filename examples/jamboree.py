@@ -62,9 +62,8 @@ if __name__ == '__main__':
 
     counter = 0
     vals = []
-    for i in range(300):
-        win.clear(0.2, 0.2, 0.2)
-        counter += 2
+    for i in range(1200):
+        counter += 4
         sqr2.position.xy = np.sin(counter/200)/2
         sqr2.rotation = counter
         sqr.rotation = -counter
@@ -72,18 +71,20 @@ if __name__ == '__main__':
         circle.rotation = counter
         stiparrow.rotation = -counter
         if not particles.visible:
-            particles.reset()
-            particles.visible = True
+           particles.reset()
+           particles.visible = True
         t0 = default_timer()
         dg.draw()
         pix.draw()
         prt.draw()
         stp.draw()
         txt.draw()
-        win.swap_buffers()
+        win.flip()
+        if win.dt > 0.02:
+            print(win.dt)
         vals.append(default_timer() - t0)
     #win.close()
     #fix, ax = plt.subplots(tight_layout=True)
     # ax.hist(vals)
     # plt.show()
-    print('mean: %f, std: %f' % (np.mean(vals), np.std(vals)))
+    print('mean: %f, std: %f, max: %f' % (np.mean(vals), np.std(vals), max(vals)))

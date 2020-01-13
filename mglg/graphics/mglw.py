@@ -3,10 +3,18 @@ import moderngl as mgl
 from moderngl_window.context.base import WindowConfig
 import moderngl_window as mglw
 import glm
+from timeit import default_timer
 #import imgui
 # from moderngl_window.integrations.imgui import ModernglWindowRenderer
 
 # logger = logging.getLogger(__name__)
+
+def flip(self):
+    self.swap_buffers()
+    self.clear(*self.clear_color)
+    t1 = default_timer()
+    self.dt = t1 - self.t0
+    self.t0 = t1
 
 class Win(mglw.WindowConfig):
     gl_version = 3, 3
@@ -15,8 +23,18 @@ class Win(mglw.WindowConfig):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        # monkey patch some things in
+        wnd = kwargs.get('wnd')
+        wnd.ctx.enable(mgl.BLEND)
+        wnd.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
+        width, height = wnd.size
+        wnd.vp = glm.ortho(-0.5/(height/width), 0.5/(height/width), -0.5, 0.5)
+        wnd.clear_color = 0.3, 0.3, 0.3
+        wnd.flip = flip.__get__(wnd)
+        wnd.t0 = default_timer()
         #imgui.create_context()
         #self.imgui = ModernglWindowRenderer
+
 
 def run_window_config(config_cls: WindowConfig, timer=None, args=None) -> None:
     """
@@ -50,13 +68,9 @@ def run_window_config(config_cls: WindowConfig, timer=None, args=None) -> None:
         cursor=False,
     )
     window.print_context_info()
-    width, height = size
-    ortho = glm.ortho(-0.5/(height/width), 0.5/(height/width), -0.5, 0.5)
-    window.vp = ortho
     mglw.activate_context(window=window)
     window.config = config_cls(ctx=window.ctx, wnd=window, timer=timer)
-    window.ctx.enable(mgl.BLEND)
-    window.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
+    window.clear(0.5, 0.5, 0.5)
     return window
 
 

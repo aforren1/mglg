@@ -1,6 +1,7 @@
 numpy
 pillow
-moderngl # TODO: upgrade
+moderngl==5.5.4 # TODO: upgrade
 freetype-py
 importlib_resources; python_version<'3.7'
 pyglm
+moderngl-window
