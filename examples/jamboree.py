@@ -2,6 +2,7 @@ import os.path as op
 from timeit import default_timer
 import numpy as np
 import moderngl as mgl
+from math import sin, cos
 from mglg.graphics.mglw import Win, run_window_config
 import glm
 from mglg.graphics.drawable import DrawableGroup
@@ -57,13 +58,10 @@ if __name__ == '__main__':
     stp = DrawableGroup([stiparrow])
     txt = DrawableGroup([bases, bases2])
 
-
-    counter = 0
-    vals = []
-    for i in range(1200):
+    def update(counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt):
         counter += 4
-        sqr2.position.xy = np.sin(counter/200)/2
-        sqr2.rotation = counter
+        sqr2.position = sin(counter/200)/2, cos(counter/200)/3
+        sqr2.rotation = 2*counter
         sqr.rotation = -counter
         arrow.rotation = counter
         circle.rotation = counter
@@ -71,12 +69,18 @@ if __name__ == '__main__':
         if not particles.visible:
            particles.reset()
            particles.visible = True
-        t0 = default_timer()
         dg.draw()
         pix.draw()
         prt.draw()
         stp.draw()
         txt.draw()
+        return counter
+
+    counter = 0
+    vals = []
+    for i in range(1200):
+        t0 = default_timer()
+        counter = update(counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt)
         win.flip()
         if win.dt > 0.02:
             print(win.dt)
