@@ -10,11 +10,6 @@ class Drawable(abc.ABC):
         self.win = window
         self.visible = visible
 
-    # @property
-    # @abc.abstractmethod
-    # def shader(self):
-    #     pass
-
     @abc.abstractmethod
     def draw(self):
         pass

@@ -6,6 +6,7 @@ from mglg.graphics.drawable import Drawable2D
 from mglg.math.vector import Vec4
 from mglg.graphics.shaders import FlatShader
 
+
 def _make_2d_indexed(outline):
     outline = np.array(outline, dtype=np.float32)
     tmp = flatten(outline.reshape(1, -1, 2))
@@ -90,8 +91,7 @@ class Shape2D(Drawable2D):
     @classmethod
     def store_vaos(cls, context, shader, vbo, ibo):
         # for common shapes, re-use the same VAO
-        cls.vao_fill = context.simple_vertex_array(shader, vbo, 'vertices',
-                                                   index_buffer=ibo)
+        cls.vao_fill = context.simple_vertex_array(shader, vbo, 'vertices', index_buffer=ibo)
         cls.vao_outline = context.simple_vertex_array(shader, vbo, 'vertices')
 
 
@@ -180,6 +180,8 @@ if __name__ == '__main__':
         circle.rotation = counter
         dg.draw()
         win.swap_buffers()
+        if win.is_closing:
+            break
 
         # if win.dt > 0.02:
         #     print(win.dt)

@@ -4,6 +4,6 @@ import timeit
 # TODO: funky when importing from elsewhere?
 
 
-def timethat(expr, number=int(1e5), setup='pass', globs=globals()):
+def timethat(expr, number=1e5, setup='pass', globs=None):
     title = expr
-    print('{:60} {:8.5f} µs'.format(title, timeit.timeit(expr, number=number, globals=globs, setup=setup)*1000000.0/number))
+    print('{:40} {:8.5f} µs'.format(title, timeit.timeit(expr, number=int(number), globals=globs, setup=setup)*1000000.0/float(number)))
