@@ -75,8 +75,9 @@ class AggFont(object):
 
             texture = self.atlas[y:y+h, x:x+w]
             data = []
+            buf = bitmap.buffer
             for i in range(rows):
-                data.extend(bitmap.buffer[i*pitch:i*pitch+width])
+                data.extend(buf[i*pitch:i*pitch+width])
             data = np.array(data, dtype=np.ubyte).reshape(h, w, 3)
             texture[...] = data
 

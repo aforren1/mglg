@@ -44,8 +44,8 @@ class Shape2D(Drawable2D):
                 vertices, indices = self._vertices, self._indices
 
             context = window.ctx
-            vbo = context.buffer(vertices.view(np.ubyte))
-            ibo = context.buffer(indices.view(np.ubyte))
+            vbo = context.buffer(memoryview(vertices))
+            ibo = context.buffer(memoryview(indices))
 
             if not self._static:
                 # TODO: any way to drop the indexing for the outline? seems silly

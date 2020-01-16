@@ -8,8 +8,9 @@ from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.font.font_manager import FontManager
 from mglg.graphics.shaders import TextShader
 
+
 class Text2D(Drawable2D):
-    def __init__(self, window, text, font, color=(1, 1, 1, 1), 
+    def __init__(self, window, text, font, color=(1, 1, 1, 1),
                  anchor_x='center', anchor_y='center', *args, **kwargs):
         super().__init__(window, *args, **kwargs)
         context = self.win.ctx
@@ -22,8 +23,8 @@ class Text2D(Drawable2D):
         manager = FontManager()
         atlas = manager.atlas_agg
         self.atlas = context.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
-        vbo = context.buffer(vertices.view(np.ubyte))
-        ibo = context.buffer(indices.view(np.ubyte))
+        vbo = context.buffer(memoryview(vertices))
+        ibo = context.buffer(memoryview(indices))
         self.vao = context.vertex_array(self.shader,
                                         [   # TODO: pad? maybe doesn't matter 'cause we're not streaming
                                             (vbo, '2f 2f 1f', 'vertices', 'texcoord', 'offset')
@@ -61,6 +62,7 @@ class Text2D(Drawable2D):
         # offset is the offset of the texture??
 
         index = 0
+        tmp = np.array([0, 1, 2, 0, 2, 3], dtype=np.uint32)
         for charcode in text:
             if charcode == '\n':
                 prev = None
@@ -85,7 +87,7 @@ class Text2D(Drawable2D):
                                                (u1, v1), (u1, v0))
                 vertices[index]['offset'] = offset
                 indices[index] = index*4
-                indices[index] += np.array([0, 1, 2, 0, 2, 3], dtype=np.uint32)
+                indices[index] += tmp
                 pen[0] = pen[0]+glyph.advance[0]/64. + kerning
                 pen[1] = pen[1]+glyph.advance[1]/64.
                 prev = charcode
