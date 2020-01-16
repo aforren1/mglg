@@ -74,12 +74,13 @@ class AggFont(object):
             # sould be y+h+1,x+w+1 but we skip the black border
 
             texture = self.atlas[y:y+h, x:x+w]
-            data = []
+            data = np.empty(h*w*3, dtype=np.ubyte)
             buf = bitmap.buffer
+            idx = 0
             for i in range(rows):
-                data.extend(buf[i*pitch:i*pitch+width])
-            data = np.array(data, dtype=np.ubyte).reshape(h, w, 3)
-            texture[...] = data
+                data[idx:idx+width] = buf[i*pitch:i*pitch+width]
+                idx += width
+            texture[...] = data.reshape(h, w, 3)
 
             # Build glyph
             size = w, h
