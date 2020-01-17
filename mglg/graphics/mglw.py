@@ -32,7 +32,39 @@ def flip(self):
     self.t0 = t1
 
 
-class BaseWin(mglw.WindowConfig):
+def resize(self, width: int, height: int):
+    self.imgui.resize(width, height)
+
+
+def key_event(self, key, action, modifiers):
+    self.imgui.key_event(key, action, modifiers)
+
+
+def mouse_position_event(self, x, y, dx, dy):
+    self.imgui.mouse_position_event(x, y, dx, dy)
+
+
+def mouse_drag_event(self, x, y, dx, dy):
+    self.imgui.mouse_drag_event(x, y, dx, dy)
+
+
+def mouse_scroll_event(self, x_offset, y_offset):
+    self.imgui.mouse_scroll_event(x_offset, y_offset)
+
+
+def mouse_press_event(self, x, y, button):
+    self.imgui.mouse_press_event(x, y, button)
+
+
+def mouse_release_event(self, x: int, y: int, button: int):
+    self.imgui.mouse_release_event(x, y, button)
+
+
+def unicode_char_entered(self, char):
+    self.imgui.unicode_char_entered(char)
+
+
+class Win(mglw.WindowConfig):
     gl_version = 3, 3
     title = ""
     aspect_ratio = None
@@ -48,41 +80,17 @@ class BaseWin(mglw.WindowConfig):
         wnd.clear_color = 0.3, 0.3, 0.3
         wnd.flip = flip.__get__(wnd)
         wnd.t0 = default_timer()
-
-
-class ImWin(BaseWin):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        wnd = kwargs.get('wnd')
-        wnd.imgui = MglRenderer(wnd)
-        self.imgui = wnd.imgui
-
-    def resize(self, width: int, height: int):
-        self.imgui.resize(width, height)
-
-    def key_event(self, key, action, modifiers):
-        self.imgui.key_event(key, action, modifiers)
-
-    def mouse_position_event(self, x, y, dx, dy):
-        self.imgui.mouse_position_event(x, y, dx, dy)
-
-    def mouse_drag_event(self, x, y, dx, dy):
-        self.imgui.mouse_drag_event(x, y, dx, dy)
-
-    def mouse_scroll_event(self, x_offset, y_offset):
-        self.imgui.mouse_scroll_event(x_offset, y_offset)
-
-    def mouse_press_event(self, x, y, button):
-        self.imgui.mouse_press_event(x, y, button)
-
-    def mouse_release_event(self, x: int, y: int, button: int):
-        self.imgui.mouse_release_event(x, y, button)
-
-    def unicode_char_entered(self, char):
-        self.imgui.unicode_char_entered(char)
-
-
-Win = ImWin if has_imgui else BaseWin
+        if has_imgui:
+            wnd.imgui = MglRenderer(wnd)
+            self.imgui = wnd.imgui
+            self.resize = resize.__get__(self)
+            self.key_event = key_event.__get__(self)
+            self.mouse_position_event = mouse_position_event.__get__(self)
+            self.mouse_drag_event = mouse_drag_event.__get__(self)
+            self.mouse_scroll_event = mouse_scroll_event.__get__(self)
+            self.mouse_press_event = mouse_press_event.__get__(self)
+            self.mouse_release_event = mouse_release_event.__get__(self)
+            self.unicode_char_entered = unicode_char_entered.__get__(self)
 
 
 def run_window_config(config_cls: WindowConfig, timer=None, args=None) -> None:
