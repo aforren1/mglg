@@ -12,6 +12,10 @@ from mglg.graphics.image2d import Image2D, texture_cache
 from mglg.graphics.particle2d import ParticleBurst2D
 from mglg.graphics.stipple2d import StippleArrow
 from mglg.graphics.text2d import FontManager, Text2D
+try:
+    import imgui
+except ImportError:
+    pass
 
 if __name__ == '__main__':
     win = run_window_config(Win)
@@ -24,7 +28,7 @@ if __name__ == '__main__':
     arrow.position.x -= 0.2
     sqr2 = Square(win, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 0.1, 0.6))
     poly = Polygon(win, segments=7, scale=(0.08, 0.08), position=(-0.2, -0.2),
-                fill_color=(0.9, 0.2, 0.2, 0.5), outline_color=(0.1, 0.1, 0.1, 1))
+                   fill_color=(0.9, 0.2, 0.2, 0.5), outline_color=(0.1, 0.1, 0.1, 1))
     crs = Cross(win, fill_color=(0.2, 0.1, 0.9, 0.7), is_outlined=False,
                 scale=(0.12, 0.10), position=(0.3, 0.3))
 
@@ -33,21 +37,21 @@ if __name__ == '__main__':
                     scale=(0.1, 0.1), rotation=70)
 
     check2 = Image2D(win, check_path, position=(0.5, 0),
-                    scale=(0.05, 0.05), rotation=0)
+                     scale=(0.05, 0.05), rotation=0)
     # check that they *do* share the same vertex array
     assert sqr.vao_fill == sqr2.vao_fill
 
     particles = ParticleBurst2D(win, scale=(0.025, 0.025), num_particles=1e5)
 
     stiparrow = StippleArrow(win, scale=(0.1, 0.1),
-                            position=(0.2, -0.3), pattern=0xadfa)
+                             position=(0.2, -0.3), pattern=0xadfa)
 
     # bump up font size for crisper look
     font_path = op.join(op.dirname(__file__), 'UbuntuMono-B.ttf')
     font = FontManager.get(font_path, size=128)
     bases = Text2D(win,
-                scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
-                text='\u2620Tengo un gatito pequeñito\u2620', font=font, position=(0, -0.4))
+                   scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
+                   text='\u2620Tengo un gatito pequeñito\u2620', font=font, position=(0, -0.4))
     bases2 = Text2D(win,
                     scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
                     text='\u2611pequeño\u2611', font=font, position=(-0.4, 0), rotation=90)
@@ -58,7 +62,7 @@ if __name__ == '__main__':
     stp = DrawableGroup([stiparrow])
     txt = DrawableGroup([bases, bases2])
 
-    def update(counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt):
+    def update(win, counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt):
         counter += 4
         sqr2.position = sin(counter/200)/2, cos(counter/200)/3
         sqr2.rotation = 2*counter
@@ -67,27 +71,30 @@ if __name__ == '__main__':
         circle.rotation = counter
         stiparrow.rotation = -counter
         if not particles.visible:
-           particles.reset()
-           particles.visible = True
+            particles.reset()
+            particles.visible = True
         dg.draw()
         pix.draw()
         prt.draw()
         stp.draw()
         txt.draw()
+        if hasattr(win, 'imgui'):
+            with win.imgui:
+                imgui.show_test_window()
         return counter
 
     counter = 0
     vals = []
     for i in range(1200):
         t0 = default_timer()
-        counter = update(counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt)
+        counter = update(win, counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt)
         win.flip()
         if win.dt > 0.02:
             print(win.dt)
         vals.append(default_timer() - t0)
         if win.is_closing:
             break
-    #win.close()
+    # win.close()
     #fix, ax = plt.subplots(tight_layout=True)
     # ax.hist(vals)
     # plt.show()
