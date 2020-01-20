@@ -12,10 +12,6 @@ from mglg.graphics.image2d import Image2D, texture_cache
 from mglg.graphics.particle2d import ParticleBurst2D
 from mglg.graphics.stipple2d import StippleArrow
 from mglg.graphics.text2d import FontManager, Text2D
-try:
-    import imgui
-except ImportError:
-    pass
 
 if __name__ == '__main__':
     win = Win(vsync=1, screen=0)
@@ -80,9 +76,6 @@ if __name__ == '__main__':
         prt.draw()
         stp.draw()
         txt.draw()
-        if hasattr(win, 'imgui'):
-            with win.imgui:
-                imgui.show_test_window()
         return counter
 
     counter = 0
