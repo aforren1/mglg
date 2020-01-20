@@ -18,7 +18,7 @@ except ImportError:
     pass
 
 if __name__ == '__main__':
-    win = Win(vsync=1)
+    win = Win(vsync=1, screen=0)
     win.ctx.line_width = 3.0
 
     sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)

@@ -113,7 +113,7 @@ class Win(object):
 
     @clear_color.setter
     def clear_color(self, val):
-        self._clear_color.rgba = val
+        self._clear_color.rgb = val
 
 
 if __name__ == '__main__':
