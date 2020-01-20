@@ -3,3 +3,4 @@
 *.lprof
 __pycache__
 *.pyc
+imgui.ini

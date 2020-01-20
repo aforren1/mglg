@@ -1,20 +1,18 @@
 from math import cos, sin
 from numpy import pi, float32, eye
-from mglg.math.vector import Vector2f
-
+from mglg.math.vector import Vec2
+from glm import mat4, vec3, radians, translate, rotate, scale
 
 class Object2D(object):
     def __init__(self, position=(0, 0), rotation=0, scale=(1, 1), *args, **kwargs):
-        self.position = Vector2f(position)
-        self.rotation = rotation
-        self.scale = Vector2f(scale)
-        self._model_matrix = eye(4, dtype=float32)
+        self._position = Vec2(position)
+        self._rotation = rotation
+        self._scale = Vec2(scale)
 
     @property
     def model_matrix(self):
         # TODO: any caching?
-        mm = self._model_matrix
-        make_2d_mm(self.position, self.rotation, self.scale, mm)
+        mm = make_2d_mm(self.position, self.rotation, self.scale)
         return mm
 
     @property
@@ -23,10 +21,7 @@ class Object2D(object):
 
     @position.setter
     def position(self, value):
-        if isinstance(value, Vector2f):
-            self._position = value
-        else:
-            self._position[:] = value
+        self._position.xy = value
 
     @property
     def rotation(self):
@@ -42,51 +37,37 @@ class Object2D(object):
 
     @scale.setter
     def scale(self, value):
-        if isinstance(value, Vector2f):
-            self._scale = value
-        else:
-            self._scale[:] = value
+        self._scale.xy = value
 
 
-def make_2d_mm(pos, rot, scal, out):
-    # this beats np.radians, and imul seems slower than *
-    rot = rot * (pi/180.0)
-    # this beats np.cos(..., dtype=np.float32)
-    s = float32(sin(rot))
-    c = float32(cos(rot))
-    out[0, 0] = scal[0] * c
-    out[0, 1] = s * scal[0]
-    out[1, 0] = -s * scal[1]  # pylint: disable=invalid-unary-operand-type
-    out[1, 1] = scal[1] * c
-    out[2, 2] = 1.0
-    out[3, 0] = pos[0]
-    out[3, 1] = pos[1]
-    out[3, 3] = 1.0
-
+def make_2d_mm(pos, rot, scal):
+    out = mat4()
+    out = translate(out, vec3(pos, 0.0))
+    out = rotate(out, radians(rot), vec3(0.0, 0.0, 1.0))
+    out = scale(out, vec3(scal, 1.0))
+    return out
 
 if __name__ == '__main__':
     from mglg.util import timethat
     import numpy as np
 
-    out = np.eye(4, dtype=np.float32)
-
     pos = (0, 0)
     rot = 34.0
     scal = (1, 1)
 
-    # first, look at perf with
-    setup = 'from __main__ import make_2d_mm, pos, rot, scal, out'
-    timethat('make_2d_mm(pos, rot, scal, out)', setup=setup)
+    # first, look at perf with tuples (actually fastest!)
+    setup = 'from __main__ import make_2d_mm, pos, rot, scal'
+    timethat('out = make_2d_mm(pos, rot, scal)', setup=setup)
 
     # next, non-matching types
     pos = np.array(pos)
     scal = np.array(scal)
-    timethat('make_2d_mm(pos, rot, scal, out)', setup=setup)
+    timethat('out = make_2d_mm(pos, rot, scal)', setup=setup)
 
     # match types
     pos = pos.astype(np.float32)
     scal = scal.astype(np.float32)
-    timethat('make_2d_mm(pos, rot, scal, out)', setup=setup)
+    timethat('out = make_2d_mm(pos, rot, scal)', setup=setup)
 
     obj = Object2D()
     setup2 = 'from __main__ import obj'

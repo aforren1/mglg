@@ -1,20 +1,17 @@
 import abc
 import numpy as np
 from mglg.graphics.object import Object2D
-from mglg.graphics.camera import Camera
-from moderngl import Context, Program
 
 
 class Drawable(abc.ABC):
-    def __init__(self, context: Context, shader: Program, visible=True, *args, **kwargs):
+    def __init__(self, window, visible=True, *args, **kwargs):
+        # window should have moderngl context, width/height, and view*projection matrix
         super().__init__(*args, **kwargs)
+        self.win = window
         self.visible = visible
-        self.shader = shader
-        self.mvp = np.eye(4, dtype=np.float32)
-        self._mvp_ubyte_view = self.mvp.view(np.ubyte)  # use this one for sending to moderngl
 
     @abc.abstractmethod
-    def draw(self, camera: Camera):
+    def draw(self):
         pass
         # if self.visible:
         #     # it seems like @ is ~1.5x slower than dot for this sort of problem,
@@ -40,7 +37,7 @@ class DrawableGroup(list):
         super().__init__(*args, **kwargs)
         self.visible = True
 
-    def draw(self, camera: Camera):
+    def draw(self):
         if self.visible:
             for obj in self:
-                obj.draw(camera)
+                obj.draw()

@@ -1,9 +1,8 @@
 # https://github.com/moderngl/moderngl/blob/master/examples/particle_system.py
 import numpy as np
 import moderngl as mgl
-from mglg.graphics.camera import Camera
 from mglg.graphics.drawable import Drawable2D
-
+from mglg.graphics.shaders import ParticleShader
 
 def random_on_circle(radius, size):
     r = radius * np.sqrt(np.random.uniform(0, 1, size=size))
@@ -21,11 +20,11 @@ class ParticleBurst2D(Drawable2D):
     # two for doing computation
     # one buffer for static things (size, color)
     # I think this sort of thing is called "transform feedback"
-    def __init__(self, context: mgl.Context, shader,
-                 num_particles=1e5, *args, **kwargs):
-        super().__init__(context, shader, *args, **kwargs)
-        self.context = context  # we need to keep a reference to the shader around
+    def __init__(self, window, num_particles=1e5, *args, **kwargs):
+        super().__init__(window, *args, **kwargs)
         # for copying buffers & whatnot
+        context = window.ctx
+        self.shader = ParticleShader(context)
         self._tracker = 1.0
         num_particles = int(num_particles)
         self.num_particles = num_particles
@@ -63,13 +62,12 @@ class ParticleBurst2D(Drawable2D):
         self.vbo_trans = context.buffer(reserve=self.vbo_render.size)
         self.vbo_orig = context.buffer(reserve=self.vbo_render.size)
 
-        self.vao_trans = context.vertex_array(shader.transform,
+        self.vao_trans = context.vertex_array(self.shader.transform,
                                               [
                                                   (self.vbo_render, '4f 4f', 'in_pos_alpha', 'in_prev_pos_alpha'),
                                                   (accel, '4f', 'accel')
                                               ])
-        # self.vao_trans = context.simple_vertex_array(..., self.vbo_trans, ???)
-        self.vao_render = context.vertex_array(shader.render,
+        self.vao_render = context.vertex_array(self.shader.render,
                                                [
                                                    (self.vbo_render, '4f 4x4', 'vertices_alpha'),
                                                    (color_size2, '4f', 'color_size')
@@ -78,21 +76,21 @@ class ParticleBurst2D(Drawable2D):
         context.copy_buffer(self.vbo_orig, self.vbo_render)
         context.point_size = 2.0  # TODO: set point size as intended
 
-    def draw(self, camera: Camera):
+    def draw(self):
         if self.visible:
             self._tracker -= 0.012  # at some point, change to invisible so we don't do excess work
             if self._tracker < 0:
                 self.visible = False
-            np.dot(self.model_matrix, camera.vp, self.mvp)
-            self.shader.render['mvp'].write(self._mvp_ubyte_view)
+            mvp = self.win.vp * self.model_matrix
+            self.shader.render['mvp'].write(memoryview(mvp))
             # update particles
             self.vao_trans.transform(self.vbo_trans, mgl.POINTS)
             # copy transformed data
-            self.context.copy_buffer(self.vbo_render, self.vbo_trans)
+            self.win.ctx.copy_buffer(self.vbo_render, self.vbo_trans)
             # draw
             self.vao_render.render(mgl.POINTS)
 
     def reset(self):
         # TODO: to get a non-totally-repeating effect, rotate the particles by n degrees
-        self.context.copy_buffer(self.vbo_render, self.vbo_orig)  # dest, src
+        self.win.ctx.copy_buffer(self.vbo_render, self.vbo_orig)  # dest, src
         self._tracker = 1.0

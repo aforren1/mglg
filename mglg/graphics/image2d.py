@@ -2,9 +2,8 @@ import numpy as np
 from PIL import Image
 
 import moderngl as mgl
-from mglg.graphics.camera import Camera
 from mglg.graphics.drawable import Drawable2D
-
+from mglg.graphics.shaders import ImageShader
 # avoid making new textures if we already have the exact texture
 texture_cache = {}
 
@@ -12,8 +11,10 @@ texture_cache = {}
 class Image2D(Drawable2D):
     vao = None
 
-    def __init__(self, context, shader, image_path, alpha=1.0, *args, **kwargs):
-        super().__init__(context, shader, *args, **kwargs)
+    def __init__(self, window, image_path, alpha=1.0, *args, **kwargs):
+        super().__init__(window, *args, **kwargs)
+        context = window.ctx
+        self.shader = ImageShader(context)
         image = Image.open(image_path).convert('RGBA')
         img_bytes = image.tobytes()
         img_hash = hash(img_bytes)
@@ -32,12 +33,12 @@ class Image2D(Drawable2D):
             vertex_texcoord['texcoord'] = [(0, 1), (0, 0),
                                            (1, 1), (1, 0)]
             vbo = context.buffer(vertex_texcoord.view(np.ubyte))
-            self.set_vao(context, shader, vbo)
+            self.set_vao(context, self.shader, vbo)
 
-    def draw(self, camera: Camera):
+    def draw(self):
         if self.visible:
-            np.dot(self.model_matrix, camera.vp, self.mvp)
-            self.shader['mvp'].write(self._mvp_ubyte_view)
+            mvp = self.win.vp * self.model_matrix
+            self.shader['mvp'].write(memoryview(mvp))
             self.texture.use()
             self.shader['alpha'].value = self.alpha
             self.vao.render(mgl.TRIANGLE_STRIP)

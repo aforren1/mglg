@@ -3,41 +3,43 @@
 import numpy as np
 
 import moderngl as mgl
-from mglg.graphics.camera import Camera
-from mglg.math.vector import Vector4f
+from mglg.math.vector import Vec4
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.font.font_manager import FontManager
+from mglg.graphics.shaders import TextShader
 
 
 class Text2D(Drawable2D):
-    def __init__(self, context: mgl.Context, shader, width, height,
-                 text, font, color=(1, 1, 1, 1), anchor_x='center',
-                 anchor_y='center', *args, **kwargs):
-        super().__init__(context, shader, *args, **kwargs)
-        self.color = Vector4f(color)
+    def __init__(self, window, text, font, color=(1, 1, 1, 1),
+                 anchor_x='center', anchor_y='center', *args, **kwargs):
+        super().__init__(window, *args, **kwargs)
+        context = self.win.ctx
+        width, height = self.win.size
+        self.shader = TextShader(context)
+        self._color = Vec4(color)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
         vertices, indices = self.bake(text, font)
         manager = FontManager()
         atlas = manager.atlas_agg
         self.atlas = context.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
-        vbo = context.buffer(vertices.view(np.ubyte))
-        ibo = context.buffer(indices.view(np.ubyte))
-        self.vao = context.vertex_array(shader,
+        vbo = context.buffer(memoryview(vertices))
+        ibo = context.buffer(memoryview(indices))
+        self.vao = context.vertex_array(self.shader,
                                         [   # TODO: pad? maybe doesn't matter 'cause we're not streaming
                                             (vbo, '2f 2f 1f', 'vertices', 'texcoord', 'offset')
                                         ],
                                         index_buffer=ibo)
 
-        shader['viewport'].value = width, height
+        self.shader['viewport'].value = width, height
         self.atlas.use()
 
-    def draw(self, camera: Camera):
+    def draw(self):
         if self.visible:
-            np.dot(self.model_matrix, camera.vp, self.mvp)
             self.atlas.use()
-            self.shader['mvp'].write(self._mvp_ubyte_view)
-            self.shader['color'].write(self.color._ubyte_view)
+            mvp = self.win.vp * self.model_matrix
+            self.shader['mvp'].write(memoryview(mvp))
+            self.shader['color'].write(memoryview(self.color))
             self.vao.render(mgl.TRIANGLES)
 
     def bake(self, text, font):
@@ -60,6 +62,7 @@ class Text2D(Drawable2D):
         # offset is the offset of the texture??
 
         index = 0
+        tmp = np.array([0, 1, 2, 0, 2, 3], dtype=np.uint32)
         for charcode in text:
             if charcode == '\n':
                 prev = None
@@ -84,7 +87,7 @@ class Text2D(Drawable2D):
                                                (u1, v1), (u1, v0))
                 vertices[index]['offset'] = offset
                 indices[index] = index*4
-                indices[index] += np.array([0, 1, 2, 0, 2, 3], dtype=np.uint32)
+                indices[index] += tmp
                 pen[0] = pen[0]+glyph.advance[0]/64. + kerning
                 pen[1] = pen[1]+glyph.advance[1]/64.
                 prev = charcode
@@ -131,7 +134,4 @@ class Text2D(Drawable2D):
 
     @color.setter
     def color(self, color):
-        if isinstance(color, Vector4f):
-            self._color = color
-        else:
-            self._color[:] = color
+        self._color.rgba = color
