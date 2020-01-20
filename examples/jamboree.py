@@ -18,11 +18,12 @@ except ImportError:
     pass
 
 if __name__ == '__main__':
-    win = Win()
+    win = Win(vsync=1)
     win.ctx.line_width = 3.0
 
     sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
     circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1))
+    mouse_cir = Circle(win, scale=0.05, fill_color=1)
     arrow = Arrow(win, scale=(0.15, 0.1), fill_color=(0.9, 0.7, 0.2, 1))
     circle.position.x += 0.2
     arrow.position.x -= 0.2
@@ -56,7 +57,7 @@ if __name__ == '__main__':
                     scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
                     text='\u2611pequeño\u2611', font=font, position=(-0.4, 0), rotation=90)
 
-    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
+    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, mouse_cir])
     pix = DrawableGroup([check, check2])
     prt = DrawableGroup([particles])
     stp = DrawableGroup([stiparrow])
@@ -70,6 +71,7 @@ if __name__ == '__main__':
         arrow.rotation = counter
         circle.rotation = counter
         stiparrow.rotation = -counter
+        mouse_cir.position = win.mouse_pos
         if not particles.visible:
             particles.reset()
             particles.visible = True
@@ -94,7 +96,7 @@ if __name__ == '__main__':
         vals.append(default_timer() - t0)
         if win.should_close:
             break
-    # win.close()
+    win.close()
     #fix, ax = plt.subplots(tight_layout=True)
     # ax.hist(vals)
     # plt.show()

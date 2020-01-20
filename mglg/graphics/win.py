@@ -100,6 +100,9 @@ class Win(object):
         self.dt = t1 - self.t0
         self.t0 = t1
 
+    def close(self):
+        glfw.set_window_should_close(self._win, True)
+
     @property
     def clear_color(self):
         return self._clear_color
@@ -116,3 +119,4 @@ if __name__ == '__main__':
     while not win.should_close:
         print(win.mouse_pos)
         win.flip()
+    win.close()
