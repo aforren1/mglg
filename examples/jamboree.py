@@ -3,7 +3,7 @@ from timeit import default_timer
 import numpy as np
 import moderngl as mgl
 from math import sin, cos
-from mglg.graphics.mglw import Win, run_window_config
+from mglg.graphics.win import Win
 import glm
 from mglg.graphics.drawable import DrawableGroup
 
@@ -18,7 +18,7 @@ except ImportError:
     pass
 
 if __name__ == '__main__':
-    win = run_window_config(Win)
+    win = Win()
     win.ctx.line_width = 3.0
 
     sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
@@ -92,11 +92,10 @@ if __name__ == '__main__':
         if win.dt > 0.02:
             print(win.dt)
         vals.append(default_timer() - t0)
-        if win.is_closing:
+        if win.should_close:
             break
     # win.close()
     #fix, ax = plt.subplots(tight_layout=True)
     # ax.hist(vals)
     # plt.show()
-    win.destroy()
     print('mean: %f, std: %f, max: %f' % (np.mean(vals), np.std(vals), max(vals)))

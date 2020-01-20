@@ -147,10 +147,10 @@ class Circle(Shape2D):
 if __name__ == '__main__':
     from mglg.graphics.drawable import DrawableGroup
     from mglg.graphics.shaders import FlatShader
-    from mglg.graphics.mglw import Win, run_window_config
+    from mglg.graphics.win import Win
     import glm
 
-    win = run_window_config(Win)
+    win = Win()
 
     sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1))
     circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1))
@@ -170,7 +170,6 @@ if __name__ == '__main__':
 
     counter = 0
     for i in range(300):
-        win.clear()
         counter += 3
         sqr2.position.x = np.sin(counter/200)/2
         #sqr2.position.y = sqr2.position.x
@@ -179,10 +178,9 @@ if __name__ == '__main__':
         arrow.rotation = counter
         circle.rotation = counter
         dg.draw()
-        win.swap_buffers()
-        if win.is_closing:
+        win.flip()
+        if win.should_close:
             break
 
         # if win.dt > 0.02:
         #     print(win.dt)
-    win.destroy()

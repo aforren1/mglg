@@ -4,6 +4,6 @@ moderngl==5.6.0
 freetype-py
 importlib_resources; python_version<'3.7'
 pyglm
-moderngl-window==2.1.0
 imgui
 pyopengl # TODO: ask pyimgui to move BaseOpenGLRenderer so that the moderngl integration doesn't implicitly need pyopengl
+glfw
