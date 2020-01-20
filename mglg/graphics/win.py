@@ -79,6 +79,7 @@ class Win(object):
         self.t0 = default_timer()
         self.dt = self.frame_period
         self.should_close = False
+        self.ctx.clear(*self.clear_color)
 
     def _on_key(self, win_ptr, key, scancode, action, modifiers):
         if key == glfw.KEY_ESCAPE:
@@ -95,7 +96,7 @@ class Win(object):
         self.mouse_pos = x, y
 
     def flip(self):
-        glfw.make_context_current(self._win)
+        # glfw.make_context_current(self._win)
         glfw.swap_buffers(self._win)
         glfw.poll_events()
         self.ctx.clear(*self.clear_color)
