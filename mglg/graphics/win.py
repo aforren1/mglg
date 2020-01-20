@@ -56,6 +56,8 @@ class Win(object):
         glfw.set_cursor_pos_callback(self._win, self._on_cursor_move)
         # mouse initial pos in center of screen
         glfw.set_input_mode(self._win, glfw.CURSOR, glfw.CURSOR_HIDDEN)
+        if glfw.raw_mouse_motion_supported():
+            glfw.set_input_mode(self._win, glfw.RAW_MOUSE_MOTION, True)
         self.mouse_pos = 0, 0
 
         # set up moderngl context
