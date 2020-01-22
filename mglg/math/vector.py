@@ -11,7 +11,7 @@ class Vec(object):
             isiter = True
         except (TypeError, IndexError):
             isiter = False
-        for i in range(self._num):
+        for i in range(len(keys)):
             k = keys[i]
             v = vals[i] if isiter else vals
             self._swizzle(k, v)
@@ -21,8 +21,6 @@ class Vec(object):
 
 
 class Vec2(Vec, vec2):
-    _num = 2
-
     def _swizzle(self, k, v):
         if k in 'xr':
             self[0] = v
@@ -31,8 +29,6 @@ class Vec2(Vec, vec2):
 
 
 class Vec3(Vec, vec3):
-    _num = 3
-
     def _swizzle(self, k, v):
         if k in 'xr':
             self[0] = v
@@ -43,8 +39,6 @@ class Vec3(Vec, vec3):
 
 
 class Vec4(Vec, vec4):
-    _num = 4
-
     def _swizzle(self, k, v):
         if k in 'xr':
             self[0] = v
