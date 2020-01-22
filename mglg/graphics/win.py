@@ -76,7 +76,8 @@ class Win(object):
                             0.5/(self.height/self.width), -0.5, 0.5)
         self.frame_rate = video_mode.refresh_rate
         self.frame_period = 1/self.frame_rate
-        self.t0 = default_timer()
+        self.prev_time = default_timer()
+        print(self.prev_time)
         self.dt = self.frame_period
         self.should_close = False
         self.ctx.clear(*self.clear_color)
@@ -101,8 +102,8 @@ class Win(object):
         glfw.poll_events()
         self.ctx.clear(*self.clear_color)
         t1 = default_timer()
-        self.dt = t1 - self.t0
-        self.t0 = t1
+        self.dt = t1 - self.prev_time
+        self.prev_time = t1
 
     def close(self):
         glfw.set_window_should_close(self._win, True)

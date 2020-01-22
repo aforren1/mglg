@@ -36,7 +36,7 @@ class ParticleBurst2D(Drawable2D):
         color_size['color_size'][:, 0] = np.random.uniform(0.9, 1.0, num_particles)
         color_size['color_size'][:, 1] = np.random.uniform(0.0, 1.0, num_particles)
         color_size['color_size'][:, 2] = np.random.uniform(0.0, 0.1, num_particles)
-        color_size['color_size'][:, 3] = np.random.uniform(1, 8.0, num_particles)
+        color_size['color_size'][:, 3] = np.random.uniform(1, 4.0, num_particles)
 
         # first three elements are vertex XYZ, last one is alpha
         # think about this-- should we just delay until ready to draw the first time?
@@ -76,7 +76,6 @@ class ParticleBurst2D(Drawable2D):
                                                ])
         # set the data of the original state
         context.copy_buffer(self.vbo_orig, self.vbo_render)
-        context.point_size = 2.0  # TODO: set point size as intended
 
     def draw(self):
         if self.visible:
