@@ -4,6 +4,7 @@ import moderngl as mgl
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.shaders import ParticleShader
 
+
 def random_on_circle(radius, size):
     r = radius * np.sqrt(np.random.uniform(0, 1, size=size))
     theta = np.random.uniform(0, 2*np.pi, size=size)
@@ -24,6 +25,7 @@ class ParticleBurst2D(Drawable2D):
         super().__init__(window, *args, **kwargs)
         # for copying buffers & whatnot
         context = window.ctx
+        context.enable(mgl.PROGRAM_POINT_SIZE)
         self.shader = ParticleShader(context)
         self._tracker = 1.0
         num_particles = int(num_particles)
@@ -34,7 +36,7 @@ class ParticleBurst2D(Drawable2D):
         color_size['color_size'][:, 0] = np.random.uniform(0.9, 1.0, num_particles)
         color_size['color_size'][:, 1] = np.random.uniform(0.0, 1.0, num_particles)
         color_size['color_size'][:, 2] = np.random.uniform(0.0, 0.1, num_particles)
-        color_size['color_size'][:, 3] = np.random.uniform(0.1, 4.0, num_particles)
+        color_size['color_size'][:, 3] = np.random.uniform(1, 8.0, num_particles)
 
         # first three elements are vertex XYZ, last one is alpha
         # think about this-- should we just delay until ready to draw the first time?
