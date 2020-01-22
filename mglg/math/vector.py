@@ -59,19 +59,16 @@ class Vec4(Vec, vec4):
 if __name__ == '__main__':
     import timeit
     import numpy as np
-
-    def timethat(expr, number=int(1e6), setup='pass', globs=globals()):
-        title = expr
-        print('{:60} {:8.5f} µs'.format(title, timeit.timeit(expr, number=number, globals=globs, setup=setup)*1000000.0/number))
+    from mglg.util import timethat
 
     x = np.array([1, 2, 3, 4], dtype=np.float32)
     y = Vec4([1, 2, 3, 4])
 
-    timethat('x[0]')
-    timethat('x[:]')
-    timethat('x[[0, 3, 1]]')
+    timethat('x[0]', globs=globals())
+    timethat('x[:]', globs=globals())
+    timethat('x[[0, 3, 1]]', globs=globals())
 
-    timethat('y[0]')
-    timethat('y.x')
-    timethat('y.xyzw')
-    timethat('y.xwy')
+    timethat('y[0]', number=1e7, globs=globals())
+    timethat('y.x', number=1e7, globs=globals())
+    timethat('y.xyzw', number=1e7, globs=globals())
+    timethat('y.xwy', number=1e7, globs=globals())
