@@ -11,7 +11,7 @@ from mglg.graphics.shape2d import Square, Circle, Arrow, Polygon, Cross
 from mglg.graphics.image2d import Image2D, texture_cache
 from mglg.graphics.particle2d import ParticleBurst2D
 from mglg.graphics.stipple2d import StippleArrow
-from mglg.graphics.text2d import FontManager, Text2D
+from mglg.graphics.text2d import Text2D
 
 if __name__ == '__main__':
     win = Win(vsync=1, screen=0)
@@ -45,13 +45,10 @@ if __name__ == '__main__':
 
     # bump up font size for crisper look
     font_path = op.join(op.dirname(__file__), 'UbuntuMono-B.ttf')
-    font = FontManager.get(font_path, size=128)
-    bases = Text2D(win,
-                   scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
-                   text='\u2620Tengo un gatito pequeñito\u2620', font=font, position=(0, -0.4))
-    bases2 = Text2D(win,
-                    scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
-                    text='\u2611pequeño\u2611', font=font, position=(-0.4, 0), rotation=90)
+    bases = Text2D(win, scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
+                   text='\u2620Tengo un gatito pequeñito\u2620', font=font_path, position=(0, -0.4))
+    bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
+                    text='\u2611pequeño\u2611', font=font_path, position=(-0.4, 0), rotation=90)
 
     dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, mouse_cir])
     pix = DrawableGroup([check, check2])

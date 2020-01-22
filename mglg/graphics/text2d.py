@@ -11,7 +11,7 @@ from mglg.graphics.shaders import TextShader
 
 class Text2D(Drawable2D):
     def __init__(self, window, text, font, color=(1, 1, 1, 1),
-                 anchor_x='center', anchor_y='center', *args, **kwargs):
+                 anchor_x='center', anchor_y='center', font_size=128, *args, **kwargs):
         super().__init__(window, *args, **kwargs)
         context = self.win.ctx
         width, height = self.win.size
@@ -19,7 +19,8 @@ class Text2D(Drawable2D):
         self._color = Vec4(color)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
-        vertices, indices = self.bake(text, font)
+        fnt = FontManager.get(font, font_size)
+        vertices, indices = self.bake(text, fnt)
         manager = FontManager()
         atlas = manager.atlas_agg
         self.atlas = context.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
