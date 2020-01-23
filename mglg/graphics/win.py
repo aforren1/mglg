@@ -13,7 +13,7 @@ atexit.register(glfw.terminate)
 
 
 class Win(object):
-    def __init__(self, vsync=1, screen=0):
+    def __init__(self, vsync=1, screen=0, timer=default_timer):
         # TODO: multi-display with shared context
         # from psychopy & moderngl-window
         # fullscreen stuff-- always
@@ -60,6 +60,7 @@ class Win(object):
         if glfw.raw_mouse_motion_supported():
             glfw.set_input_mode(self._win, glfw.RAW_MOUSE_MOTION, True)
         self.mouse_pos = 0, 0
+        self.mouse_time = 0
 
         # set up moderngl context
         major = glfw.get_window_attrib(self._win, glfw.CONTEXT_VERSION_MAJOR)
@@ -76,7 +77,8 @@ class Win(object):
                             0.5/(self.height/self.width), -0.5, 0.5)
         self.frame_rate = video_mode.refresh_rate
         self.frame_period = 1/self.frame_rate
-        self.prev_time = default_timer()
+        self.timer = timer
+        self.prev_time = self.timer()
         self.dt = self.frame_period
         self.should_close = False
         self.ctx.clear(*self.clear_color)
@@ -88,19 +90,21 @@ class Win(object):
     def _on_cursor_move(self, win_ptr, x, y):
         # transform to window coordinates
         # center
+        time = self.timer()
         x -= self.width / 2
         y -= self.height / 2
         # scale to window height
         x /= float(self.height)
         y /= float(-self.height)
         self.mouse_pos = x, y
+        self.mouse_time = time
 
     def flip(self):
         # glfw.make_context_current(self._win)
         glfw.swap_buffers(self._win)
         glfw.poll_events()
         self.ctx.clear(*self.clear_color)
-        t1 = default_timer()
+        t1 = self.timer()
         self.dt = t1 - self.prev_time
         self.prev_time = t1
 
