@@ -77,7 +77,6 @@ class Win(object):
         self.frame_rate = video_mode.refresh_rate
         self.frame_period = 1/self.frame_rate
         self.prev_time = default_timer()
-        print(self.prev_time)
         self.dt = self.frame_period
         self.should_close = False
         self.ctx.clear(*self.clear_color)
