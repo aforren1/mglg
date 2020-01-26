@@ -95,3 +95,24 @@ class ParticleBurst2D(Drawable2D):
         # TODO: to get a non-totally-repeating effect, rotate the particles by n degrees
         self.win.ctx.copy_buffer(self.vbo_render, self.vbo_orig)  # dest, src
         self._tracker = 1.0
+
+
+if __name__ == '__main__':
+    from mglg.graphics.win import Win
+    from math import sin, cos
+
+    win = Win()
+
+    counter = 0
+    parts = ParticleBurst2D(win, num_particles=1e5)
+    parts.scale = 0.1, 0.1
+
+    for i in range(1000):
+        if counter % 60 == 0:
+            parts.reset()
+        parts.position.xy = win.mouse_pos
+        parts.draw()
+        win.flip()
+        if win.dt > 0.02:
+            print(win.dt)
+        counter += 1
