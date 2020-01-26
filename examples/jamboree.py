@@ -38,7 +38,7 @@ if __name__ == '__main__':
     # check that they *do* share the same vertex array
     assert sqr.vao_fill == sqr2.vao_fill
 
-    particles = ParticleBurst2D(win, scale=(0.025, 0.025), num_particles=1e5)
+    particles = ParticleBurst2D(win, scale=0.1, num_particles=1e5)
 
     stiparrow = StippleArrow(win, scale=(0.1, 0.1),
                              position=(0.2, -0.3), pattern=0xadfa)
@@ -65,9 +65,8 @@ if __name__ == '__main__':
         circle.rotation = counter
         stiparrow.rotation = -counter
         mouse_cir.position = win.mouse_pos
-        if not particles.visible:
-            particles.reset()
-            particles.visible = True
+        if counter % 100 == 0:
+            particles.explode()
         dg.draw()
         pix.draw()
         prt.draw()

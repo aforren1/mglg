@@ -1,118 +1,218 @@
-# https://github.com/moderngl/moderngl/blob/master/examples/particle_system.py
 import numpy as np
 import moderngl as mgl
+from timeit import default_timer
 from mglg.graphics.drawable import Drawable2D
-from mglg.graphics.shaders import ParticleShader
 
+# derived from https://github.com/moderngl/moderngl/blob/master/examples/particle_system_emit.py
+vert_str = """
+#version 330
+uniform mat4 mvp;
+in vec2 in_pos;
+in vec4 in_color;
+out vec4 color;
+void main() {
+    gl_Position = mvp * vec4(in_pos, 0.0, 1.0);
+    //gl_PointSize = 3;
+    color = in_color;
+}
+"""
 
-def random_on_circle(radius, size):
-    r = radius * np.sqrt(np.random.uniform(0, 1, size=size))
-    theta = np.random.uniform(0, 2*np.pi, size=size)
-    return r, theta
+frag_str = """
+#version 330
+in vec4 color;
+out vec4 f_color;
+void main() { f_color = color; }
+"""
 
-# TODO: GL_STREAM_COPY?
+trans_vert_str = """
+#version 330
+in vec2 in_pos;
+in vec2 in_vel;
+in vec4 in_color;
+out vec2 vs_vel;
+out vec4 vs_color;
+void main() {
+    gl_Position = vec4(in_pos, 0.0, 1.0);
+    vs_vel = in_vel;
+    vs_color = in_color;
+}
+"""
+
+trans_geom_str = """
+#version 330
+layout(points) in;
+layout(points, max_vertices = 1) out;
+
+uniform float gravity = -0.2;
+uniform float ft = 0.016; // frame time
+
+in vec2 vs_vel[1];
+in vec4 vs_color[1];
+
+out vec2 out_pos;
+out vec2 out_vel;
+out vec4 out_color;
+
+void main() {
+    vec2 pos = gl_in[0].gl_Position.xy;
+    vec4 color = vs_color[0];
+    vec2 velocity = vs_vel[0];
+
+    if (pos.y > -4 && color.a > 0) {
+        vec2 vel = velocity + vec2(0.0, gravity);
+        out_pos = pos + vel*ft;
+        out_vel = vel;
+        out_color = color;
+        out_color.a -= ft*1.5; // TODO: tweak
+        EmitVertex();
+        EndPrimitive();
+    }
+}
+"""
+
+gpu_emitter_str = """
+#version 330
+#define M_PI 3.1415926535897932384626433832795
+
+uniform vec2 mouse_pos = vec2(0.0, 0.0);
+uniform vec2 mouse_vel = vec2(0.0, 0.0);
+// removed mouse_vel
+uniform float time;
+
+out vec2 out_pos;
+out vec2 out_vel;
+out vec4 out_color;
+
+float rand(float n){return fract(sin(n) * 43758.5453123);}
+
+void main() {
+    float a = mod(time * gl_VertexID, M_PI*2);
+    float a2 = mod(time * gl_VertexID, M_PI*2);
+    float r = rand(time + gl_VertexID)*6; // TODO
+    float r2 = rand(time + gl_VertexID)*0.1;
+    out_pos = mouse_pos + vec2(sin(a2), cos(a2)) * r2;
+    out_vel = mouse_vel + vec2(sin(a), cos(a)) * r;
+    out_color = vec4(clamp(rand(time * 3.4 + gl_VertexID), 0.9, 1.0), 
+                     rand(time * 2.2 + gl_VertexID), 
+                     rand(time * 1.1 + gl_VertexID)*0.1, 
+                     clamp(rand(time * 3.5 + gl_VertexID), 0.2, 1.0));
+}
+"""
 
 
 class ParticleBurst2D(Drawable2D):
-    # make sure to set scale in the init, else the initial particle positiions will
-    # be pretty wild...
+    def __init__(self, win, num_particles=1e5, *args, **kwargs):
+        super().__init__(win, *args, **kwargs)
+        ctx = win.ctx
+        ctx.point_size = 3.0
+        # ctx.enable(mgl.PROGRAM_POINT_SIZE)
+        self.t0 = default_timer()
+        self._count = 0
+        from glm import vec2
+        self.prev_pos = vec2()
 
-    # three buffers-- one for the initial state,
-    # two for doing computation
-    # one buffer for static things (size, color)
-    # I think this sort of thing is called "transform feedback"
-    def __init__(self, window, num_particles=1e5, *args, **kwargs):
-        super().__init__(window, *args, **kwargs)
-        # for copying buffers & whatnot
-        context = window.ctx
-        context.enable(mgl.PROGRAM_POINT_SIZE)
-        self.shader = ParticleShader(context)
-        self._tracker = 1.0
-        num_particles = int(num_particles)
-        self.num_particles = num_particles
-        color_size = np.zeros(num_particles, dtype=[('color_size', np.float32, 4)])
-        # first three elements are RGB, last one is particle (i.e. GL_POINT) size
-        # this is static, and we don't need to do any extra computations
-        color_size['color_size'][:, 0] = np.random.uniform(0.9, 1.0, num_particles)
-        color_size['color_size'][:, 1] = np.random.uniform(0.0, 1.0, num_particles)
-        color_size['color_size'][:, 2] = np.random.uniform(0.0, 0.1, num_particles)
-        color_size['color_size'][:, 3] = np.random.uniform(1, 4.0, num_particles)
+        self.prog = ctx.program(
+            vertex_shader=vert_str,
+            fragment_shader=frag_str
+        )
 
-        # first three elements are vertex XYZ, last one is alpha
-        # think about this-- should we just delay until ready to draw the first time?
-        # if the scale isn't set immediately, then end up with garbage?
-        pos_alpha = np.zeros(num_particles, dtype=[('vertices_alpha', np.float32, 8)])
-        r, theta = random_on_circle(self.scale.y * 0.2, num_particles)
-        pos_alpha['vertices_alpha'][:, 0:2] = np.array([np.cos(theta) * r, np.sin(theta) * r]).T
-        pos_alpha['vertices_alpha'][:, 3] = np.random.uniform(0.5, 1.0, num_particles)
-        # it looks like the moderngl example allocates 2x the amount, so the first 4
-        # are from the current timestep and the last 4 are from the previous timestep
-        # then during rendering, the previous timestep is ignored (treated as padding)
+        self.transform = ctx.program(
+            vertex_shader=trans_vert_str,
+            geometry_shader=trans_geom_str,
+            varyings=['out_pos', 'out_vel', 'out_color']
+        )
 
-        r_accel, theta_accel = random_on_circle(0.08, self.num_particles)
+        self.N = int(num_particles)
+        self.stride = 32  # byte stride per vertex
+        self.max_emit_count = self.N // 20
+        self.active_particles = 0  # start w/ nuthin
+        self.vbo1 = ctx.buffer(reserve=self.N * self.stride, dynamic=True)
+        self.vbo2 = ctx.buffer(reserve=self.N * self.stride, dynamic=True)
 
-        accel = np.zeros(num_particles, dtype=[('accel', np.float32, 4)])
-        accel['accel'][:, :2] = np.array([r_accel * np.cos(theta_accel),
-                                          r_accel * np.sin(theta_accel)]).T
-        accel = context.buffer(accel.view(np.ubyte))
-        # vbo_render is what ends up being rendered
-        # vbo_trans is an intermediary for transform feedback
-        # vbo_orig is the original state, which we use to "reset" the explosion
-        # without writing new data to the GPU
-        color_size2 = context.buffer(color_size.view(np.ubyte))
-        self.vbo_render = context.buffer(pos_alpha.view(np.ubyte))
-        self.vbo_trans = context.buffer(reserve=self.vbo_render.size)
-        self.vbo_orig = context.buffer(reserve=self.vbo_render.size)
+        self.transform_vao1 = ctx.vertex_array(
+            self.transform,
+            [(self.vbo1, '2f 2f 4f', 'in_pos', 'in_vel', 'in_color')]
+        )
+        self.transform_vao2 = ctx.vertex_array(
+            self.transform,
+            [(self.vbo2, '2f 2f 4f', 'in_pos', 'in_vel', 'in_color')]
+        )
+        self.render_vao1 = ctx.vertex_array(
+            self.prog,
+            [(self.vbo1, '2f 2x4 4f', 'in_pos', 'in_color')]
+        )
+        self.render_vao2 = ctx.vertex_array(
+            self.prog,
+            [(self.vbo2, '2f 2x4 4f', 'in_pos', 'in_color')]
+        )
 
-        self.vao_trans = context.vertex_array(self.shader.transform,
-                                              [
-                                                  (self.vbo_render, '4f 4f', 'in_pos_alpha', 'in_prev_pos_alpha'),
-                                                  (accel, '4f', 'accel')
-                                              ])
-        self.vao_render = context.vertex_array(self.shader.render,
-                                               [
-                                                   (self.vbo_render, '4f 4x4', 'vertices_alpha'),
-                                                   (color_size2, '4f', 'color_size')
-                                               ])
-        # set the data of the original state
-        context.copy_buffer(self.vbo_orig, self.vbo_render)
+        self.gpu_emitter_prog = ctx.program(
+            vertex_shader=gpu_emitter_str,
+            varyings=['out_pos', 'out_vel', 'out_color']
+        )
+        # empty VAO (need moderngl>=5.6?)
+        self.gpu_emitter_vao = ctx._vertex_array(self.gpu_emitter_prog, [])
+
+        self.query = ctx.query(primitives=True)
+        self.should_explode = False
+
+    def explode(self):
+        self.should_explode = True
 
     def draw(self):
         if self.visible:
-            self._tracker -= 0.012  # at some point, change to invisible so we don't do excess work
-            if self._tracker < 0:
-                self.visible = False
-            mvp = self.win.vp * self.model_matrix
-            self.shader.render['mvp'].write(memoryview(mvp))
-            # update particles
-            self.vao_trans.transform(self.vbo_trans, mgl.POINTS)
-            # copy transformed data
-            self.win.ctx.copy_buffer(self.vbo_render, self.vbo_trans)
-            # draw
-            self.vao_render.render(mgl.POINTS)
+            # gpu stuff here
+            with self.query:
+                self.transform_vao1.transform(self.vbo2, mgl.POINTS, vertices=self.active_particles)
 
-    def reset(self):
-        # TODO: to get a non-totally-repeating effect, rotate the particles by n degrees
-        self.win.ctx.copy_buffer(self.vbo_render, self.vbo_orig)  # dest, src
-        self._tracker = 1.0
+            if self.should_explode:
+                self.should_explode = False
+                self._count += 4
+            emit_count = 0
+            if self._count > 0:
+                self._count -= 1
+                emit_count = self.N // 20
+            #emit_count = min(self.N - self.query.primitives, self.max_emit_count)
+            qp = self.query.primitives
+            if emit_count > 0:
+                self.gpu_emitter_prog['mouse_pos'].value = self.position[0], self.position[1]
+                self.gpu_emitter_prog['mouse_vel'].write(memoryview((self.position - self.prev_pos)/0.016))
+                self.gpu_emitter_prog['time'].value = default_timer() - self.t0
+                self.gpu_emitter_vao.transform(self.vbo2, vertices=emit_count,
+                                               buffer_offset=qp*self.stride)
+
+            self.active_particles = qp + emit_count  # ??
+            if self.active_particles > 0:
+                mvp = self.win.vp * self.model_matrix
+                self.prog['mvp'].write(memoryview(mvp))
+                self.render_vao2.render(mgl.POINTS, vertices=self.active_particles)
+
+            self.transform_vao1, self.transform_vao2 = self.transform_vao2, self.transform_vao1
+            self.render_vao1, self.render_vao2 = self.render_vao2, self.render_vao1
+            self.vbo1, self.vbo2 = self.vbo2, self.vbo1
+            self.prev_pos = self.position[0], self.position[1]
 
 
 if __name__ == '__main__':
     from mglg.graphics.win import Win
+    from mglg.graphics.shape2d import Circle
     from math import sin, cos
 
     win = Win()
 
     counter = 0
-    parts = ParticleBurst2D(win, num_particles=1e5)
-    parts.scale = 0.1, 0.1
+    parts = ParticleBurst2D(win, num_particles=1e5, scale=(0.12, 0.08))
+    circ = Circle(win, is_filled=False, scale=0.1)
 
     for i in range(1000):
-        if counter % 60 == 0:
-            parts.reset()
+        if counter % 20 == 0:
+            parts.explode()
         parts.position.xy = win.mouse_pos
         parts.draw()
+        circ.draw()
         win.flip()
         if win.dt > 0.02:
             print(win.dt)
+        if win.should_close:
+            break
         counter += 1
