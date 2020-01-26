@@ -70,6 +70,7 @@ class Win(object):
         self.ctx.viewport = (0, 0, self.width, self.height)
         self.ctx.enable(mgl.BLEND)
         self.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
+        self.ctx.disable(mgl.DEPTH_TEST)
         self._clear_color = Vec4(0.3, 0.3, 0.3, 1)
 
         # other setup
