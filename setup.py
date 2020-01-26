@@ -9,7 +9,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="mglg",
-    version="0.0.5",
+    version="0.0.6",
     install_requires=requirements,
     author="Alex Forrence",
     author_email="adf@jhmi.edu",
