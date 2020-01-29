@@ -74,8 +74,8 @@ class Win(object):
         self._clear_color = Vec4(0.3, 0.3, 0.3, 1)
 
         # other setup
-        self.vp = glm.ortho(-0.5/(self.height/self.width),
-                            0.5/(self.height/self.width), -0.5, 0.5)
+        ratio = self.height/self.width
+        self.vp = glm.ortho(-0.5/ratio, 0.5/ratio, -0.5, 0.5)
         self.frame_rate = video_mode.refresh_rate
         self.frame_period = 1/self.frame_rate
         self.timer = timer
