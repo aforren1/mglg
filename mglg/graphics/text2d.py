@@ -157,13 +157,10 @@ class DynamicText2D(Text2D):
         atlas = manager.atlas_agg
         self.atlas = ctx.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
         n = expected_chars * 10  # reserve 10x
-        indices = np.empty(n*6, dtype=np.uint32)
-        vertices = np.empty(n*4, dtype=[('vertices', np.float32, 2),
-                                        ('texcoord', np.float32, 2),
-                                        ('offset', np.float32)])
-
-        self.vbo = ctx.buffer(reserve=vertices.nbytes, dynamic=True)
-        self.ibo = ctx.buffer(reserve=indices.nbytes, dynamic=True)
+        vert_bytes = n * 4 * 5 * 4  # chars x verts per char x floats per vert x bytes per float
+        ind_bytes = n * 6 * 4
+        self.vbo = ctx.buffer(reserve=vert_bytes, dynamic=True)
+        self.ibo = ctx.buffer(reserve=ind_bytes, dynamic=True)
         self.vao = ctx.vertex_array(self.shader,
                                     [   # TODO: pad? we're streaming here
                                         (self.vbo, '2f 2f 1f', 'vertices', 'texcoord', 'offset')
@@ -180,16 +177,15 @@ class DynamicText2D(Text2D):
     @text.setter
     def text(self, new_txt):
         vertices, indices = self.bake(new_txt, self.font)
+        self.lv = indices.shape[0]
         self.vbo.orphan()
         self.ibo.orphan()
-        self.lv = vertices.shape[0]
-        # print(self.lv)
         self.vbo.write(vertices)
         self.ibo.write(indices)
         self._text = new_txt
 
     def draw(self):
-        if self.visible and self.text != '':
+        if self.visible and self.text != '' and self.text != '\n':
             self.atlas.use()
             mvp = self.win.vp * self.model_matrix
             self.shader['mvp'].write(memoryview(mvp))
@@ -216,7 +212,7 @@ if __name__ == '__main__':
     # bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
     #                 text='\u2611pequeño\u2611', font=font_path, position=(-0.4, 0), rotation=90)
 
-    countup = DynamicText2D(win, scale=0.5, expected_chars=20,
+    countup = DynamicText2D(win, scale=1, expected_chars=20,
                             font=font_path, position=(0, 0))
     countup.prefetch('0123456789')
     countup.text = '123'
