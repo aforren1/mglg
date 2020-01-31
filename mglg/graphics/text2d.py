@@ -177,7 +177,7 @@ class DynamicText2D(Text2D):
     @text.setter
     def text(self, new_txt):
         vertices, indices = self.bake(new_txt, self.font)
-        self.lv = indices.shape[0]
+        self.num_vertices = indices.shape[0]
         self.vbo.orphan()
         self.ibo.orphan()
         self.vbo.write(vertices)
@@ -191,7 +191,7 @@ class DynamicText2D(Text2D):
             self.shader['mvp'].write(memoryview(mvp))
             self.shader['color'].write(memoryview(self.color))
             l2 = len(self._text) - self._text.count('\n')
-            self.vao.render(mgl.TRIANGLES, vertices=self.lv)
+            self.vao.render(mode=mgl.TRIANGLES, vertices=self.num_vertices)
 
     def prefetch(self, chars):
         # store these
@@ -207,17 +207,17 @@ if __name__ == '__main__':
     win = Win()
 
     font_path = op.join(op.dirname(__file__), '..', '..', 'examples', 'UbuntuMono-B.ttf')
-    # bases = Text2D(win, scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
-    #                text='\u2620Tengo un gatito pequeñito\u2620', font=font_path, position=(0, -0.4))
-    # bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
-    #                 text='\u2611pequeño\u2611', font=font_path, position=(-0.4, 0), rotation=90)
+    bases = Text2D(win, scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
+                   text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4))
+    bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
+                    text='pequeño', font=font_path, position=(-0.4, 0), rotation=90)
 
     countup = DynamicText2D(win, scale=1, expected_chars=20,
-                            font=font_path, position=(0, 0))
+                            font=font_path, position=(0, -0.4))
     countup.prefetch('0123456789')
     countup.text = '123'
 
-    txt = DrawableGroup([countup])
+    txt = DrawableGroup([bases, bases2, countup])
     counter = 0
     for i in range(1200):
         counter += 4
