@@ -11,7 +11,7 @@ from mglg.graphics.shape2d import Square, Circle, Arrow, Polygon, Cross
 from mglg.graphics.image2d import Image2D, texture_cache
 from mglg.graphics.particle2d import ParticleBurst2D
 from mglg.graphics.stipple2d import StippleArrow
-from mglg.graphics.text2d import Text2D
+from mglg.graphics.text2d import Text2D, DynamicText2D
 
 if __name__ == '__main__':
     win = Win(vsync=1, screen=0)
@@ -50,13 +50,18 @@ if __name__ == '__main__':
     bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
                     text='\u2611pequeño\u2611', font=font_path, position=(-0.4, 0), rotation=90)
 
+    countup = DynamicText2D(win, scale=0.1, expected_chars=20,
+                            font=font_path, position=(-0.35, 0))
+    countup.prefetch('0123456789')
+    countup.text = '0'
+
     dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, mouse_cir])
     pix = DrawableGroup([check, check2])
     prt = DrawableGroup([particles])
     stp = DrawableGroup([stiparrow])
-    txt = DrawableGroup([bases, bases2])
+    txt = DrawableGroup([countup, bases, bases2])
 
-    def update(win, counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt):
+    def update(win, counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt, countup):
         counter += 4
         sqr2.position = sin(counter/200)/2, cos(counter/200)/3
         sqr2.rotation = 2*counter
@@ -65,6 +70,7 @@ if __name__ == '__main__':
         circle.rotation = counter
         stiparrow.rotation = -counter
         mouse_cir.position = win.mouse_pos
+        countup.text = str(counter)
         if counter % 100 == 0:
             particles.explode()
         dg.draw()
@@ -78,7 +84,7 @@ if __name__ == '__main__':
     vals = []
     for i in range(1200):
         t0 = default_timer()
-        counter = update(win, counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt)
+        counter = update(win, counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt, countup)
         win.flip()
         if win.dt > 0.02:
             print(win.dt)

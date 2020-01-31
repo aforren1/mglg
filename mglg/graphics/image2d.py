@@ -26,7 +26,7 @@ class Image2D(Drawable2D):
         self.alpha = alpha
 
         if self.vao is None:
-            vertex_texcoord = np.zeros(4, dtype=[('vertices', np.float32, 3),
+            vertex_texcoord = np.empty(4, dtype=[('vertices', np.float32, 3),
                                                  ('texcoord', np.float32, 2)])
             vertex_texcoord['vertices'] = [(-0.5, -0.5, 0), (-0.5, 0.5, 0),
                                            (0.5, -0.5, 0), (0.5, 0.5, 0)]

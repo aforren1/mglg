@@ -44,7 +44,7 @@ class FontManager(object):
         key = '%s-%d' % (basename, size)
         if FontManager._atlas_agg is None:
             # interesting that agg atlas is RGB?
-            FontManager._atlas_agg = np.zeros((1024, 1024, 3), np.ubyte).view(Atlas)
+            FontManager._atlas_agg = np.empty((1024, 1024, 3), np.ubyte).view(Atlas)
 
         atlas = FontManager._atlas_agg
         cache = FontManager._cache_agg
@@ -56,5 +56,5 @@ class FontManager(object):
     @property
     def atlas_agg(self):
         if FontManager._atlas_agg is None:
-            FontManager._atlas_agg = np.zeros((1024, 1024, 3), np.ubyte).view(Atlas)
+            FontManager._atlas_agg = np.empty((1024, 1024, 3), np.ubyte).view(Atlas)
         return FontManager._atlas_agg

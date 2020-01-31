@@ -24,8 +24,8 @@ class Text2D(Drawable2D):
         manager = FontManager()
         atlas = manager.atlas_agg
         self.atlas = context.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
-        vbo = context.buffer(memoryview(vertices))
-        ibo = context.buffer(memoryview(indices))
+        vbo = context.buffer(vertices)
+        ibo = context.buffer(indices)
         self.vao = context.vertex_array(self.shader,
                                         [   # TODO: pad? maybe doesn't matter 'cause we're not streaming
                                             (vbo, '2f 2f 1f', 'vertices', 'texcoord', 'offset')
@@ -47,8 +47,8 @@ class Text2D(Drawable2D):
         anchor_x = self.anchor_x
         anchor_y = self.anchor_y
         n = len(text) - text.count('\n')
-        indices = np.zeros((n, 6), dtype=np.uint32)
-        vertices = np.zeros((n, 4), dtype=[('vertices', np.float32, 2),
+        indices = np.empty((n, 6), dtype=np.uint32)
+        vertices = np.empty((n, 4), dtype=[('vertices', np.float32, 2),
                                            ('texcoord', np.float32, 2),
                                            ('offset', np.float32)])
 
@@ -125,7 +125,9 @@ class Text2D(Drawable2D):
         vertices = vertices.ravel()
         # normalize to height (so vertices run from [-0.5, 0.5])
         tmp = vertices['vertices'][:, 1]
-        vertices['vertices'][...] = ((vertices['vertices'] - np.min(tmp)) / np.ptp(tmp)) - 0.5
+        mint = min(tmp)
+        maxt = max(tmp)
+        vertices['vertices'][...] = ((vertices['vertices'] - mint) / (maxt-mint)) - 0.5
         indices = indices.ravel()
         return vertices, indices
 
@@ -136,3 +138,97 @@ class Text2D(Drawable2D):
     @color.setter
     def color(self, color):
         self._color.rgba = color
+
+
+class DynamicText2D(Text2D):
+    def __init__(self, window, font, expected_chars=300,
+                 color=(1, 1, 1, 1), anchor_x='center',
+                 anchor_y='center', font_size=128, *args, **kwargs):
+        super(Drawable2D, self).__init__(window, *args, **kwargs)
+        ctx = self.win.ctx
+        width, height = self.win.size
+        self.shader = TextShader(ctx)
+        self._color = Vec4(color)
+        self.anchor_x = anchor_x
+        self.anchor_y = anchor_y
+        fnt = FontManager.get(font, font_size)
+        self.font = fnt
+        manager = FontManager()
+        atlas = manager.atlas_agg
+        self.atlas = ctx.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
+        n = expected_chars * 10  # reserve 10x
+        indices = np.empty(n*6, dtype=np.uint32)
+        vertices = np.empty(n*4, dtype=[('vertices', np.float32, 2),
+                                        ('texcoord', np.float32, 2),
+                                        ('offset', np.float32)])
+
+        self.vbo = ctx.buffer(reserve=vertices.nbytes, dynamic=True)
+        self.ibo = ctx.buffer(reserve=indices.nbytes, dynamic=True)
+        self.vao = ctx.vertex_array(self.shader,
+                                    [   # TODO: pad? we're streaming here
+                                        (self.vbo, '2f 2f 1f', 'vertices', 'texcoord', 'offset')
+                                    ],
+                                    index_buffer=self.ibo)
+
+        self.shader['viewport'].value = width, height
+        self.atlas.use()
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, new_txt):
+        vertices, indices = self.bake(new_txt, self.font)
+        self.vbo.orphan()
+        self.ibo.orphan()
+        self.lv = vertices.shape[0]
+        # print(self.lv)
+        self.vbo.write(vertices)
+        self.ibo.write(indices)
+        self._text = new_txt
+
+    def draw(self):
+        if self.visible and self.text != '':
+            self.atlas.use()
+            mvp = self.win.vp * self.model_matrix
+            self.shader['mvp'].write(memoryview(mvp))
+            self.shader['color'].write(memoryview(self.color))
+            l2 = len(self._text) - self._text.count('\n')
+            self.vao.render(mgl.TRIANGLES, vertices=self.lv)
+
+    def prefetch(self, chars):
+        # store these
+        for charcode in chars:
+            if charcode != '\n':
+                x = self.font[charcode]
+
+
+if __name__ == '__main__':
+    import os.path as op
+    from mglg.graphics.win import Win
+    from mglg.graphics.drawable import DrawableGroup
+    win = Win()
+
+    font_path = op.join(op.dirname(__file__), '..', '..', 'examples', 'UbuntuMono-B.ttf')
+    # bases = Text2D(win, scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
+    #                text='\u2620Tengo un gatito pequeñito\u2620', font=font_path, position=(0, -0.4))
+    # bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
+    #                 text='\u2611pequeño\u2611', font=font_path, position=(-0.4, 0), rotation=90)
+
+    countup = DynamicText2D(win, scale=0.5, expected_chars=20,
+                            font=font_path, position=(0, 0))
+    countup.prefetch('0123456789')
+    countup.text = '123'
+
+    txt = DrawableGroup([countup])
+    counter = 0
+    for i in range(1200):
+        counter += 4
+
+        countup.text = str(counter)
+        txt.draw()
+        win.flip()
+        if win.should_close:
+            break
+    win.close()
