@@ -176,6 +176,7 @@ class DynamicText2D(Text2D):
                                     ],
                                     index_buffer=self.ibo)
         self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
+        self._text = ''
         if text != '':
             self.text = text
         self.shader['viewport'].value = width, height
@@ -189,16 +190,17 @@ class DynamicText2D(Text2D):
 
     @text.setter
     def text(self, new_txt):
-        vertices, indices = self.bake(new_txt)
-        self.num_vertices = indices.shape[0]
-        self.vbo.orphan()
-        self.ibo.orphan()
-        self.vbo.write(vertices)
-        self.ibo.write(indices)
-        self._text = new_txt
+        if new_txt != self._text:
+            vertices, indices = self.bake(new_txt)
+            self.num_vertices = indices.shape[0]
+            self.vbo.orphan()
+            self.ibo.orphan()
+            self.vbo.write(vertices)
+            self.ibo.write(indices)
+            self._text = new_txt
 
     def draw(self):
-        if self.visible and self._text != '' and self._text != '\n':
+        if self.visible and self._text != '':
             self.atlas.use()
             mvp = self.win.vp * self.model_matrix
             self.mvp_unif.write(mvp)
