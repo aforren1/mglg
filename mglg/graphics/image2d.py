@@ -24,6 +24,8 @@ class Image2D(Drawable2D):
             self.texture = context.texture(image.size, 4, img_bytes)
             texture_cache[img_hash] = self.texture
         self.alpha = alpha
+        self.mvp_unif = self.shader['mvp']
+        self.alpha_unif = self.shader['alpha']
 
         if self.vao is None:
             vertex_texcoord = np.empty(4, dtype=[('vertices', np.float32, 3),
@@ -37,10 +39,10 @@ class Image2D(Drawable2D):
 
     def draw(self):
         if self.visible:
-            mvp = self.win.vp * self.model_matrix
-            self.shader['mvp'].write(memoryview(mvp))
             self.texture.use()
-            self.shader['alpha'].value = self.alpha
+            mvp = self.win.vp * self.model_matrix
+            self.mvp_unif.write(memoryview(mvp))
+            self.alpha_unif.value = self.alpha
             self.vao.render(mgl.TRIANGLE_STRIP)
 
     @classmethod

@@ -34,13 +34,15 @@ class Text2D(Drawable2D):
 
         self.shader['viewport'].value = width, height
         self.atlas.use()
+        self.mvp_unif = self.shader['mvp']
+        self.color_unif = self.shader['color']
 
     def draw(self):
         if self.visible:
             self.atlas.use()
             mvp = self.win.vp * self.model_matrix
-            self.shader['mvp'].write(memoryview(mvp))
-            self.shader['color'].write(memoryview(self.color))
+            self.mvp_unif.write(memoryview(mvp))
+            self.color_unif.write(memoryview(self._color))
             self.vao.render(mgl.TRIANGLES)
 
     def bake(self, text, font):
@@ -169,6 +171,8 @@ class DynamicText2D(Text2D):
 
         self.shader['viewport'].value = width, height
         self.atlas.use()
+        self.mvp_unif = self.shader['mvp']
+        self.color_unif = self.shader['color']
 
     @property
     def text(self):
@@ -185,11 +189,11 @@ class DynamicText2D(Text2D):
         self._text = new_txt
 
     def draw(self):
-        if self.visible and self.text != '' and self.text != '\n':
+        if self.visible and self._text != '' and self._text != '\n':
             self.atlas.use()
             mvp = self.win.vp * self.model_matrix
-            self.shader['mvp'].write(memoryview(mvp))
-            self.shader['color'].write(memoryview(self.color))
+            self.mvp_unif.write(memoryview(mvp))
+            self.color_unif.write(memoryview(self._color))
             l2 = len(self._text) - self._text.count('\n')
             self.vao.render(mode=mgl.TRIANGLES, vertices=self.num_vertices)
 

@@ -7,6 +7,7 @@ from mglg.graphics.shape2d import square_vertices, line_vertices, arrow_vertices
 from mglg.math.vector import Vec4
 from mglg.graphics.shaders import StippleShader
 
+
 class Stipple2D(Drawable2D):
     def __init__(self, window, vertices=None,
                  pattern=0xff00, color=(1, 1, 1, 1),
@@ -26,12 +27,14 @@ class Stipple2D(Drawable2D):
         self.shader['u_resolution'].value = width, height
         self.shader['u_factor'].value = 2.0
         self.shader['u_pattern'].value = pattern
+        self.mvp_unif = self.shader['mvp']
+        self.color_unif = self.shader['color']
 
     def draw(self):
         if self.visible:
             mvp = self.win.vp * self.model_matrix
-            self.shader['mvp'].write(memoryview(mvp))
-            self.shader['color'].write(memoryview(self.color))
+            self.mvp_unif.write(memoryview(mvp))
+            self.color_unif.write(memoryview(self._color))
             self.vao.render(mgl.LINE_LOOP)
 
     @property

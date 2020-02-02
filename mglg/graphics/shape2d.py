@@ -60,16 +60,18 @@ class Shape2D(Drawable2D):
         self.is_outlined = is_outlined
         self._fill_color = Vec4(fill_color)
         self._outline_color = Vec4(outline_color)
+        self.mvp_unif = self.shader['mvp']
+        self.color_unif = self.shader['color']
 
     def draw(self):
         if self.visible:
             mvp = self.win.vp * self.model_matrix
-            self.shader['mvp'].write(memoryview(mvp))
+            self.mvp_unif.write(memoryview(mvp))
             if self.is_filled:
-                self.shader['color'].write(memoryview(self.fill_color))
+                self.color_unif.write(memoryview(self._fill_color))
                 self.vao_fill.render(mgl.TRIANGLES)
             if self.is_outlined:
-                self.shader['color'].write(memoryview(self.outline_color))
+                self.color_unif.write(memoryview(self._outline_color))
                 self.vao_outline.render(mgl.LINE_LOOP)
 
     @property
