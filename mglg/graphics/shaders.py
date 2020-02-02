@@ -53,19 +53,3 @@ def VertexColorShader(context: mgl.Context):
     if vertex_color_shader is None:
         vertex_color_shader = context.program(vertex_shader=vertex_color_vert, fragment_shader=vertex_color_frag)
     return vertex_color_shader
-
-
-class _ParticleShader(object):
-    def __init__(self, context: mgl.Context):
-        self.render = context.program(vertex_shader=particle_vert, fragment_shader=particle_frag)
-        #trans_prog = res.read_text(shader_src, 'particle_transform.vert')
-        self.transform = context.program(vertex_shader=particle_transform_vert,
-                                         varyings=['out_pos_alpha',
-                                                   'out_prev_pos_alpha'])
-
-
-def ParticleShader(context: mgl.Context):
-    global particle_shader
-    if particle_shader is None:
-        particle_shader = _ParticleShader(context)
-    return particle_shader

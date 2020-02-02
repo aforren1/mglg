@@ -1,5 +1,4 @@
-# either
-
+from string import ascii_letters, digits, punctuation, whitespace
 import numpy as np
 
 import moderngl as mgl
@@ -7,6 +6,8 @@ from mglg.math.vector import Vec4
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.font.font_manager import FontManager
 from mglg.graphics.shaders import TextShader
+
+ascii_alphanum = ascii_letters + digits + punctuation + whitespace
 
 
 class Text2D(Drawable2D):
@@ -20,7 +21,8 @@ class Text2D(Drawable2D):
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
         fnt = FontManager.get(font, font_size)
-        vertices, indices = self.bake(text, fnt)
+        self.font = fnt
+        vertices, indices = self.bake(text)
         manager = FontManager()
         atlas = manager.atlas_agg
         self.atlas = context.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
@@ -41,11 +43,12 @@ class Text2D(Drawable2D):
         if self.visible:
             self.atlas.use()
             mvp = self.win.vp * self.model_matrix
-            self.mvp_unif.write(memoryview(mvp))
-            self.color_unif.write(memoryview(self._color))
+            self.mvp_unif.write(mvp)
+            self.color_unif.write(self._color)
             self.vao.render(mgl.TRIANGLES)
 
-    def bake(self, text, font):
+    def bake(self, text):
+        font = self.font
         anchor_x = self.anchor_x
         anchor_y = self.anchor_y
         n = len(text) - text.count('\n')
@@ -143,9 +146,10 @@ class Text2D(Drawable2D):
 
 
 class DynamicText2D(Text2D):
-    def __init__(self, window, font, expected_chars=300,
+    def __init__(self, window, text='', font=None,
                  color=(1, 1, 1, 1), anchor_x='center',
-                 anchor_y='center', font_size=128, *args, **kwargs):
+                 anchor_y='center', font_size=128, expected_chars=300,
+                 prefetch=ascii_alphanum, *args, **kwargs):
         super(Drawable2D, self).__init__(window, *args, **kwargs)
         ctx = self.win.ctx
         width, height = self.win.size
@@ -156,6 +160,7 @@ class DynamicText2D(Text2D):
         fnt = FontManager.get(font, font_size)
         self.font = fnt
         manager = FontManager()
+        self.prefetch(prefetch + text)
         atlas = manager.atlas_agg
         self.atlas = ctx.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
         n = expected_chars * 10  # reserve 10x
@@ -168,7 +173,8 @@ class DynamicText2D(Text2D):
                                         (self.vbo, '2f 2f 1f', 'vertices', 'texcoord', 'offset')
                                     ],
                                     index_buffer=self.ibo)
-
+        if text != '':
+            self.text = text
         self.shader['viewport'].value = width, height
         self.atlas.use()
         self.mvp_unif = self.shader['mvp']
@@ -180,7 +186,7 @@ class DynamicText2D(Text2D):
 
     @text.setter
     def text(self, new_txt):
-        vertices, indices = self.bake(new_txt, self.font)
+        vertices, indices = self.bake(new_txt)
         self.num_vertices = indices.shape[0]
         self.vbo.orphan()
         self.ibo.orphan()
@@ -192,8 +198,8 @@ class DynamicText2D(Text2D):
         if self.visible and self._text != '' and self._text != '\n':
             self.atlas.use()
             mvp = self.win.vp * self.model_matrix
-            self.mvp_unif.write(memoryview(mvp))
-            self.color_unif.write(memoryview(self._color))
+            self.mvp_unif.write(mvp)
+            self.color_unif.write(self._color)
             l2 = len(self._text) - self._text.count('\n')
             self.vao.render(mode=mgl.TRIANGLES, vertices=self.num_vertices)
 
@@ -206,29 +212,37 @@ class DynamicText2D(Text2D):
 
 if __name__ == '__main__':
     import os.path as op
+    from timeit import default_timer
     from mglg.graphics.win import Win
     from mglg.graphics.drawable import DrawableGroup
     win = Win()
 
     font_path = op.join(op.dirname(__file__), '..', '..', 'examples', 'UbuntuMono-B.ttf')
-    bases = Text2D(win, scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
-                   text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4))
+
+    t0 = default_timer()
     bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
-                    text='pequeño', font=font_path, position=(-0.4, 0), rotation=90)
+                    text='1234567890', font=font_path, position=(-0.4, 0), rotation=90, font_size=128)
+    bases = Text2D(win, scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
+                   text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4), font_size=128)
 
-    countup = DynamicText2D(win, scale=1, expected_chars=20,
-                            font=font_path, position=(0, -0.4))
-    countup.prefetch('0123456789')
-    countup.text = '123'
+    countup = DynamicText2D(win, text='123', scale=0.1, expected_chars=20,
+                            font=font_path, position=(0, 0), font_size=32)
+    print('startup time: %f' % (default_timer() - t0))
+    # countup.prefetch('0123456789')
 
-    txt = DrawableGroup([bases, bases2, countup])
+    txt = DrawableGroup([bases, countup, bases2])
     counter = 0
     for i in range(1200):
-        counter += 4
-
-        countup.text = str(counter)
+        counter += 12
+        if counter % 96 == 0:
+            countup.text = 'NOTHING WRONG WITH ME'
+        else:
+            countup.text = str(counter)
         txt.draw()
         win.flip()
         if win.should_close:
             break
+        if win.dt > 0.02:
+            print(win.dt)
+
     win.close()

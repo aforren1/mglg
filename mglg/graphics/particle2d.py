@@ -180,7 +180,7 @@ class ParticleBurst2D(Drawable2D):
             qp = self.query.primitives
             if emit_count > 0:
                 self.mouse_pos_unif.value = self.position[0], self.position[1]
-                self.mouse_vel_unif.write(memoryview((self.position - self.prev_pos)/0.016))
+                self.mouse_vel_unif.write((self.position - self.prev_pos)/0.016)
                 self.time_unif.value = default_timer() - self.t0
                 self.gpu_emitter_vao.transform(self.vbo2, vertices=emit_count,
                                                buffer_offset=qp*self.stride)
@@ -188,7 +188,7 @@ class ParticleBurst2D(Drawable2D):
             self.active_particles = qp + emit_count  # ??
             if self.active_particles > 0:
                 mvp = self.win.vp * self.model_matrix
-                self.mvp_unif.write(memoryview(mvp))
+                self.mvp_unif.write(mvp)
                 self.render_vao2.render(mgl.POINTS, vertices=self.active_particles)
 
             self.transform_vao1, self.transform_vao2 = self.transform_vao2, self.transform_vao1

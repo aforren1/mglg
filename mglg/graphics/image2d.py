@@ -41,7 +41,7 @@ class Image2D(Drawable2D):
         if self.visible:
             self.texture.use()
             mvp = self.win.vp * self.model_matrix
-            self.mvp_unif.write(memoryview(mvp))
+            self.mvp_unif.write(mvp)
             self.alpha_unif.value = self.alpha
             self.vao.render(mgl.TRIANGLE_STRIP)
 

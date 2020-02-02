@@ -50,10 +50,9 @@ if __name__ == '__main__':
     bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
                     text='\u2611pequeño\u2611', font=font_path, position=(-0.4, 0), rotation=90)
 
-    countup = DynamicText2D(win, scale=0.1, expected_chars=20,
-                            font=font_path, position=(-0.35, 0))
-    countup.prefetch('0123456789')
-    countup.text = '0'
+    countup = DynamicText2D(win, text='0', scale=0.1, expected_chars=8,
+                            font=font_path, position=(-0.35, 0),
+                            prefetch='0123456789')
 
     dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, mouse_cir])
     pix = DrawableGroup([check, check2])
