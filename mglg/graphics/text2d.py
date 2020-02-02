@@ -225,8 +225,10 @@ if __name__ == '__main__':
     bases = Text2D(win, scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
                    text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4), font_size=128)
 
+    foobar = '┻━┻︵ \(°□°)/ ︵ ┻━┻'
     countup = DynamicText2D(win, text='123', scale=0.1, expected_chars=20,
-                            font=font_path, position=(0, 0), font_size=32)
+                            font=font_path, position=(0, 0), font_size=32,
+                            prefetch='0123456789' + foobar)
     print('startup time: %f' % (default_timer() - t0))
     # countup.prefetch('0123456789')
 
@@ -235,7 +237,7 @@ if __name__ == '__main__':
     for i in range(1200):
         counter += 12
         if counter % 96 == 0:
-            countup.text = 'NOTHING WRONG WITH ME'
+            countup.text = foobar
         else:
             countup.text = str(counter)
         txt.draw()
