@@ -104,7 +104,7 @@ class Win(object):
         # glfw.make_context_current(self._win)
         glfw.swap_buffers(self._win)
         glfw.poll_events()
-        self.ctx.clear(*self.clear_color)
+        self.ctx.clear(*self._clear_color)
         t1 = self.timer()
         self.dt = t1 - self.prev_time
         self.prev_time = t1

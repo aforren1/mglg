@@ -3,6 +3,7 @@ from numpy import pi, float32, eye
 from mglg.math.vector import Vec2
 from glm import mat4, vec3, radians, translate, rotate, scale
 
+
 class Object2D(object):
     def __init__(self, position=(0, 0), rotation=0, scale=(1, 1), *args, **kwargs):
         self._position = Vec2(position)
@@ -11,9 +12,11 @@ class Object2D(object):
 
     @property
     def model_matrix(self):
-        # TODO: any caching?
-        mm = make_2d_mm(self.position, self.rotation, self.scale)
-        return mm
+        out = mat4()
+        out = translate(out, vec3(self._position, 0.0))
+        out = rotate(out, radians(self._rotation), vec3(0.0, 0.0, 1.0))
+        out = scale(out, vec3(self._scale, 1.0))
+        return out
 
     @property
     def position(self):
@@ -39,13 +42,6 @@ class Object2D(object):
     def scale(self, value):
         self._scale.xy = value
 
-
-def make_2d_mm(pos, rot, scal):
-    out = mat4()
-    out = translate(out, vec3(pos, 0.0))
-    out = rotate(out, radians(rot), vec3(0.0, 0.0, 1.0))
-    out = scale(out, vec3(scal, 1.0))
-    return out
 
 if __name__ == '__main__':
     from mglg.util import timethat
