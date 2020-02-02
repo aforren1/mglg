@@ -1,5 +1,6 @@
 from string import ascii_letters, digits, punctuation, whitespace
 import numpy as np
+from numpy import float32, uint32
 
 import moderngl as mgl
 from mglg.math.vector import Vec4
@@ -22,6 +23,7 @@ class Text2D(Drawable2D):
         self.anchor_y = anchor_y
         fnt = FontManager.get(font, font_size)
         self.font = fnt
+        self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
         vertices, indices = self.bake(text)
         manager = FontManager()
         atlas = manager.atlas_agg
@@ -52,10 +54,10 @@ class Text2D(Drawable2D):
         anchor_x = self.anchor_x
         anchor_y = self.anchor_y
         n = len(text) - text.count('\n')
-        indices = np.empty((n, 6), dtype=np.uint32)
-        vertices = np.empty((n, 4), dtype=[('vertices', np.float32, 2),
-                                           ('texcoord', np.float32, 2),
-                                           ('offset', np.float32)])
+        indices = np.empty((n, 6), dtype=uint32)
+        vertices = np.empty((n, 4), dtype=[('vertices', float32, 2),
+                                           ('texcoord', float32, 2),
+                                           ('offset', float32)])
 
         start = 0
         pen = [0, 0]
@@ -68,7 +70,7 @@ class Text2D(Drawable2D):
         # offset is the offset of the texture??
 
         index = 0
-        tmp = np.array([0, 1, 2, 0, 2, 3], dtype=np.uint32)
+        tmp = self._indexing
         for charcode in text:
             if charcode == '\n':
                 prev = None
@@ -173,6 +175,7 @@ class DynamicText2D(Text2D):
                                         (self.vbo, '2f 2f 1f', 'vertices', 'texcoord', 'offset')
                                     ],
                                     index_buffer=self.ibo)
+        self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
         if text != '':
             self.text = text
         self.shader['viewport'].value = width, height
@@ -200,7 +203,6 @@ class DynamicText2D(Text2D):
             mvp = self.win.vp * self.model_matrix
             self.mvp_unif.write(mvp)
             self.color_unif.write(self._color)
-            l2 = len(self._text) - self._text.count('\n')
             self.vao.render(mode=mgl.TRIANGLES, vertices=self.num_vertices)
 
     def prefetch(self, chars):
