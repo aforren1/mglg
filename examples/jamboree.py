@@ -50,8 +50,8 @@ if __name__ == '__main__':
     bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
                     text='\u2611pequeño\u2611', font=font_path, position=(-0.4, 0), rotation=90)
 
-    countup = DynamicText2D(win, text='0', scale=0.1, expected_chars=8,
-                            font=font_path, position=(-0.35, 0),
+    countup = DynamicText2D(win, text='0', scale=0.05, expected_chars=8,
+                            font=font_path, position=(-0.6, 0.4),
                             prefetch='0123456789')
 
     dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, mouse_cir])
@@ -70,6 +70,7 @@ if __name__ == '__main__':
         stiparrow.rotation = -counter
         mouse_cir.position = win.mouse_pos
         countup.text = str(counter)
+        countup.color = np.random.random(4)
         if counter % 100 == 0:
             particles.explode()
         dg.draw()
@@ -81,7 +82,7 @@ if __name__ == '__main__':
 
     counter = 0
     vals = []
-    for i in range(1200):
+    for i in range(int(60 * 60 * 0.5)):
         t0 = default_timer()
         counter = update(win, counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt, countup)
         win.flip()
