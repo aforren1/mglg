@@ -1,8 +1,3 @@
-try:
-    import importlib.resources as res
-except ImportError:
-    # Try backported to PY<37 `importlib_resources`.
-    import importlib_resources as res
 import moderngl as mgl
 from . import shader_src
 from .shader_src.src import *
