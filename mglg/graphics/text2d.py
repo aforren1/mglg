@@ -183,6 +183,7 @@ class DynamicText2D(Text2D):
         self.atlas.use()
         self.mvp_unif = self.shader['mvp']
         self.color_unif = self.shader['color']
+        self.num_vertices = 0
 
     @property
     def text(self):

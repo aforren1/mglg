@@ -47,24 +47,6 @@ if __name__ == '__main__':
     from mglg.util import timethat
     import numpy as np
 
-    pos = (0, 0)
-    rot = 34.0
-    scal = (1, 1)
-
-    # first, look at perf with tuples (actually fastest!)
-    setup = 'from __main__ import make_2d_mm, pos, rot, scal'
-    timethat('out = make_2d_mm(pos, rot, scal)', setup=setup)
-
-    # next, non-matching types
-    pos = np.array(pos)
-    scal = np.array(scal)
-    timethat('out = make_2d_mm(pos, rot, scal)', setup=setup)
-
-    # match types
-    pos = pos.astype(np.float32)
-    scal = scal.astype(np.float32)
-    timethat('out = make_2d_mm(pos, rot, scal)', setup=setup)
-
     obj = Object2D()
     setup2 = 'from __main__ import obj'
     timethat('obj.model_matrix', setup=setup2)
