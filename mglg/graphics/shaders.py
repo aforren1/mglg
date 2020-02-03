@@ -9,12 +9,6 @@ vertex_color_shader = None
 particle_shader = None
 
 
-def make_simple_program(context, v_file, f_file):
-    vert = res.read_text(shader_src, v_file)
-    frag = res.read_text(shader_src, f_file)
-    return context.program(vertex_shader=vert, fragment_shader=frag)
-
-
 def FlatShader(context: mgl.Context):
     global flat_shader
     if flat_shader is None:
