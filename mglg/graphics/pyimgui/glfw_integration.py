@@ -122,23 +122,20 @@ class GlfwRenderer(ModernGLRenderer):
 
 if __name__ == '__main__':
     from mglg.graphics.win import Win
-    imgui.create_context()
+    from timeit import default_timer
 
-    win = Win()
+    win = Win(use_imgui=True)
 
-    renderer = GlfwRenderer(win)
     counter = 0
     while True:
         counter += 1
-        if counter % 20 == 0:
-            win.mouse_visible = not win.mouse_visible
-        imgui.new_frame()
-        renderer.process_inputs()
+        # if counter % 20 == 0:
+        #    win.mouse_visible = not win.mouse_visible
+        if counter % 40 == 0:
+            win.use_imgui = not win.use_imgui
         imgui.show_demo_window()
-        imgui.render()
-        renderer.render(imgui.get_draw_data())
         win.flip()
-        print(win.mouse_pos)
+        # print(win.mouse_pos)
         if win.should_close:
             break
     win.close()

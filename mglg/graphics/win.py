@@ -6,6 +6,7 @@ import glfw
 import moderngl as mgl
 import glm
 from mglg.math.vector import Vec4
+import imgui
 
 if not glfw.init():
     raise ValueError('GLFW init went terribly wrong?')
@@ -13,7 +14,7 @@ atexit.register(glfw.terminate)
 
 
 class Win(object):
-    def __init__(self, vsync=1, screen=0, timer=default_timer):
+    def __init__(self, vsync=1, screen=0, timer=default_timer, use_imgui=False):
         # TODO: multi-display with shared context
         # from psychopy & moderngl-window
         # fullscreen stuff-- always
@@ -84,6 +85,16 @@ class Win(object):
         self.should_close = False
         self.ctx.clear(*self.clear_color)
 
+        self._use_imgui = use_imgui
+        if use_imgui:
+            from mglg.graphics.pyimgui.glfw_integration import GlfwRenderer
+            self._has_imgui = True
+            imgui.create_context()
+            self._renderer = GlfwRenderer(self)
+            imgui.new_frame()
+        else:
+            self._has_imgui = False
+
     def _on_key(self, win_ptr, key, scancode, action, modifiers):
         if key == glfw.KEY_ESCAPE:
             self.should_close = True
@@ -101,9 +112,13 @@ class Win(object):
         self.mouse_time = time
 
     def flip(self):
-        # glfw.make_context_current(self._win)
-        glfw.swap_buffers(self._win)
         glfw.poll_events()
+        if self._has_imgui and self._use_imgui:
+            imgui.render()
+            self._renderer.render(imgui.get_draw_data())
+            imgui.new_frame()
+            self._renderer.process_inputs()
+        glfw.swap_buffers(self._win)
         self.ctx.clear(*self._clear_color)
         t1 = self.timer()
         self.dt = t1 - self.prev_time
@@ -131,6 +146,14 @@ class Win(object):
             glfw.set_input_mode(self._win, glfw.CURSOR, glfw.CURSOR_NORMAL)
         else:
             glfw.set_input_mode(self._win, glfw.CURSOR, glfw.CURSOR_HIDDEN)
+
+    @property
+    def use_imgui(self):
+        return self._use_imgui
+
+    @use_imgui.setter
+    def use_imgui(self, val):
+        self._use_imgui = val
 
 
 if __name__ == '__main__':
