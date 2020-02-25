@@ -12,6 +12,8 @@ from mglg.graphics.image2d import Image2D, texture_cache
 from mglg.graphics.particle2d import ParticleBurst2D
 from mglg.graphics.stipple2d import StippleArrow
 from mglg.graphics.text2d import Text2D, DynamicText2D
+from toon.util import priority
+#import gamemode as gm
 
 if __name__ == '__main__':
     win = Win(vsync=1, screen=0)
@@ -82,19 +84,23 @@ if __name__ == '__main__':
 
     counter = 0
     vals = []
-    for i in range(int(60 * 60 * 0.3)):
+    dts = []
+    # print(priority(2))
+    # gm.request_start()
+    for i in range(int(60 * 60 * 1)):
         t0 = default_timer()
         counter = update(win, counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt, countup)
         vals.append(default_timer() - t0)
         win.flip()
-        if win.dt > 0.02:
-            print(win.dt)
+        dts.append(win.dt)
         if win.should_close:
             break
     win.close()
+    priority(0)
     # import glfw
     # import matplotlib.pyplot as plt
     # glfw.terminate()
-    # plt.plot(vals)
+    # plt.plot(dts[3:])
+    # vals = dts[3:]
     # plt.show()
     print('mean: %f, std: %f, max: %f' % (np.mean(vals), np.std(vals), max(vals)))

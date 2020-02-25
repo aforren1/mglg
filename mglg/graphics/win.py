@@ -55,7 +55,7 @@ class Win(object):
         glfw.set_key_callback(self._win, self._on_key)
         glfw.set_cursor_pos_callback(self._win, self._on_cursor_move)
         # mouse initial pos in center of screen
-        glfw.set_input_mode(self._win, glfw.CURSOR, glfw.CURSOR_HIDDEN)
+        self.mouse_visible = True
         glfw.set_cursor_pos(self._win, self.width//2, self.height//2)
         if glfw.raw_mouse_motion_supported():
             glfw.set_input_mode(self._win, glfw.RAW_MOUSE_MOTION, True)
@@ -119,6 +119,18 @@ class Win(object):
     @clear_color.setter
     def clear_color(self, val):
         self._clear_color.rgb = val
+
+    @property
+    def mouse_visible(self):
+        return self._mouse_vis
+
+    @mouse_visible.setter
+    def mouse_visible(self, val):
+        self._mouse_vis = bool(val)
+        if val:
+            glfw.set_input_mode(self._win, glfw.CURSOR, glfw.CURSOR_NORMAL)
+        else:
+            glfw.set_input_mode(self._win, glfw.CURSOR, glfw.CURSOR_HIDDEN)
 
 
 if __name__ == '__main__':
