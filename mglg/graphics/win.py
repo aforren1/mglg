@@ -112,12 +112,12 @@ class Win(object):
         self.mouse_time = time
 
     def flip(self):
-        glfw.poll_events()
         if self._has_imgui and self._use_imgui:
             imgui.render()
             self._renderer.render(imgui.get_draw_data())
             imgui.new_frame()
             self._renderer.process_inputs()
+        glfw.poll_events()
         glfw.swap_buffers(self._win)
         self.ctx.clear(*self._clear_color)
         t1 = self.timer()

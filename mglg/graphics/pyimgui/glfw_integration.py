@@ -7,6 +7,8 @@ from imgui.integrations import compute_fb_scale
 
 class GlfwRenderer(ModernGLRenderer):
     # https://github.com/swistakm/pyimgui/blob/master/imgui/integrations/glfw.py#L11
+    # note the few callbacks that are passed through from our GLFW window
+    # (should do it properly...)
     def __init__(self, wnd):
         super(GlfwRenderer, self).__init__(wnd)
         self.window = wnd._win
@@ -131,8 +133,8 @@ if __name__ == '__main__':
         counter += 1
         # if counter % 20 == 0:
         #    win.mouse_visible = not win.mouse_visible
-        if counter % 40 == 0:
-            win.use_imgui = not win.use_imgui
+        # if counter % 40 == 0:
+        #     win.use_imgui = not win.use_imgui
         imgui.show_demo_window()
         win.flip()
         # print(win.mouse_pos)

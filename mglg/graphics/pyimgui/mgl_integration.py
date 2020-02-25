@@ -14,11 +14,8 @@ class BaseOpenGLRenderer(object):
                 "imgui.set_current_context()."
             )
         self.io = imgui.get_io()
-
         self._font_texture = None
-
-        self.io.delta_time = 1.0 / 60.0  # TODO: override w/ screen rate
-
+        self.io.delta_time = 1.0 / 60.0
         self._create_device_objects()
         self.refresh_font_texture()
 
