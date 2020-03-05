@@ -1,7 +1,4 @@
 Built-for-purpose, minimal 2D graphics library.
 
-Notes as I go:
+Working on documentation, but the file [examples/jamboree.py](https://github.com/aforren1/mglg/blob/master/examples/jamboree.py) is pretty comprehensive.
 
- - Object*D gives an object a model matrix
- - Drawable gives you a model-view-projection matrix
- - The few things that want to know the window dims in pixels don't bother checking later on (i.e. set the uniform in `__init__` and that's it), but we'll always have a fullscreen window?
