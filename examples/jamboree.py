@@ -1,4 +1,4 @@
-import os.path as op
+﻿import os.path as op
 from timeit import default_timer
 import numpy as np
 import moderngl as mgl
@@ -12,11 +12,11 @@ from mglg.graphics.image2d import Image2D, texture_cache
 from mglg.graphics.particle2d import ParticleBurst2D
 from mglg.graphics.stipple2d import StippleArrow
 from mglg.graphics.text2d import Text2D, DynamicText2D
-from toon.util import priority
-#import gamemode as gm
+# from toon.util import priority
+# import gamemode as gm
 
 if __name__ == '__main__':
-    win = Win(vsync=1, screen=0)
+    win = Win(vsync=0, screen=0)
     win.ctx.line_width = 3.0
 
     sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         if win.should_close:
             break
     win.close()
-    priority(0)
+    # priority(0)
     # import glfw
     # import matplotlib.pyplot as plt
     # glfw.terminate()
