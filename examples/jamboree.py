@@ -21,7 +21,6 @@ if __name__ == '__main__':
 
     sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
     circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1))
-    mouse_cir = Circle(win, scale=0.05, fill_color=1)
     arrow = Arrow(win, scale=(0.15, 0.1), fill_color=(0.9, 0.7, 0.2, 1))
     circle.position.x += 0.2
     arrow.position.x -= 0.2
@@ -56,13 +55,13 @@ if __name__ == '__main__':
                             font=font_path, position=(-0.6, 0.4),
                             prefetch='0123456789')
 
-    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, mouse_cir])
+    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
     pix = DrawableGroup([check, check2])
     prt = DrawableGroup([particles])
     stp = DrawableGroup([stiparrow])
     txt = DrawableGroup([countup, bases, bases2])
 
-    def update(win, counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt, countup):
+    def update(win, counter):
         counter += 4
         sqr2.position = sin(counter/200)/2, cos(counter/200)/3
         sqr2.rotation = 2*counter
@@ -70,7 +69,6 @@ if __name__ == '__main__':
         arrow.rotation = counter
         circle.rotation = counter
         stiparrow.rotation = -counter
-        mouse_cir.position = win.mouse_pos
         countup.text = str(counter)
         countup.color = np.random.random(4)
         if counter % 100 == 0:
@@ -85,18 +83,15 @@ if __name__ == '__main__':
     counter = 0
     vals = []
     dts = []
-    # print(priority(2))
-    # gm.request_start()
     for i in range(int(60 * 60 * 1)):
         t0 = default_timer()
-        counter = update(win, counter, sqr2, sqr, arrow, circle, stiparrow, particles, dg, pix, prt, stp, txt, countup)
+        counter = update(win, counter)
         vals.append(default_timer() - t0)
         win.flip()
         dts.append(win.dt)
         if win.should_close:
             break
     win.close()
-    # priority(0)
     # import glfw
     # import matplotlib.pyplot as plt
     # glfw.terminate()

@@ -54,15 +54,9 @@ class Win(object):
         glfw.make_context_current(self._win)
         glfw.swap_interval(bool(vsync))
         glfw.set_key_callback(self._win, self._on_key)
-        glfw.set_cursor_pos_callback(self._win, self._on_cursor_move)
         # mouse initial pos in center of screen
         self.mouse_visible = True
         glfw.set_cursor_pos(self._win, self.width//2, self.height//2)
-        if glfw.raw_mouse_motion_supported():
-            glfw.set_input_mode(self._win, glfw.RAW_MOUSE_MOTION, True)
-        self.mouse_pos = 0, 0
-        self.mouse_time = 0
-
         # set up moderngl context
         major = glfw.get_window_attrib(self._win, glfw.CONTEXT_VERSION_MAJOR)
         minor = glfw.get_window_attrib(self._win, glfw.CONTEXT_VERSION_MINOR)
@@ -98,18 +92,6 @@ class Win(object):
     def _on_key(self, win_ptr, key, scancode, action, modifiers):
         if key == glfw.KEY_ESCAPE:
             self.should_close = True
-
-    def _on_cursor_move(self, win_ptr, x, y):
-        # transform to window coordinates
-        # center
-        time = self.timer()
-        x -= self.width / 2
-        y -= self.height / 2
-        # scale to window height
-        x /= float(self.height)
-        y /= float(-self.height)
-        self.mouse_pos = x, y
-        self.mouse_time = time
 
     def flip(self):
         if self._has_imgui and self._use_imgui:
@@ -161,6 +143,6 @@ if __name__ == '__main__':
     win = Win(screen=0, vsync=1)
 
     while not win.should_close:
-        print(win.mouse_pos)
         win.flip()
+        print(win.dt)
     win.close()
