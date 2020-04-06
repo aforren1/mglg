@@ -60,6 +60,7 @@ if __name__ == '__main__':
     prt = DrawableGroup([particles])
     stp = DrawableGroup([stiparrow])
     txt = DrawableGroup([countup, bases, bases2])
+    #qry = win.ctx.query(time=True)
 
     def update(win, counter):
         counter += 4
@@ -71,6 +72,7 @@ if __name__ == '__main__':
         stiparrow.rotation = -counter
         countup.text = str(counter)
         countup.color = np.random.random(4)
+        #with qry:
         if counter % 100 == 0:
             particles.explode()
         dg.draw()
@@ -78,6 +80,8 @@ if __name__ == '__main__':
         prt.draw()
         stp.draw()
         txt.draw()
+        #if counter % 10 == 0:
+        #    print('GPU time: %f ms' % (qry.elapsed/1000000))
         return counter
 
     counter = 0

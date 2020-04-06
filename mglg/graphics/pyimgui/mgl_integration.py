@@ -98,8 +98,8 @@ class ModernGLRenderer(BaseOpenGLRenderer):
         )
         self.projMat = self._prog['ProjMtx']
         self._prog['Texture'].value = 0
-        self._vertex_buffer = self.ctx.buffer(reserve=imgui.VERTEX_SIZE * 65536)
-        self._index_buffer = self.ctx.buffer(reserve=imgui.INDEX_SIZE * 65536)
+        self._vertex_buffer = self.ctx.buffer(reserve=imgui.VERTEX_SIZE * 65536, dynamic=True)
+        self._index_buffer = self.ctx.buffer(reserve=imgui.INDEX_SIZE * 65536, dynamic=True)
         self._vao = self.ctx.vertex_array(
             self._prog,
             [
@@ -135,12 +135,18 @@ class ModernGLRenderer(BaseOpenGLRenderer):
 
         for commands in draw_data.commands_lists:
             # Create a numpy array mapping the vertex and index buffer data without copying it
-            vtx_ptr = ctypes.cast(commands.vtx_buffer_data, ctypes.POINTER(ctypes.c_byte))
-            idx_ptr = ctypes.cast(commands.idx_buffer_data, ctypes.POINTER(ctypes.c_byte))
-            vtx_data = np.ctypeslib.as_array(vtx_ptr, (commands.vtx_buffer_size * imgui.VERTEX_SIZE,))
-            idx_data = np.ctypeslib.as_array(idx_ptr, (commands.idx_buffer_size * imgui.INDEX_SIZE,))
-            self._vertex_buffer.write(vtx_data)
-            self._index_buffer.write(idx_data)
+            vtx_size = ctypes.c_byte * commands.vtx_buffer_size * imgui.VERTEX_SIZE
+            idx_size = ctypes.c_byte * commands.idx_buffer_size * imgui.INDEX_SIZE
+            vtx_ptr = ctypes.cast(commands.vtx_buffer_data, ctypes.POINTER(vtx_size))
+            idx_ptr = ctypes.cast(commands.idx_buffer_data, ctypes.POINTER(idx_size))
+            self._vertex_buffer.write(vtx_ptr[0])
+            self._index_buffer.write(idx_ptr[0])
+            # vtx_ptr = ctypes.cast(commands.vtx_buffer_data, ctypes.POINTER(ctypes.c_byte))
+            # idx_ptr = ctypes.cast(commands.idx_buffer_data, ctypes.POINTER(ctypes.c_byte))
+            # vtx_data = np.ctypeslib.as_array(vtx_ptr, (commands.vtx_buffer_size * imgui.VERTEX_SIZE,))
+            # idx_data = np.ctypeslib.as_array(idx_ptr, (commands.idx_buffer_size * imgui.INDEX_SIZE,))
+            # self._vertex_buffer.write(vtx_data)
+            # self._index_buffer.write(idx_data)
 
             idx_pos = 0
             for command in commands.commands:

@@ -88,7 +88,7 @@ class GlfwRenderer(ModernGLRenderer):
         self.io.display_size = width, height
 
     def mouse_callback(self, *args, **kwargs):
-        self._w._on_cursor_move(*args, **kwargs)
+        pass
 
     def scroll_callback(self, window, x_offset, y_offset):
         self.io.mouse_wheel = y_offset
@@ -115,9 +115,7 @@ class GlfwRenderer(ModernGLRenderer):
         current_time = glfw.get_time()
 
         if self._gui_time:
-            self.io.delta_time = current_time - self._gui_time
-        else:
-            self.io.delta_time = 1. / 60.
+            io.delta_time = current_time - self._gui_time
 
         self._gui_time = current_time
 

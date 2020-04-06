@@ -8,6 +8,9 @@ import glm
 from mglg.math.vector import Vec4
 import imgui
 
+from mglg.graphics.pyimgui.glfw_integration import GlfwRenderer
+
+
 if not glfw.init():
     raise ValueError('GLFW init went terribly wrong?')
 atexit.register(glfw.terminate)
@@ -80,25 +83,19 @@ class Win(object):
         self.ctx.clear(*self.clear_color)
 
         self._use_imgui = use_imgui
-        if use_imgui:
-            from mglg.graphics.pyimgui.glfw_integration import GlfwRenderer
-            self._has_imgui = True
-            imgui.create_context()
-            self._renderer = GlfwRenderer(self)
-            imgui.new_frame()
-        else:
-            self._has_imgui = False
+        imgui.create_context()
+        self.imrenderer = GlfwRenderer(self)
+
 
     def _on_key(self, win_ptr, key, scancode, action, modifiers):
         if key == glfw.KEY_ESCAPE:
             self.should_close = True
 
     def flip(self):
-        if self._has_imgui and self._use_imgui:
+        if self._use_imgui:
+            self.imrenderer.process_inputs()
             imgui.render()
-            self._renderer.render(imgui.get_draw_data())
-            imgui.new_frame()
-            self._renderer.process_inputs()
+            self.imrenderer.render(imgui.get_draw_data())
         glfw.poll_events()
         glfw.swap_buffers(self._win)
         self.ctx.clear(*self._clear_color)
@@ -140,9 +137,18 @@ class Win(object):
 
 if __name__ == '__main__':
     from mglg.graphics.win import Win
-    win = Win(screen=0, vsync=1)
+    win = Win(screen=0, vsync=1, use_imgui=True)
 
+    counter = 0
     while not win.should_close:
+        if win.use_imgui:
+            imgui.new_frame()
+            imgui.show_demo_window()
+        counter += 1
+        if counter % 1000 == 0:
+            # win.should_close = True
+            win.use_imgui = not win.use_imgui
         win.flip()
-        print(win.dt)
+
+        #print(win.dt)
     win.close()
