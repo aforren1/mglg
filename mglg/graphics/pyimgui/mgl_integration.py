@@ -135,8 +135,8 @@ class ModernGLRenderer(BaseOpenGLRenderer):
 
         for commands in draw_data.commands_lists:
             # Create a numpy array mapping the vertex and index buffer data without copying it
-            vtx_size = ctypes.c_byte * commands.vtx_buffer_size * imgui.VERTEX_SIZE
-            idx_size = ctypes.c_byte * commands.idx_buffer_size * imgui.INDEX_SIZE
+            vtx_type = ctypes.c_byte * commands.vtx_buffer_size * imgui.VERTEX_SIZE
+            idx_type = ctypes.c_byte * commands.idx_buffer_size * imgui.INDEX_SIZE
             vtx_ptr = ctypes.cast(commands.vtx_buffer_data, ctypes.POINTER(vtx_size))
             idx_ptr = ctypes.cast(commands.idx_buffer_data, ctypes.POINTER(idx_size))
             self._vertex_buffer.write(vtx_ptr[0])
