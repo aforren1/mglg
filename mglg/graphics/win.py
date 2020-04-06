@@ -146,8 +146,9 @@ if __name__ == '__main__':
             imgui.show_demo_window()
         counter += 1
         if counter % 1000 == 0:
-            # win.should_close = True
-            win.use_imgui = not win.use_imgui
+            pass
+            #win.should_close = True
+            #win.use_imgui = not win.use_imgui
         win.flip()
 
         #print(win.dt)

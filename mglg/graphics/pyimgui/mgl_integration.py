@@ -3,39 +3,7 @@ import ctypes
 import moderngl
 import numpy as np
 
-
-class BaseOpenGLRenderer(object):
-    # https://github.com/swistakm/pyimgui/blob/master/imgui/integrations/opengl.py#L10
-
-    def __init__(self):
-        if not imgui.get_current_context():
-            raise RuntimeError(
-                "No valid ImGui context. Use imgui.create_context() first and/or "
-                "imgui.set_current_context()."
-            )
-        self.io = imgui.get_io()
-        self._font_texture = None
-        self.io.delta_time = 1.0 / 60.0
-        self._create_device_objects()
-        self.refresh_font_texture()
-
-    def render(self, draw_data):
-        raise NotImplementedError
-
-    def refresh_font_texture(self):
-        raise NotImplementedError
-
-    def _create_device_objects(self):
-        raise NotImplementedError
-
-    def _invalidate_device_objects(self):
-        raise NotImplementedError
-
-    def shutdown(self):
-        self._invalidate_device_objects()
-
-
-class ModernGLRenderer(BaseOpenGLRenderer):
+class ModernGLRenderer(object):
     # https://github.com/moderngl/moderngl-window/blob/master/moderngl_window/integrations/imgui.py#L81
 
     VERTEX_SHADER_SRC = """
@@ -79,7 +47,16 @@ class ModernGLRenderer(BaseOpenGLRenderer):
         if not self.ctx:
             raise ValueError('Missing moderngl contex')
 
-        super().__init__()
+        if not imgui.get_current_context():
+            raise RuntimeError(
+                "No valid ImGui context. Use imgui.create_context() first and/or "
+                "imgui.set_current_context()."
+            )
+        self.io = imgui.get_io()
+        self._font_texture = None
+        self.io.delta_time = 1.0 / 60.0
+        self._create_device_objects()
+        self.refresh_font_texture()
 
     def refresh_font_texture(self):
         width, height, pixels = self.io.fonts.get_tex_data_as_rgba32()
@@ -137,10 +114,10 @@ class ModernGLRenderer(BaseOpenGLRenderer):
             # Create a numpy array mapping the vertex and index buffer data without copying it
             vtx_type = ctypes.c_byte * commands.vtx_buffer_size * imgui.VERTEX_SIZE
             idx_type = ctypes.c_byte * commands.idx_buffer_size * imgui.INDEX_SIZE
-            vtx_ptr = ctypes.cast(commands.vtx_buffer_data, ctypes.POINTER(vtx_type))
-            idx_ptr = ctypes.cast(commands.idx_buffer_data, ctypes.POINTER(idx_type))
-            self._vertex_buffer.write(vtx_ptr[0])
-            self._index_buffer.write(idx_ptr[0])
+            vtx_ptr = (vtx_type).from_address(commands.vtx_buffer_data)
+            idx_ptr = (idx_type).from_address(commands.idx_buffer_data)
+            self._vertex_buffer.write(vtx_ptr)
+            self._index_buffer.write(idx_ptr)
             # vtx_ptr = ctypes.cast(commands.vtx_buffer_data, ctypes.POINTER(ctypes.c_byte))
             # idx_ptr = ctypes.cast(commands.idx_buffer_data, ctypes.POINTER(ctypes.c_byte))
             # vtx_data = np.ctypeslib.as_array(vtx_ptr, (commands.vtx_buffer_size * imgui.VERTEX_SIZE,))
@@ -171,3 +148,6 @@ class ModernGLRenderer(BaseOpenGLRenderer):
 
         self.io.fonts.texture_id = 0
         self._font_texture = None
+
+    def shutdown(self):
+        self._invalidate_device_objects()
