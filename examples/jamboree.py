@@ -1,4 +1,5 @@
 ﻿import os.path as op
+import imgui
 from timeit import default_timer
 import numpy as np
 import moderngl as mgl
@@ -16,7 +17,7 @@ from mglg.graphics.text2d import Text2D, DynamicText2D
 # import gamemode as gm
 
 if __name__ == '__main__':
-    win = Win(vsync=1, screen=0)
+    win = Win(vsync=1, screen=0, use_imgui=True)
     win.ctx.line_width = 3.0
 
     sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
@@ -80,6 +81,8 @@ if __name__ == '__main__':
         prt.draw()
         stp.draw()
         txt.draw()
+        imgui.new_frame()
+        imgui.show_demo_window()
         #if counter % 10 == 0:
         #    print('GPU time: %f ms' % (qry.elapsed/1000000))
         return counter
