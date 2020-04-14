@@ -126,7 +126,7 @@ class Arrow(Shape2D):
 def make_poly_outline(segments=64):
     vertices = []
     angle_increment = 2 * np.pi / segments
-    for i in range(segments + 1):
+    for i in range(1, segments + 1):
         angle = i * angle_increment
         vertices.append((np.cos(angle), np.sin(angle)))
     return np.array(vertices) * 0.5
