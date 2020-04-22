@@ -7,7 +7,21 @@ from mglg.math.vector import Vec4
 from glm import vec4
 from mglg.graphics.outline import generate_outline
 
+def is_cw(outline):
+    lo = len(outline)
+    res = 0
+    for i in range(lo):
+        v1 = outline[i]
+        v2 = outline[(i + 1) % lo]
+        res += (v2[0] - v1[0]) * (v2[1] + v1[1])
+    return res > 0
+
+
 def _make_2d_indexed(outline):
+    outline = np.array(outline)
+    if is_cw(outline):
+        # if clockwise, switch around
+        outline = outline[::-1]
     verts, inds = generate_outline(outline, True)
     # run earcut on the inner part
     tmp = flatten(outline.reshape(1, -1, 2))
@@ -68,7 +82,7 @@ class Shape2D(Drawable2D):
     def __init__(self, window,
                  vertices=None,
                  is_filled=True, is_outlined=True,
-                 outline_thickness=0.1,
+                 outline_thickness=0.05,
                  fill_color=white, outline_color=white,
                  *args, **kwargs):
         # context & shader go to Drawable,
@@ -152,10 +166,8 @@ square_vertices = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]]) * 0.5
 cross_vertices = np.array([[-1, 0.2], [-0.2, 0.2], [-0.2, 1], [0.2, 1],
                            [0.2, 0.2], [1, 0.2], [1, -0.2], [0.2, -0.2],
                            [0.2, -1], [-0.2, -1], [-0.2, -0.2], [-1, -0.2]]) * 0.5
-
 arrow_vertices = np.array([[-1, 0.4], [0, 0.4], [0, 0.8], [1, 0],
                            [0, -0.8], [0, -0.4], [-1, -0.4]]) * 0.5
-arrow_vertices = arrow_vertices[::-1]
 line_vertices = np.array([[-0.5, 0], [0.5, 0]])
 
 
@@ -207,12 +219,12 @@ if __name__ == '__main__':
     #win.clear_color = 0,0,0,1
 
     #sqr = Square(win, scale=(0.15, 0.1), outline_color=(0.7, 0.9, 0.2, 1), is_filled=False)
-    sqr = Shape2D(win, vertices=square_vertices[::-1]*np.array([0.3, 0.05]), 
+    sqr = Shape2D(win, vertices=square_vertices*np.array([0.3, 0.05]), 
                   outline_color=(0.1, 0.9, 0.2, 1), 
                   fill_color=(0, 1, 1, 1), outline_thickness=0.01)
     circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1), outline_color=(1, 1, 1, 0.5),
                     is_filled=False)
-    arrow = Arrow(win, scale=(0.15, 0.1), fill_color=(0.9, 0.7, 0.2, 1), 
+    arrow = Arrow(win, scale=(0.1, 0.1), fill_color=(0.9, 0.7, 0.2, 1), 
                   outline_thickness=0.1, outline_color=(1, 1, 1, 1))
     circle.position.x += 0.2
     arrow.position.x -= 0.2
@@ -220,12 +232,16 @@ if __name__ == '__main__':
     poly = Polygon(win, segments=7, scale=(0.08, 0.08), position=(-0.2, -0.2),
                    fill_color=(0.9, 0.2, 0.2, 0.5), outline_color=(0.1, 0.1, 0.1, 1))
     crs = Cross(win, fill_color=(0.2, 0.1, 0.9, 0.7), is_outlined=True,
-                scale=(0.12, 0.10), position=(0.3, 0.3), outline_color=(0.5, 0.0, 0.0, 1))
+                outline_thickness=0.02,
+                scale=(0.1, 0.10), position=(0.3, 0.3), outline_color=(0.5, 0.0, 0.0, 1))
+    
+    sqr3 = Square(win, scale=(0.1, 0.1), fill_color=(0.5, 0.2, 0.9, 0.5), is_outlined=False,
+                  position=(-0.2, 0))
 
     # check that they *do* share the same vertex array
     #assert sqr.vao == sqr2.vao
 
-    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
+    dg = DrawableGroup([sqr3, sqr, sqr2, circle, arrow, poly, crs])
 
     counter = 0
     for i in range(3000):
@@ -235,6 +251,7 @@ if __name__ == '__main__':
         sqr2.rotation = counter
         sqr.rotation = -counter
         arrow.rotation = 1.5*counter
+        sqr3.rotation = 1.5*counter
         circle.rotation = counter
         dg.draw()
         win.flip()

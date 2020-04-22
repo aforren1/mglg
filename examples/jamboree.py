@@ -38,7 +38,7 @@ if __name__ == '__main__':
     check2 = Image2D(win, check_path, position=(0.5, 0),
                      scale=(0.05, 0.05), rotation=0)
     # check that they *do* share the same vertex array
-    assert sqr.vao_fill == sqr2.vao_fill
+    assert sqr.vao == sqr2.vao
 
     particles = ParticleBurst2D(win, scale=0.1, num_particles=1e5)
 

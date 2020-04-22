@@ -46,8 +46,8 @@ void main()
 stipple_frag = """
 #version 330
 
-flat in vec3 start_pos;
-in vec3 vert_pos;
+flat in vec2 start_pos;
+in vec2 vert_pos;
 
 out vec4 f_color;
 
@@ -58,7 +58,7 @@ uniform vec4 color;
 
 void main()
 {
-    vec2  dir  = (vert_pos.xy-start_pos.xy) * u_resolution/2.0;
+    vec2  dir  = (vert_pos-start_pos) * u_resolution/2.0;
     float dist = length(dir);
 
     uint bit = uint(round(dist / u_factor)) & 15U;
@@ -74,18 +74,18 @@ stipple_vert = """
 
 #version 330
 
-layout (location = 0) in vec3 vertices;
+layout (location = 0) in vec2 vertices;
 
-flat out vec3 start_pos;
-out vec3 vert_pos;
+flat out vec2 start_pos;
+out vec2 vert_pos;
 
 uniform mat4 mvp;
 
 void main()
 {
-    vec4 pos    = mvp * vec4(vertices, 1.0);
+    vec4 pos    = mvp * vec4(vertices, 0.0, 1.0);
     gl_Position = pos;
-    vert_pos     = pos.xyz / pos.w;
+    vert_pos     = pos.xy / pos.w;
     start_pos    = vert_pos;
 }
 

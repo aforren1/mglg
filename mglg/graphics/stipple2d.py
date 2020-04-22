@@ -18,9 +18,9 @@ class Stipple2D(Drawable2D):
         width, height = window.size
         self.shader = StippleShader(context)
         if not hasattr(self, '_vertices'):
-            self._vertices, _ = _make_2d_indexed(vertices)
+            self._vertices = np.array(vertices)
 
-        vbo = context.buffer(self._vertices.view(np.ubyte))
+        vbo = context.buffer(self._vertices)
         self.vao = context.simple_vertex_array(self.shader, vbo, 'vertices')
         self._color = Vec4(color)
         self.pattern = pattern
@@ -47,17 +47,16 @@ class Stipple2D(Drawable2D):
 
 
 class StippleSquare(Stipple2D):
-    _vertices, _ = _make_2d_indexed(square_vertices)
-    # TODO: squish vertices kwarg
+    _vertices = np.array(square_vertices, dtype='f4')
 
 
 class StippleLine(Stipple2D):
-    _vertices, _ = _make_2d_indexed(line_vertices)
+    _vertices = np.array(line_vertices, dtype='f4')
 
 
 class StippleArrow(Stipple2D):
-    _vertices, _ = _make_2d_indexed(arrow_vertices)
+    _vertices = np.array(arrow_vertices, dtype='f4')
 
 
 class StippleCircle(Stipple2D):
-    _vertices, _ = _make_2d_indexed(circle_vertices)
+    _vertices = np.array(circle_vertices, dtype='f4')
