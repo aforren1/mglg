@@ -10,7 +10,7 @@ from mglg.graphics.outline import generate_outline
 def _make_2d_indexed(outline):
     verts, inds = generate_outline(outline, True)
     # run earcut on the inner part
-    tmp = flatten(verts['vertices'][1:-2:2].reshape(1, -1, 2))
+    tmp = flatten(outline.reshape(1, -1, 2))
     indices = np.array(earcut(tmp['vertices'], tmp['holes'], tmp['dimensions']), dtype=np.int32)
     # add to existing indices
     indices *= 2
@@ -76,14 +76,12 @@ class Shape2D(Drawable2D):
         super().__init__(window, *args, **kwargs)
         shader = TmpShader(window.ctx)
         self.shader = shader
-
         if not hasattr(self, 'vao'):
             if self._vertices is None:
                 vertices, indices = _make_2d_indexed(vertices)
             else:
                 vertices, indices = self._vertices, self._indices
 
-            print(vertices, indices)
             ctx = window.ctx
             vbo = ctx.buffer(vertices)
             ibo = ctx.buffer(indices)
@@ -98,11 +96,11 @@ class Shape2D(Drawable2D):
         self.is_outlined = is_outlined
         self._fill_color = Vec4(fill_color)
         self._outline_color = Vec4(outline_color)
+        self._outline_thickness = outline_thickness
         self.mvp_unif = shader['mvp']
         self.fill_unif = shader['fill_color']
         self.outline_unif = shader['outline_color']
         self.thick_unif = shader['thickness']
-        self.thick_unif.value = outline_thickness
 
     def draw(self):
         if self.visible:
@@ -111,9 +109,10 @@ class Shape2D(Drawable2D):
             if self.is_filled:
                 self.fill_unif.write(self._fill_color)
             else:
-                self.fill_unif.write(vec4(1.0, 1, 1, 0))
+                self.fill_unif.write(vec4(1, 1, 1, 0))
             if self.is_outlined:
                 self.outline_unif.write(self._outline_color)
+                self.thick_unif.value = self._outline_thickness
             else:
                 self.outline_unif.write(self._fill_color)
             self.vao.render(mgl.TRIANGLES)
@@ -133,6 +132,14 @@ class Shape2D(Drawable2D):
     @outline_color.setter
     def outline_color(self, color):
         self._outline_color.rgba = color
+    
+    @property
+    def outline_thickness(self):
+        return self._outline_thickness
+
+    @outline_thickness.setter
+    def outline_thickness(self, value):
+        self._outline_thickness = value
 
     @classmethod
     def store_vaos(cls, ctx, shader, vbo, ibo):
@@ -197,12 +204,16 @@ if __name__ == '__main__':
     import glm
 
     win = Win()
-    win.clear_color = 0,0,0,1
+    #win.clear_color = 0,0,0,1
 
-    sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), is_outlined=False)
+    #sqr = Square(win, scale=(0.15, 0.1), outline_color=(0.7, 0.9, 0.2, 1), is_filled=False)
+    sqr = Shape2D(win, vertices=square_vertices[::-1]*np.array([0.3, 0.05]), 
+                  outline_color=(0.1, 0.9, 0.2, 1), 
+                  fill_color=(0, 1, 1, 1), outline_thickness=0.01)
     circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1), outline_color=(1, 1, 1, 0.5),
                     is_filled=False)
-    arrow = Arrow(win, scale=(0.15, 0.1), fill_color=(0.9, 0.7, 0.2, 1), outline_color=(1, 1, 1, 0.5))
+    arrow = Arrow(win, scale=(0.15, 0.1), fill_color=(0.9, 0.7, 0.2, 1), 
+                  outline_thickness=0.1, outline_color=(1, 1, 1, 1))
     circle.position.x += 0.2
     arrow.position.x -= 0.2
     sqr2 = Square(win, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 0.1, 0.6))
@@ -212,7 +223,7 @@ if __name__ == '__main__':
                 scale=(0.12, 0.10), position=(0.3, 0.3), outline_color=(0.5, 0.0, 0.0, 1))
 
     # check that they *do* share the same vertex array
-    assert sqr.vao == sqr2.vao
+    #assert sqr.vao == sqr2.vao
 
     dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
 
@@ -223,8 +234,8 @@ if __name__ == '__main__':
         sqr2.position.y = sqr2.position.x
         sqr2.rotation = counter
         sqr.rotation = -counter
-        #arrow.rotation = counter
-        #circle.rotation = counter
+        arrow.rotation = 1.5*counter
+        circle.rotation = counter
         dg.draw()
         win.flip()
         if win.should_close:
