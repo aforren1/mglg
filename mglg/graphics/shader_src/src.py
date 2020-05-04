@@ -146,7 +146,7 @@ text_vert = """
 #version 330
 uniform mat4 mvp;
 
-in vec3 vertices;
+in vec2 vertices;
 in vec2 texcoord;
 in float offset;
 
@@ -155,7 +155,7 @@ out float v_offset;
 
 void main()
 {
-    gl_Position = mvp * vec4(vertices, 1.0);
+    gl_Position = mvp * vec4(vertices, 0.0, 1.0);
     v_texcoord = texcoord;
     v_offset = offset;
 }

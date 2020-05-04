@@ -10,7 +10,6 @@ import freetype
 class AggFont(object):
 
     def __init__(self, filename, size, atlas):
-
         self.filename = filename
         self.atlas = atlas
         self.size = size

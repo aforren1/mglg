@@ -9,11 +9,11 @@ from mglg.graphics.font.font_manager import FontManager
 from mglg.graphics.shaders import TextShader
 
 ascii_alphanum = ascii_letters + digits + punctuation + whitespace
-
+ascii_alphanum = ascii_alphanum + 'ÁÉÍÓÚÑÜáéíóúñü¿¡'
 
 class Text2D(Drawable2D):
     def __init__(self, window, text, font, color=(1, 1, 1, 1),
-                 anchor_x='center', anchor_y='center', font_size=128, *args, **kwargs):
+                 anchor_x='center', anchor_y='center', font_size=32, *args, **kwargs):
         super().__init__(window, *args, **kwargs)
         context = self.win.ctx
         width, height = self.win.size
@@ -21,13 +21,14 @@ class Text2D(Drawable2D):
         self._color = Vec4(color)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
-        fnt = FontManager.get(font, font_size)
+        fnt = FontManager.get(font, font_size, mode='agg')
         self.font = fnt
         self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
         vertices, indices = self.bake(text)
         manager = FontManager()
         atlas = manager.atlas_agg
         self.atlas = context.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
+        self.atlas.filter = (mgl.LINEAR, mgl.LINEAR)
         vbo = context.buffer(vertices)
         ibo = context.buffer(indices)
         self.vao = context.vertex_array(self.shader,
@@ -165,6 +166,7 @@ class DynamicText2D(Text2D):
         self.prefetch(prefetch + text)
         atlas = manager.atlas_agg
         self.atlas = ctx.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
+        self.atlas.filter = (mgl.LINEAR, mgl.LINEAR)
         n = expected_chars * 10  # reserve 10x
         vert_bytes = n * 4 * 5 * 4  # chars x verts per char x floats per vert x bytes per float
         ind_bytes = n * 6 * 4
@@ -226,9 +228,9 @@ if __name__ == '__main__':
 
     t0 = default_timer()
     bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
-                    text='1234567890', font=font_path, position=(-0.4, 0), rotation=90, font_size=128)
+                    text='1234567890', font=font_path, position=(-0.4, 0), rotation=90, font_size=32)
     bases = Text2D(win, scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
-                   text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4), font_size=128)
+                   text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4), font_size=64)
 
     foobar = '┻━┻︵ \(°□°)/ ︵ ┻━┻'
     countup = DynamicText2D(win, text='123', scale=0.1, expected_chars=20,
