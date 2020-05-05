@@ -13,6 +13,7 @@ from mglg.graphics.image2d import Image2D, texture_cache
 from mglg.graphics.particle2d import ParticleBurst2D
 from mglg.graphics.stipple2d import StippleArrow
 from mglg.graphics.text2d import Text2D, DynamicText2D
+from mglg.util.profiler import Profiler
 # from toon.util import priority
 # import gamemode as gm
 
@@ -53,7 +54,7 @@ if __name__ == '__main__':
                     text='pequeño', font=font_path, position=(-0.4, 0), rotation=90)
 
     countup = DynamicText2D(win, text='0', scale=0.05, expected_chars=8,
-                            font=font_path, position=(-0.6, 0.4),
+                            font=font_path, position=(0.6, 0.4),
                             prefetch='0123456789')
 
     dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
@@ -61,7 +62,8 @@ if __name__ == '__main__':
     prt = DrawableGroup([particles])
     stp = DrawableGroup([stiparrow])
     txt = DrawableGroup([countup, bases, bases2])
-    #qry = win.ctx.query(time=True)
+    prof = Profiler(gpu=True, ctx=win.ctx)
+    prof.active = True
 
     def update(win, counter):
         counter += 1
@@ -74,7 +76,6 @@ if __name__ == '__main__':
         if counter % 11 == 0:
             countup.text = str(counter)
         countup.color = np.random.random(4)
-        #with qry:
         if counter % 100 == 0:
             particles.explode()
         dg.draw()
@@ -84,17 +85,22 @@ if __name__ == '__main__':
         txt.draw()
         imgui.new_frame()
         imgui.show_demo_window()
-        #if counter % 10 == 0:
-        #    print('GPU time: %f ms' % (qry.elapsed/1000000))
         return counter
 
     counter = 0
     vals = []
     dts = []
-    for i in range(int(60 * 60 * 1)):
-        t0 = default_timer()
-        counter = update(win, counter)
-        vals.append(default_timer() - t0)
+    for i in range(int(60 * 60 * 2)):
+        with prof:
+            counter = update(win, counter)
+        imgui.set_next_window_position(10, 10)
+        imgui.set_next_window_size(270, 300)
+        imgui.begin('stats')
+        imgui.plot_lines('CPU', prof.buffer['cpu'].astype('f'),
+                         scale_min=0, scale_max=0.05, graph_size=(180, 100))
+        imgui.plot_lines('GPU', prof.buffer['gpu'].astype('f'),
+                         scale_min=0, scale_max=0.5, graph_size=(180, 100))
+        imgui.end()
         win.flip()
         dts.append(win.dt)
         if win.should_close:
@@ -106,4 +112,3 @@ if __name__ == '__main__':
     # plt.plot(dts[3:])
     # vals = dts[3:]
     # plt.show()
-    print('mean: %f, std: %f, max: %f' % (np.mean(vals), np.std(vals), max(vals)))
