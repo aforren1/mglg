@@ -67,12 +67,12 @@ void main()
 }
 """
 
-tmp_shader = None
-def TmpShader(context):
-    global tmp_shader
-    if tmp_shader is None:
-        tmp_shader = context.program(vertex_shader=flat_vert, fragment_shader=flat_frag)
-    return tmp_shader
+flat_shader = None
+def FlatShader(context):
+    global flat_shader
+    if flat_shader is None:
+        flat_shader = context.program(vertex_shader=flat_vert, fragment_shader=flat_frag)
+    return flat_shader
 
 class Shape2D(Drawable2D):
     _vertices = None
@@ -88,7 +88,7 @@ class Shape2D(Drawable2D):
         # context & shader go to Drawable,
         # kwargs should be position/ori/scale
         super().__init__(window, *args, **kwargs)
-        shader = TmpShader(window.ctx)
+        shader = FlatShader(window.ctx)
         self.shader = shader
         if not hasattr(self, 'vao'):
             if self._vertices is None:
@@ -211,7 +211,6 @@ class Circle(Shape2D):
 
 if __name__ == '__main__':
     from mglg.graphics.drawable import DrawableGroup
-    from mglg.graphics.shaders import FlatShader
     from mglg.graphics.win import Win
     import glm
 

@@ -47,10 +47,10 @@ if __name__ == '__main__':
 
     # bump up font size for crisper look
     font_path = op.join(op.dirname(__file__), 'UbuntuMono-B.ttf')
-    bases = Text2D(win, scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
-                   text='\u2620Tengo un gatito pequeñito\u2620', font=font_path, position=(0, -0.4))
-    bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
-                    text='\u2611pequeño\u2611', font=font_path, position=(-0.4, 0), rotation=90)
+    bases = Text2D(win, scale=(0.1, 0.1), fill_color=(1, 0.1, 0.1, 0.7),
+                   text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4))
+    bases2 = Text2D(win, scale=(0.05, 0.05), fill_color=(0.1, 1, 0.1, 1),
+                    text='pequeño', font=font_path, position=(-0.4, 0), rotation=90)
 
     countup = DynamicText2D(win, text='0', scale=0.05, expected_chars=8,
                             font=font_path, position=(-0.6, 0.4),

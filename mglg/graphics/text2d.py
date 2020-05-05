@@ -3,52 +3,138 @@ import numpy as np
 from numpy import float32, uint32
 
 import moderngl as mgl
-from mglg.math.vector import Vec4
+from mglg.math.vector import Vec4, Vec2
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.font.font_manager import FontManager
-from mglg.graphics.shaders import TextShader
+
 
 ascii_alphanum = ascii_letters + digits + punctuation + whitespace
 ascii_alphanum = ascii_alphanum + 'ÁÉÍÓÚÑÜáéíóúñü¿¡'
 
+vs = '''
+#version 330
+uniform mat4 mvp;
+
+in vec2 vertices;
+in vec2 texcoord;
+out vec2 v_texcoord;
+
+void main()
+{
+    gl_Position = mvp * vec4(vertices, 0.0, 1.0);
+    v_texcoord = texcoord;
+}
+'''
+# TODO: see https://github.com/libgdx/libgdx/wiki/Distance-field-fonts
+fs = '''
+#version 330
+uniform vec4 fill_color;
+uniform vec4 outline_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform sampler2D atlas_data;
+uniform float smoothness = 0.02;
+uniform vec2 outline_range = vec2(0.5, 0.3);
+
+in vec2 v_texcoord;
+out vec4 f_color;
+
+void main()
+{
+    float intensity = texture2D(atlas_data, v_texcoord).r;
+    f_color = smoothstep(outline_range.x - smoothness, outline_range.x + smoothness, intensity) * fill_color;
+
+    // outline
+    if (outline_range.x > outline_range.y)
+    {
+        float mid = (outline_range.x + outline_range.y) * 0.5;
+        float half_range = (outline_range.x - outline_range.y) * 0.5;
+        f_color += smoothstep(half_range + smoothness, half_range - smoothness, distance(mid, intensity)) * outline_color;
+    }
+}
+
+'''
+
+sdf_shader = None
+def SDFShader(context):
+    global sdf_shader
+    if sdf_shader is None:
+        sdf_shader = context.program(vertex_shader=vs, fragment_shader=fs)
+    return sdf_shader
+
 class Text2D(Drawable2D):
-    def __init__(self, window, text, font, color=(1, 1, 1, 1),
-                 anchor_x='center', anchor_y='center', font_size=32, *args, **kwargs):
+    def __init__(self, window, text, font, 
+                 fill_color=(0, 1, 0, 1), outline_color=(1, 1, 1, 1),
+                 smoothness = 0.04, outline_range=(0.6, 0.4),
+                 anchor_x='center', anchor_y='center', *args, **kwargs):
         super().__init__(window, *args, **kwargs)
-        context = self.win.ctx
-        width, height = self.win.size
-        self.shader = TextShader(context)
-        self._color = Vec4(color)
+        ctx = self.win.ctx
+        self.shader = SDFShader(ctx)
+        self._fill_color = Vec4(fill_color)
+        self._outline_color = Vec4(outline_color)
+        self._smoothness = smoothness
+        self._outline_range = Vec2(outline_range)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
-        fnt = FontManager.get(font, font_size, mode='agg')
+        fnt = FontManager.get(font)
         self.font = fnt
         self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
         vertices, indices = self.bake(text)
         manager = FontManager()
-        atlas = manager.atlas_agg
-        self.atlas = context.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
+        atlas = manager.atlas_sdf
+        self.atlas = ctx.texture(atlas.shape[0:2], 1, atlas.view(np.ubyte), dtype='f4')
         self.atlas.filter = (mgl.LINEAR, mgl.LINEAR)
-        vbo = context.buffer(vertices)
-        ibo = context.buffer(indices)
-        self.vao = context.vertex_array(self.shader,
-                                        [   # TODO: pad? maybe doesn't matter 'cause we're not streaming
-                                            (vbo, '2f 2f 1f', 'vertices', 'texcoord', 'offset')
-                                        ],
-                                        index_buffer=ibo)
-
-        self.shader['viewport'].value = width, height
+        vbo = ctx.buffer(vertices)
+        ibo = ctx.buffer(indices)
+        self.vao = ctx.vertex_array(self.shader, [(vbo, '2f 2f', 'vertices', 'texcoord')],
+                                    index_buffer=ibo)
         self.atlas.use()
         self.mvp_unif = self.shader['mvp']
-        self.color_unif = self.shader['color']
-
+        self.fill_unif = self.shader['fill_color']
+        self.outline_unif = self.shader['outline_color']
+        self.smooth_unif = self.shader['smoothness']
+        self.outline_range_unif = self.shader['outline_range']
+    
     def draw(self):
         if self.visible:
             self.atlas.use()
             mvp = self.win.vp * self.model_matrix
             self.mvp_unif.write(mvp)
-            self.color_unif.write(self._color)
+            self.fill_unif.write(self._fill_color)
+            self.outline_unif.write(self._outline_color)
+            self.smooth_unif.value = self._smoothness
+            self.outline_range_unif.write(self._outline_range)
             self.vao.render(mgl.TRIANGLES)
+
+    @property
+    def fill_color(self):
+        return self._fill_color
+
+    @fill_color.setter
+    def fill_color(self, color):
+        self._fill_color.rgba = color
+
+    @property
+    def outline_color(self):
+        return self._outline_color
+
+    @outline_color.setter
+    def outline_color(self, color):
+        self._outline_color.rgba = color
+    
+    @property
+    def smoothness(self):
+        return self._smoothness
+    
+    @smoothness.setter
+    def smoothness(self, value):
+        self._smoothness = value
+    
+    @property
+    def outline_range(self):
+        return self._outline_range
+    
+    @outline_range.setter
+    def outline_range(self, value):
+        self.outline_range.rg = value
 
     def bake(self, text):
         font = self.font
@@ -57,8 +143,7 @@ class Text2D(Drawable2D):
         n = len(text) - text.count('\n')
         indices = np.empty((n, 6), dtype=uint32)
         vertices = np.empty((n, 4), dtype=[('vertices', float32, 2),
-                                           ('texcoord', float32, 2),
-                                           ('offset', float32)])
+                                           ('texcoord', float32, 2)])
 
         start = 0
         pen = [0, 0]
@@ -84,21 +169,18 @@ class Text2D(Drawable2D):
                 glyph = font[charcode]
                 kerning = glyph.get_kerning(prev)
                 x0 = pen[0] + glyph.offset[0] + kerning
-                offset = x0-int(x0)
-                x0 = int(x0)
                 y0 = pen[1] + glyph.offset[1]
-                x1 = x0 + glyph.shape[0]
-                y1 = y0 - glyph.shape[1]
+                x1 = x0 + glyph.shape[1]
+                y1 = y0 - glyph.shape[0]
                 u0, v0, u1, v1 = glyph.texcoords
                 vertices[index]['vertices'] = ((x0, y0), (x0, y1),
                                                (x1, y1), (x1, y0))
                 vertices[index]['texcoord'] = ((u0, v0), (u0, v1),
                                                (u1, v1), (u1, v0))
-                vertices[index]['offset'] = offset
                 indices[index] = index*4
                 indices[index] += tmp
-                pen[0] = pen[0]+glyph.advance[0]/64. + kerning
-                pen[1] = pen[1]+glyph.advance[1]/64.
+                pen[0] = pen[0]+glyph.advance[0] + kerning
+                pen[1] = pen[1]+glyph.advance[1]
                 prev = charcode
                 index += 1
 
@@ -116,7 +198,7 @@ class Text2D(Drawable2D):
                 dx = -width/2.0
             else:
                 dx = 0
-            vertices[start:end]['vertices'] += round(dx), 0
+            vertices[start:end]['vertices'] += dx, 0
 
         # Adjusting whole label
         # same: adjust so that pixel-coordinate vertices are centered
@@ -128,7 +210,7 @@ class Text2D(Drawable2D):
             dy = -font.descender + text_height
         else:
             dy = 0
-        vertices['vertices'] += 0, round(dy)
+        vertices['vertices'] += 0, dy
         # make sure it's 1D
         vertices = vertices.ravel()
         # normalize to height (so vertices run from [-0.5, 0.5])
@@ -139,52 +221,46 @@ class Text2D(Drawable2D):
         indices = indices.ravel()
         return vertices, indices
 
-    @property
-    def color(self):
-        return self._color
-
-    @color.setter
-    def color(self, color):
-        self._color.rgba = color
-
-
 class DynamicText2D(Text2D):
-    def __init__(self, window, text='', font=None,
-                 color=(1, 1, 1, 1), anchor_x='center',
-                 anchor_y='center', font_size=128, expected_chars=300,
-                 prefetch=ascii_alphanum, *args, **kwargs):
+    def __init__(self, window, text='', font=None, 
+                 fill_color=(0, 1, 0, 1), outline_color=(1, 1, 1, 1),
+                 smoothness = 0.02, outline_range=(0.5, 0.3),
+                 anchor_x='center', anchor_y='center', 
+                 expected_chars=300, prefetch=ascii_alphanum, *args, **kwargs):
         super(Drawable2D, self).__init__(window, *args, **kwargs)
         ctx = self.win.ctx
-        width, height = self.win.size
-        self.shader = TextShader(ctx)
-        self._color = Vec4(color)
+        self.shader = SDFShader(ctx)
+        self._fill_color = Vec4(fill_color)
+        self._outline_color = Vec4(outline_color)
+        self._smoothness = smoothness
+        self._outline_range = Vec2(outline_range)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
-        fnt = FontManager.get(font, font_size)
+        fnt = FontManager.get(font)
         self.font = fnt
+        self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
         manager = FontManager()
         self.prefetch(prefetch + text)
-        atlas = manager.atlas_agg
-        self.atlas = ctx.texture(atlas.shape[0:2], 3, atlas.view(np.ubyte))
+        atlas = manager.atlas_sdf
+        self.atlas = ctx.texture(atlas.shape[0:2], 1, atlas.view(np.ubyte), dtype='f4')
         self.atlas.filter = (mgl.LINEAR, mgl.LINEAR)
-        n = expected_chars * 10  # reserve 10x
-        vert_bytes = n * 4 * 5 * 4  # chars x verts per char x floats per vert x bytes per float
+        n = expected_chars * 10 # reserve 10x expected number
+        vert_bytes = n * 4 * 4 * 4 # chars x verts per char x floats per vert x bytes per float
         ind_bytes = n * 6 * 4
         self.vbo = ctx.buffer(reserve=vert_bytes, dynamic=True)
         self.ibo = ctx.buffer(reserve=ind_bytes, dynamic=True)
         self.vao = ctx.vertex_array(self.shader,
-                                    [   # TODO: pad? we're streaming here
-                                        (self.vbo, '2f 2f 1f', 'vertices', 'texcoord', 'offset')
-                                    ],
+                                    [(self.vbo, '2f 2f', 'vertices', 'texcoord')],
                                     index_buffer=self.ibo)
-        self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
         self._text = ''
         if text != '':
             self.text = text
-        self.shader['viewport'].value = width, height
         self.atlas.use()
         self.mvp_unif = self.shader['mvp']
-        self.color_unif = self.shader['color']
+        self.fill_unif = self.shader['fill_color']
+        self.outline_unif = self.shader['outline_color']
+        self.smooth_unif = self.shader['smoothness']
+        self.outline_range_unif = self.shader['outline_range']
         self.num_vertices = 0
 
     @property
@@ -201,57 +277,61 @@ class DynamicText2D(Text2D):
             self.vbo.write(vertices)
             self.ibo.write(indices)
             self._text = new_txt
-
+    
     def draw(self):
         if self.visible and self._text != '':
             self.atlas.use()
             mvp = self.win.vp * self.model_matrix
             self.mvp_unif.write(mvp)
-            self.color_unif.write(self._color)
-            self.vao.render(mode=mgl.TRIANGLES, vertices=self.num_vertices)
-
+            self.fill_unif.write(self._fill_color)
+            self.outline_unif.write(self._outline_color)
+            self.smooth_unif.value = self._smoothness
+            self.outline_range_unif.write(self._outline_range)
+            self.vao.render(mgl.TRIANGLES, vertices=self.num_vertices)
+    
     def prefetch(self, chars):
         # store these
         for charcode in chars:
             if charcode != '\n':
                 x = self.font[charcode]
 
-
 if __name__ == '__main__':
     import os.path as op
     from timeit import default_timer
     from mglg.graphics.win import Win
+    from mglg.graphics.shape2d import Square
     from mglg.graphics.drawable import DrawableGroup
+    from math import sin, cos
     win = Win()
 
     font_path = op.join(op.dirname(__file__), '..', '..', 'examples', 'UbuntuMono-B.ttf')
-
     t0 = default_timer()
-    bases2 = Text2D(win, scale=(0.05, 0.05), color=(0.1, 1, 0.1, 1),
-                    text='1234567890', font=font_path, position=(-0.4, 0), rotation=90, font_size=32)
-    bases = Text2D(win, scale=(0.1, 0.1), color=(1, 0.1, 0.1, 0.7),
-                   text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4), font_size=64)
-
-    foobar = '┻━┻︵ \(°□°)/ ︵ ┻━┻'
-    countup = DynamicText2D(win, text='123', scale=0.1, expected_chars=20,
-                            font=font_path, position=(0, 0), font_size=32,
-                            prefetch='0123456789' + foobar)
+    bases = Text2D(win, scale=0.1, fill_color=(1, 0.1, 0.1, 0.5), position=(0, 0),
+                   outline_color=(0.2, 0.2, 1, 0.8), text='Tengo un\ngatito pequeñito', 
+                   font=font_path, anchor_x='right')
+    
+    dynbs = DynamicText2D(win, scale=0.08, fill_color=(0.8, 0.8, 0.1, 1), font=font_path,
+                          position=(0.3, 0.3), expected_chars=20,
+                          outline_range=(0.7, 0.5), smoothness=0.04)
     print('startup time: %f' % (default_timer() - t0))
-    # countup.prefetch('0123456789')
 
-    txt = DrawableGroup([bases, countup, bases2])
-    counter = 0
-    for i in range(1200):
-        counter += 12
-        if counter % 96 == 0:
-            countup.text = foobar
-        else:
-            countup.text = str(counter)
+    sqr = Square(win, scale=0.1)
+
+    txt = DrawableGroup([bases, dynbs])
+    count = 0
+    for i in range(3000):
+        if i % 10 == 0:
+            dynbs.text = ascii_alphanum[(count) % (len(ascii_alphanum)-20)]
+            count += 1
+            dynbs.scale = cos(i/100)*0.2
+            #dynbs.text = str(i)
+        bases.rotation += 1
+        bases.scale = sin(i/100) * 0.2 
+        sqr.draw()
         txt.draw()
         win.flip()
         if win.should_close:
             break
         if win.dt > 0.02:
             print(win.dt)
-
     win.close()

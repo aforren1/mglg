@@ -41,5 +41,4 @@ if __name__ == '__main__':
     with open(out_path, 'rb') as f:
         iatlas = pkl.load(f)
         iglyphs = pkl.load(f)
-    print(iatlas.shape)
-    print(out_path)
+    print('Pickled font saved to %s' % out_path)

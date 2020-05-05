@@ -82,7 +82,7 @@ class Win(object):
         self.should_close = False
         self.ctx.clear(*self.clear_color)
 
-        self._use_imgui = use_imgui
+        self.use_imgui = use_imgui
         imgui.create_context()
         self.imrenderer = GlfwRenderer(self)
 
@@ -92,7 +92,7 @@ class Win(object):
             self.should_close = True
 
     def flip(self):
-        if self._use_imgui:
+        if self.use_imgui:
             self.imrenderer.process_inputs()
             imgui.render()
             self.imrenderer.render(imgui.get_draw_data())
@@ -125,14 +125,6 @@ class Win(object):
             glfw.set_input_mode(self._win, glfw.CURSOR, glfw.CURSOR_NORMAL)
         else:
             glfw.set_input_mode(self._win, glfw.CURSOR, glfw.CURSOR_HIDDEN)
-
-    @property
-    def use_imgui(self):
-        return self._use_imgui
-
-    @use_imgui.setter
-    def use_imgui(self, val):
-        self._use_imgui = val
 
 
 if __name__ == '__main__':

@@ -99,6 +99,19 @@ void main() {
 }
 """
 
+particle_prog = None
+particle_trans = None
+def ParticleShaders(ctx):
+    global particle_prog
+    global particle_trans
+    if particle_prog is None:
+        particle_prog = ctx.program(vertex_shader=vert_str, fragment_shader=frag_str)
+        particle_trans = ctx.program(
+            vertex_shader=trans_vert_str,
+            geometry_shader=trans_geom_str,
+            varyings=['out_pos', 'out_vel', 'out_color']
+        )
+    return particle_prog, particle_trans
 
 class ParticleBurst2D(Drawable2D):
     def __init__(self, win, num_particles=1e5, *args, **kwargs):
@@ -111,16 +124,7 @@ class ParticleBurst2D(Drawable2D):
         from glm import vec2
         self.prev_pos = vec2()
 
-        self.prog = ctx.program(
-            vertex_shader=vert_str,
-            fragment_shader=frag_str
-        )
-
-        self.transform = ctx.program(
-            vertex_shader=trans_vert_str,
-            geometry_shader=trans_geom_str,
-            varyings=['out_pos', 'out_vel', 'out_color']
-        )
+        self.prog, self.transform = ParticleShaders(ctx)
 
         self.N = int(num_particles)
         self.stride = 32  # byte stride per vertex

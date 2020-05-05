@@ -6,8 +6,6 @@
 import os
 import numpy as np
 from . atlas import Atlas
-#from glumpy.gloo.atlas import Atlas
-from .agg_font import AggFont
 from .sdf_font import SDFFont
 import importlib.resources as pkg_resources
 import pickle as pkl
@@ -21,11 +19,9 @@ class FontManager(object):
     """
 
     # Default atlas
-    _atlas_agg = None
     _atlas_sdf = None
 
     # Font cache
-    _cache_agg = {}
     _cache_sdf = {}
 
     # The singleton instance
@@ -37,7 +33,7 @@ class FontManager(object):
         return cls._instance
 
     @classmethod
-    def get(cls, filename, size=12, mode='agg'):
+    def get(cls, filename):
         """
         Get a font from the cache, the local data directory or the distant server
         (in that order).
@@ -54,30 +50,18 @@ class FontManager(object):
         except FileNotFoundError:
             print('no exist')
 
-        if mode == 'sdf':
-            key = '%s' % (basename)
-            if FontManager._atlas_sdf is None:
-                FontManager._atlas_sdf = np.zeros((1024, 1024), np.float32).view(Atlas)
-            atlas = FontManager._atlas_sdf
-            cache = FontManager._cache_sdf
+        key = '%s' % (basename)
+        if FontManager._atlas_sdf is None:
+            FontManager._atlas_sdf = np.zeros((1024, 1024), np.float32).view(Atlas)
+        atlas = FontManager._atlas_sdf
+        cache = FontManager._cache_sdf
 
-            if key not in cache.keys():
-                cache[key] = SDFFont(filename, atlas)
-            
-            if glyphs is not None:
-                cache[key].glyphs = glyphs
+        if key not in cache.keys():
+            cache[key] = SDFFont(filename, atlas)
+        
+        if glyphs is not None:
+            cache[key].glyphs = glyphs
 
-        else:
-            key = '%s-%d' % (basename, size)
-            if FontManager._atlas_agg is None:
-                # interesting that agg atlas is RGB?
-                FontManager._atlas_agg = np.empty((1024, 1024, 3), np.ubyte).view(Atlas)
-
-            atlas = FontManager._atlas_agg
-            cache = FontManager._cache_agg
-            if key not in cache.keys():
-                # AggFont does the actual loading
-                cache[key] = AggFont(filename, size, atlas)
         return cache[key]
 
     @property
@@ -85,9 +69,3 @@ class FontManager(object):
         if FontManager._atlas_sdf is None:
             FontManager._atlas_sdf = np.zeros((1024, 1024), np.float32).view(Atlas)
         return FontManager._atlas_sdf
-
-    @property
-    def atlas_agg(self):
-        if FontManager._atlas_agg is None:
-            FontManager._atlas_agg = np.empty((1024, 1024, 3), np.ubyte).view(Atlas)
-        return FontManager._atlas_agg
