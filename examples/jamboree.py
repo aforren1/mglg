@@ -96,8 +96,10 @@ if __name__ == '__main__':
         imgui.set_next_window_position(10, 10)
         imgui.set_next_window_size(270, 300)
         imgui.begin('stats (milliseconds)')
+        imgui.text('Worst CPU: %f' % prof.worst_cpu)
         imgui.plot_lines('CPU', prof.cpubuffer,
                             scale_min=0, scale_max=30, graph_size=(180, 100))
+        imgui.text('Worst GPU: %f' % prof.worst_gpu)
         imgui.plot_lines('GPU', prof.gpubuffer,
                             scale_min=0, scale_max=10, graph_size=(180, 100))
         imgui.end()

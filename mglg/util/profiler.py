@@ -2,8 +2,9 @@ from timeit import default_timer
 import numpy as np
 
 class Profiler(object):
-    __slots__ = ('active', 'gpuquery', 't0', 'cpubuffer', 'gpubuffer', 'counter', '_size')
-    def __init__(self, gpu=False, ctx=None, buffer_size=100):
+    __slots__ = ('active', 'gpuquery', 't0', 'cpubuffer', 'gpubuffer', 'counter', '_size',
+                 'worst_cpu', 'worst_gpu')
+    def __init__(self, gpu=False, ctx=None, buffer_size=200):
         self.active = False
         self.gpuquery = None
         if gpu and ctx is not None:
@@ -12,6 +13,8 @@ class Profiler(object):
         self.gpubuffer = np.zeros(buffer_size, dtype='f4')
         self._size = buffer_size
         self.counter = 0
+        self.worst_cpu = 0
+        self.worst_gpu = 0
 
     def begin(self):
         if self.active:
@@ -31,9 +34,16 @@ class Profiler(object):
             else:
                 idx = self.counter
                 self.counter += 1
-            self.cpubuffer[idx] = (t1 - self.t0) * 1000 # ms
+                self.worst_gpu = 0
+                self.worst_cpu = 0
+            cpu_time = (t1 - self.t0) * 1000 # ms
+            self.cpubuffer[idx] = cpu_time
+            self.worst_cpu = cpu_time if cpu_time > self.worst_cpu else self.worst_cpu 
             if self.gpuquery:
-                self.gpubuffer[idx] = self.gpuquery.elapsed/1000000.0 # ms
+                gpu_time = self.gpuquery.elapsed/1000000.0 # ms
+                self.gpubuffer[idx] = gpu_time
+                self.worst_gpu = gpu_time if gpu_time > self.worst_gpu else self.worst_gpu
+
 
     def __enter__(self):
         self.begin()
