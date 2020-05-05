@@ -48,7 +48,7 @@ class FontManager(object):
                 FontManager._atlas_sdf = pkl.load(f)
                 glyphs = pkl.load(f)
         except FileNotFoundError:
-            print('no exist')
+            pass
 
         key = '%s' % (basename)
         if FontManager._atlas_sdf is None:

@@ -7,12 +7,9 @@ from mglg.ext.sdf import compute_sdf
 # https://github.com/glumpy/glumpy/blob/c50daeca5b3f99161992062f771705be9b47f428/glumpy/graphics/text/sdf_font.py
 def bilinear_interpolate(im, x, y):
     """ By Alex Flint on StackOverflow """
-    x = np.asarray(x)
-    y = np.asarray(y)
-
-    x0 = np.floor(x).astype(int)
+    x0 = x.astype(np.int32)
     x1 = x0 + 1
-    y0 = np.floor(y).astype(int)
+    y0 = y.astype(np.int32)
     y1 = y0 + 1
 
     x0 = np.clip(x0, 0, im.shape[1]-1)
