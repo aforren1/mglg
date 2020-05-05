@@ -2,7 +2,6 @@ import setuptools
 import sys
 from Cython.Build import cythonize
 from setuptools.extension import Extension
-import numpy as np
 
 ext = Extension('mglg.ext.sdf', 
                 sources=["mglg/ext/sdf/_sdf.pyx", "mglg/ext/sdf/sdf.c"])
