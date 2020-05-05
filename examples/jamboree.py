@@ -95,11 +95,11 @@ if __name__ == '__main__':
             counter = update(win, counter)
         imgui.set_next_window_position(10, 10)
         imgui.set_next_window_size(270, 300)
-        imgui.begin('stats')
-        imgui.plot_lines('CPU', prof.buffer['cpu'].astype('f'),
-                         scale_min=0, scale_max=0.05, graph_size=(180, 100))
-        imgui.plot_lines('GPU', prof.buffer['gpu'].astype('f'),
-                         scale_min=0, scale_max=0.5, graph_size=(180, 100))
+        imgui.begin('stats (milliseconds)')
+        imgui.plot_lines('CPU', prof.cpubuffer,
+                            scale_min=0, scale_max=30, graph_size=(180, 100))
+        imgui.plot_lines('GPU', prof.gpubuffer,
+                            scale_min=0, scale_max=10, graph_size=(180, 100))
         imgui.end()
         win.flip()
         dts.append(win.dt)
