@@ -64,14 +64,15 @@ if __name__ == '__main__':
     #qry = win.ctx.query(time=True)
 
     def update(win, counter):
-        counter += 4
+        counter += 1
         sqr2.position = sin(counter/200)/2, cos(counter/200)/3
         sqr2.rotation = 2*counter
         sqr.rotation = -counter
         arrow.rotation = counter
         circle.rotation = counter
         stiparrow.rotation = -counter
-        countup.text = str(counter)
+        if counter % 11 == 0:
+            countup.text = str(counter)
         countup.color = np.random.random(4)
         #with qry:
         if counter % 100 == 0:

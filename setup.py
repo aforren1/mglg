@@ -28,5 +28,5 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    ext_modules=cythonize(ext, compiler_directives={'language_level': 3})
+    ext_modules=cythonize(ext, compiler_directives={'language_level': 3}, annotate=True)
 )

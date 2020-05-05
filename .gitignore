@@ -8,3 +8,4 @@ imgui.ini
 build/
 *.pkl
 _sdf.c
+*.html
