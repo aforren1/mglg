@@ -9,3 +9,4 @@ build/
 *.pkl
 _sdf.c
 *.html
+particle.c

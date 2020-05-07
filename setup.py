@@ -2,9 +2,15 @@ import setuptools
 import sys
 from Cython.Build import cythonize
 from setuptools.extension import Extension
+import numpy as np
 
-ext = Extension('mglg.ext.sdf', 
-                sources=["mglg/ext/sdf/_sdf.pyx", "mglg/ext/sdf/sdf.c"])
+defs = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+ext = [Extension('mglg.ext.sdf', 
+                sources=["mglg/ext/sdf/_sdf.pyx", "mglg/ext/sdf/sdf.c"]),
+       Extension('mglg.graphics.particle',
+                 sources=['mglg/graphics/particle.pyx'],
+                 include_dirs=[np.get_include()],
+                 define_macros=defs)]
 
 with open("README.md", "r") as f:
     long_description = f.read()

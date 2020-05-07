@@ -1,5 +1,6 @@
 import numpy as np
 
+# from https://stackoverflow.com/a/56923189/2690232
 # define normalized 2D gaussian
 def gaus2d(x=0, y=0, mx=0, my=0, sx=1, sy=1):
     return 1. / (2. * np.pi * sx * sy) * np.exp(-((x - mx)**2. / (2. * sx**2.) + (y - my)**2. / (2. * sy**2.)))
