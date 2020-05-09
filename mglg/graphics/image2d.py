@@ -9,12 +9,12 @@ texture_cache = {}
 image_vert = """
 #version 330
 uniform mat4 mvp; // depends on screen dims
-in vec3 vertices;
+in vec2 vertices;
 in vec2 texcoord;
 out vec2 v_texcoord;
 void main()
 {
-    gl_Position = mvp * vec4(vertices, 1.0);
+    gl_Position = mvp * vec4(vertices, 0.0, 1.0);
     v_texcoord = texcoord;
 }
 """
@@ -61,10 +61,10 @@ class Image2D(Drawable2D):
         self.alpha_unif = self.shader['alpha']
 
         if self.vao is None:
-            vertex_texcoord = np.empty(4, dtype=[('vertices', np.float32, 3),
+            vertex_texcoord = np.empty(4, dtype=[('vertices', np.float32, 2),
                                                  ('texcoord', np.float32, 2)])
-            vertex_texcoord['vertices'] = [(-0.5, -0.5, 0), (-0.5, 0.5, 0),
-                                           (0.5, -0.5, 0), (0.5, 0.5, 0)]
+            vertex_texcoord['vertices'] = [(-0.5, -0.5), (-0.5, 0.5),
+                                           (0.5, -0.5), (0.5, 0.5)]
             vertex_texcoord['texcoord'] = [(0, 1), (0, 0),
                                            (1, 1), (1, 0)]
             vbo = context.buffer(vertex_texcoord.view(np.ubyte))

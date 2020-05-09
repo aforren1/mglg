@@ -73,7 +73,7 @@ cdef class ParticleEmitter:
                  tf final_red_range=(0.9, 1), tf final_green_range=(0.1, 0.15),
                  tf final_blue_range=(0.1, 0.15), tf final_alpha_range=(0.4, 0.8),
                  int color_ease=LINEAR,
-                 double max_lifespan=0.5, int max_particles=1000):
+                 tf lifespan_range=(0.05, 0.5), int max_particles=1000, *args, **kwargs):
         # set up the RNG
         rng = np.random.RandomState()
         unif = rng.uniform
@@ -101,7 +101,7 @@ cdef class ParticleEmitter:
         cpup['final_color'][:, 1] = unif(final_green_range[0], final_green_range[1], mp)
         cpup['final_color'][:, 2] = unif(final_blue_range[0], final_blue_range[1], mp)
         cpup['final_color'][:, 3] = unif(final_alpha_range[0], final_alpha_range[1], mp)
-        cpup['lifespan'][:] = unif(0.05, max_lifespan, mp)
+        cpup['lifespan'][:] = unif(lifespan_range[0], lifespan_range[1], mp)
         cpup['current_time'][:] = cpup['lifespan']
         self.cpu_parts = cpup
         self.pending_emit = 0
