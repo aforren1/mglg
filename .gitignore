@@ -10,3 +10,4 @@ build/
 _sdf.c
 *.html
 particle.c
+easing.c

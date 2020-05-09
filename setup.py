@@ -3,14 +3,19 @@ import sys
 from Cython.Build import cythonize
 from setuptools.extension import Extension
 import numpy as np
+from sys import platform
 
 defs = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
+inc_path = np.get_include()
+
 ext = [Extension('mglg.ext.sdf', 
                 sources=["mglg/ext/sdf/_sdf.pyx", "mglg/ext/sdf/sdf.c"]),
        Extension('mglg.graphics.particle',
                  sources=['mglg/graphics/particle.pyx'],
-                 include_dirs=[np.get_include()],
-                 define_macros=defs)]
+                 include_dirs=[inc_path],
+                 define_macros=defs),
+       Extension('mglg.graphics.easing',
+                 sources=['mglg/graphics/easing.pyx'])]
 
 with open("README.md", "r") as f:
     long_description = f.read()
