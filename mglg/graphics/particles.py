@@ -22,7 +22,7 @@ in vec4 color;
 out vec4 p_color;
 void main()
 {
-    vec2 tmp = (vertices + pos) * g_scale * scale + g_pos;
+    vec2 tmp = ((vertices + g_pos) * scale + pos) * g_scale * 0.5;
     gl_Position = vp * vec4(tmp, 0.0, 1.0);
     v_texcoord = texcoord;
     p_color = color;
@@ -111,25 +111,26 @@ if __name__ == '__main__':
 
     win = Win(use_imgui=True)
 
-    part = Particles(win, scale=1, lifespan_range=(0.2, 1), 
-                     extent_range=(0.5, 1),
-                     extent_ease=EXPONENTIAL_OUT,
+    part = Particles(win, scale=0.8, lifespan_range=(0.5, 2), 
+                     extent_range=(0, 1),
+                     extent_ease=SMOOTHSTEP,
                      initial_scale_range=(0.01, 0.01),
-                     final_scale_range=(0.1, 0.05),
-                     initial_red_range=(1, 1),
-                     final_red_range=(0.1, 0.2),
-                     final_green_range=(1, 1),
-                     num_particles=1e4)
+                     final_scale_range=(0.1, 0.2),
+                     initial_red_range=(0.1, 0.1),
+                     final_red_range=(0.5, 1),
+                     final_green_range=(0.5, 1),
+                     initial_alpha_range=(1, 1),
+                     final_alpha_range=(0.1, 0.1),
+                     num_particles=1e5)
 
     prof = Profiler(gpu=True, ctx=win.ctx)
     prof.active = True
 
     counter = 0
-    part.spawn(1000)
     while not win.should_close:
         with prof:
             counter += 1
-            if counter % 200 == 0:
+            if counter % 100 == 0:
                 part.spawn(1000)
                 pass
             part.draw()
