@@ -140,12 +140,12 @@ if __name__ == '__main__':
                      initial_red_range=(0.1, 0.1),
                      final_red_range=(0.8, 1),
                      final_green_range=(0.5, 0.1),
-                     initial_alpha_range=(1, 1),
-                     final_alpha_range=(0, 0),
-                     alpha_ease=ENDING,
+                     initial_alpha_range=(0, 1),
+                     final_alpha_range=(1, 1),
+                     alpha_ease=BOUNCE_IN_OUT,
                      scale_ease=BOUNCE_IN_OUT,
                      num_particles=1e4,
-                     max_delay=0.1)
+                     max_delay=0.5)
 
     prof = Profiler(gpu=True, ctx=win.ctx)
     prof.active = True
@@ -157,7 +157,7 @@ if __name__ == '__main__':
         with prof:
             counter += 1
             if counter % 200 == 0:
-                part.spawn(1000)
+                part.spawn(500)
                 pass
             part.draw()
         imgui.new_frame()

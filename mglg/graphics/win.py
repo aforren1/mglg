@@ -49,6 +49,7 @@ class Win(object):
         glfw.window_hint(glfw.GREEN_BITS, video_mode.bits[1])
         glfw.window_hint(glfw.BLUE_BITS, video_mode.bits[2])
         glfw.window_hint(glfw.AUTO_ICONIFY, 0)
+        glfw.window_hint(glfw.SRGB_CAPABLE, 1) # TODO: complete support
 
         self._win = glfw.create_window(width=self.width, height=self.height,
                                        title='', monitor=monitor, share=None)
@@ -69,7 +70,7 @@ class Win(object):
         self.ctx.enable(mgl.BLEND)
         self.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
         self.ctx.disable(mgl.DEPTH_TEST)
-        self._clear_color = Vec4(0.3, 0.3, 0.3, 1)
+        self._clear_color = Vec4(0.5, 0.5, 0.5, 1)
 
         # other setup
         ratio = self.height/self.width
@@ -83,6 +84,7 @@ class Win(object):
         self.ctx.clear(*self.clear_color)
 
         self.use_imgui = use_imgui
+
         imgui.create_context()
         self.imrenderer = GlfwRenderer(self)
 

@@ -106,7 +106,7 @@ cdef class ParticleEmitter:
         cpup['final_color'][:, 2] = unif(final_blue_range[0], final_blue_range[1], mp)
         cpup['final_color'][:, 3] = unif(final_alpha_range[0], final_alpha_range[1], mp)
         cpup['lifespan'][:] = unif(lifespan_range[0], lifespan_range[1], mp)
-        cpup['current_time'][:] = cpup['lifespan']
+        cpup['current_time'][:] = cpup['lifespan'] + 0.1
         cpup['delay'][:] = unif(0, max_delay, mp)
         self.cpu_parts = cpup
         self.pending_emit = 0
@@ -138,7 +138,9 @@ cdef class ParticleEmitter:
             # TODO: way to make a reference to the struct
             p = &self.cpu_parts[i]
             p.current_time += dt
-            if 0.0 <= (p.current_time) <= p.lifespan: # particle currently alive
+            if p.current_time < 0.0: # particle alive, but delayed
+                continue
+            elif 0.0 <= p.current_time <= p.lifespan: # particle currently alive
                 # "ease"y
                 time = 1.0 - ((p.lifespan - p.current_time)/p.lifespan)
                 self.gpu_parts[count].pos[0] = lerp(0, p.final_position[0], 
