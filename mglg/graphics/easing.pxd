@@ -1,3 +1,3 @@
 ctypedef double (*EaseFn)(double x)
 
-cdef EaseFn eases[19]
+cdef EaseFn eases[20]

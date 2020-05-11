@@ -9,6 +9,7 @@ from libc.math cimport sin, pi, pow
 cpdef enum easings:
     LINEAR
     STEP
+    ENDING
     SMOOTHSTEP
     SMOOTHERSTEP
     QUADRATIC_IN
@@ -36,6 +37,8 @@ cdef inline double linear(const double x):
 cdef inline double step(const double x):
     return 0.0 if x < 0.5 else 1.0
 
+cdef inline double ending(const double x):
+    return 0.0 if x < 0.75 else 1.0
 
 cdef inline double smoothstep(const double x):
     if x <= 0.0:
@@ -139,7 +142,7 @@ cdef inline double bounce_in_out(const double x):
 cpdef double _test(double x, easings ease):
     return eases[<int>ease](x)
 
-eases[:] = [linear, step, smoothstep, smootherstep, quadratic_in,
+eases[:] = [linear, step, ending, smoothstep, smootherstep, quadratic_in,
             quadratic_out, quadratic_in_out, exponential_in, exponential_out,
             exponential_in_out, elastic_in, elastic_out, elastic_in_out,
             back_in, back_out, back_in_out, bounce_in, bounce_out, bounce_in_out]

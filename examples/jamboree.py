@@ -10,7 +10,7 @@ from mglg.graphics.drawable import DrawableGroup
 
 from mglg.graphics.shape2d import Square, Circle, Arrow, Polygon, Cross
 from mglg.graphics.image2d import Image2D, texture_cache
-from mglg.graphics.particle2d import ParticleBurst2D
+from mglg.graphics.particle2d import Particle2D
 from mglg.graphics.stipple2d import StippleArrow
 from mglg.graphics.text2d import Text2D, DynamicText2D
 from mglg.util.profiler import Profiler
@@ -19,7 +19,6 @@ from mglg.util.profiler import Profiler
 
 if __name__ == '__main__':
     win = Win(vsync=1, screen=0, use_imgui=True)
-    win.ctx.line_width = 3.0
 
     sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
     circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1))
@@ -41,7 +40,7 @@ if __name__ == '__main__':
     # check that they *do* share the same vertex array
     assert sqr.vao == sqr2.vao
 
-    particles = ParticleBurst2D(win, scale=0.1, num_particles=1e5)
+    particles = Particle2D(win, scale=0.4, num_particles=5e4)
 
     stiparrow = StippleArrow(win, scale=(0.1, 0.1),
                              position=(0.2, -0.3), pattern=0xadfa)
@@ -77,7 +76,7 @@ if __name__ == '__main__':
             countup.text = str(counter)
         countup.color = np.random.random(4)
         if counter % 100 == 0:
-            particles.explode()
+            particles.spawn(1000)
         dg.draw()
         pix.draw()
         prt.draw()
