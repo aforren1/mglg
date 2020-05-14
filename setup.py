@@ -25,7 +25,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="mglg",
-    version="0.1.1a2",
+    version="0.1.1a3",
     install_requires=requirements,
     author="Alex Forrence",
     author_email="alex.forrence@gmail.com",
