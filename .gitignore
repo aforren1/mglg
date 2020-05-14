@@ -11,3 +11,4 @@ _sdf.c
 *.html
 particle.c
 easing.c
+dist/
