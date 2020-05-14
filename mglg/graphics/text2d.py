@@ -304,7 +304,8 @@ if __name__ == '__main__':
     from math import sin, cos
     win = Win()
 
-    font_path = op.join(op.dirname(__file__), '..', '..', 'examples', 'UbuntuMono-B.ttf')
+    #font_path = op.join(op.dirname(__file__), '..', '..', 'examples', 'UbuntuMono-B.ttf')
+    font_path = op.join(op.dirname(__file__), '..', '..', 'fonts', 'UbuntuMono-B.pklfont')
     t0 = default_timer()
     bases = Text2D(win, scale=0.1, fill_color=(1, 0.1, 0.1, 0.5), position=(0, 0),
                    outline_color=(0.2, 0.2, 1, 0.8), text='Tengo un\ngatito pequeñito', 

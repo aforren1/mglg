@@ -26,6 +26,8 @@ class FontManager(object):
     # The singleton instance
     _instance = None
 
+    atlas_dim = 512
+
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             cls._instance = object.__new__(cls, *args, **kwargs)
@@ -48,7 +50,7 @@ class FontManager(object):
 
         key = '%s' % (basename)
         if FontManager._atlas_sdf is None:
-            FontManager._atlas_sdf = np.zeros((1024, 1024), np.float32).view(Atlas)
+            FontManager._atlas_sdf = np.zeros((cls.atlas_dim, cls.atlas_dim), np.float32).view(Atlas)
         atlas = FontManager._atlas_sdf
         cache = FontManager._cache_sdf
 
@@ -69,5 +71,5 @@ class FontManager(object):
     @property
     def atlas_sdf(self):
         if FontManager._atlas_sdf is None:
-            FontManager._atlas_sdf = np.zeros((1024, 1024), np.float32).view(Atlas)
+            FontManager._atlas_sdf = np.zeros((self.atlas_dim, self.atlas_dim), np.float32).view(Atlas)
         return FontManager._atlas_sdf
