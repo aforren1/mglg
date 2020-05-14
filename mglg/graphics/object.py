@@ -5,16 +5,17 @@ from glm import mat4, vec3, radians, translate, rotate, scale
 
 
 class Object2D(object):
+    __slots__ = ('_position', 'rotation', '_scale')
     def __init__(self, position=(0, 0), rotation=0, scale=(1, 1), *args, **kwargs):
         self._position = Vec2(position)
-        self._rotation = rotation
+        self.rotation = rotation
         self._scale = Vec2(scale)
 
     @property
     def model_matrix(self):
         out = mat4()
         out = translate(out, vec3(self._position, 0.0))
-        out = rotate(out, radians(self._rotation), vec3(0.0, 0.0, 1.0))
+        out = rotate(out, radians(self.rotation), vec3(0.0, 0.0, 1.0))
         out = scale(out, vec3(self._scale, 1.0))
         return out
 
@@ -25,14 +26,6 @@ class Object2D(object):
     @position.setter
     def position(self, value):
         self._position.xy = value
-
-    @property
-    def rotation(self):
-        return self._rotation
-
-    @rotation.setter
-    def rotation(self, value):
-        self._rotation = value
 
     @property
     def scale(self):

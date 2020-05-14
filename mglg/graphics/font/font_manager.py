@@ -6,9 +6,8 @@
 import os
 import numpy as np
 from . atlas import Atlas
-#from glumpy.gloo.atlas import Atlas
-from . agg_font import AggFont
-
+from .sdf_font import SDFFont
+import pickle as pkl
 
 class FontManager(object):
     """
@@ -19,13 +18,15 @@ class FontManager(object):
     """
 
     # Default atlas
-    _atlas_agg = None
+    _atlas_sdf = None
 
     # Font cache
-    _cache_agg = {}
+    _cache_sdf = {}
 
     # The singleton instance
     _instance = None
+
+    atlas_dim = 512
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -33,28 +34,42 @@ class FontManager(object):
         return cls._instance
 
     @classmethod
-    def get(cls, filename, size=12):
+    def get(cls, filename):
         """
         Get a font from the cache, the local data directory or the distant server
         (in that order).
         """
-
         basename = os.path.basename(filename)
+        glyphs = None
+        other = None
+        if os.path.splitext(filename)[1] == '.pklfont':
+            with open(filename, 'rb') as f:
+                FontManager._atlas_sdf = pkl.load(f)
+                glyphs = pkl.load(f)
+                other = pkl.load(f)
 
-        key = '%s-%d' % (basename, size)
-        if FontManager._atlas_agg is None:
-            # interesting that agg atlas is RGB?
-            FontManager._atlas_agg = np.empty((1024, 1024, 3), np.ubyte).view(Atlas)
+        key = '%s' % (basename)
+        if FontManager._atlas_sdf is None:
+            FontManager._atlas_sdf = np.zeros((cls.atlas_dim, cls.atlas_dim), np.float32).view(Atlas)
+        atlas = FontManager._atlas_sdf
+        cache = FontManager._cache_sdf
 
-        atlas = FontManager._atlas_agg
-        cache = FontManager._cache_agg
         if key not in cache.keys():
-            # AggFont does the actual loading
-            cache[key] = AggFont(filename, size, atlas)
+            cache[key] = SDFFont(filename, atlas)
+        
+        if glyphs is not None:
+            cache[key].glyphs = glyphs
+        
+        if other is not None:
+            cache[key].ascender = other['ascender']
+            cache[key].descender = other['descender']
+            cache[key].height = other['height']
+            cache[key].linegap = other['linegap']
+
         return cache[key]
 
     @property
-    def atlas_agg(self):
-        if FontManager._atlas_agg is None:
-            FontManager._atlas_agg = np.empty((1024, 1024, 3), np.ubyte).view(Atlas)
-        return FontManager._atlas_agg
+    def atlas_sdf(self):
+        if FontManager._atlas_sdf is None:
+            FontManager._atlas_sdf = np.zeros((self.atlas_dim, self.atlas_dim), np.float32).view(Atlas)
+        return FontManager._atlas_sdf

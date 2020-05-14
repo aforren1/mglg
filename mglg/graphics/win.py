@@ -49,6 +49,7 @@ class Win(object):
         glfw.window_hint(glfw.GREEN_BITS, video_mode.bits[1])
         glfw.window_hint(glfw.BLUE_BITS, video_mode.bits[2])
         glfw.window_hint(glfw.AUTO_ICONIFY, 0)
+        glfw.window_hint(glfw.SRGB_CAPABLE, 1) # TODO: complete support
 
         self._win = glfw.create_window(width=self.width, height=self.height,
                                        title='', monitor=monitor, share=None)
@@ -69,7 +70,7 @@ class Win(object):
         self.ctx.enable(mgl.BLEND)
         self.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
         self.ctx.disable(mgl.DEPTH_TEST)
-        self._clear_color = Vec4(0.3, 0.3, 0.3, 1)
+        self._clear_color = Vec4(0.5, 0.5, 0.5, 1)
 
         # other setup
         ratio = self.height/self.width
@@ -82,7 +83,8 @@ class Win(object):
         self.should_close = False
         self.ctx.clear(*self.clear_color)
 
-        self._use_imgui = use_imgui
+        self.use_imgui = use_imgui
+
         imgui.create_context()
         self.imrenderer = GlfwRenderer(self)
 
@@ -92,7 +94,7 @@ class Win(object):
             self.should_close = True
 
     def flip(self):
-        if self._use_imgui:
+        if self.use_imgui:
             self.imrenderer.process_inputs()
             imgui.render()
             self.imrenderer.render(imgui.get_draw_data())
@@ -125,14 +127,6 @@ class Win(object):
             glfw.set_input_mode(self._win, glfw.CURSOR, glfw.CURSOR_NORMAL)
         else:
             glfw.set_input_mode(self._win, glfw.CURSOR, glfw.CURSOR_HIDDEN)
-
-    @property
-    def use_imgui(self):
-        return self._use_imgui
-
-    @use_imgui.setter
-    def use_imgui(self, val):
-        self._use_imgui = val
 
 
 if __name__ == '__main__':

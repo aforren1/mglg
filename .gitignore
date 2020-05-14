@@ -4,3 +4,11 @@
 __pycache__
 *.pyc
 imgui.ini
+*.pyd
+build/
+*.pkl
+_sdf.c
+*.html
+particle.c
+easing.c
+dist/

@@ -10,6 +10,7 @@ class Glyph(object):
     coordinates of a single character. It is generally built automatically by a
     Font.
     '''
+    __slots__ = ('charcode', 'shape', 'offset', 'advance', 'texcoords', 'kerning')
 
     def __init__(self, charcode, shape, offset, advance, texcoords):
         '''
