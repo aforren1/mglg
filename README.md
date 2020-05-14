@@ -5,7 +5,7 @@ Working on documentation, but the file [examples/jamboree.py](https://github.com
 To pre-create the glyphs and atlas, there's a command line tool, e.g.:
 
 ```bash
-python mglg\util\prebake_font.py examples\UbuntuMono-B.ttf fonts\
+python -m mglg.util.prebake_font examples\UbuntuMono-B.ttf fonts\
 ```
 
-Subsequent use of that font will instead load the pickled version (stored in mglg/graphics/font/cache), which is significantly faster. Note this only works for the SDF text (which I'll switch entirely over to soon).
+Which saves a pickled file (in this case, `fonts\UbuntuMono-B.pklfont`) that includes the atlas, glyphs, and other info to avoid touching the font file.

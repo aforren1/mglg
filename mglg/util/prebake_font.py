@@ -44,5 +44,3 @@ if __name__ == '__main__':
         pkl.dump(atlas, f, protocol=4)
         pkl.dump(fnt.glyphs, f, protocol=4)
         pkl.dump(other, f, protocol=4)
-
-    print('Pickled font saved to %s' % out_path)
