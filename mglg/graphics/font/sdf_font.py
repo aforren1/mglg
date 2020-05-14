@@ -1,3 +1,4 @@
+import os.path
 import numpy as np
 from . glyph import Glyph
 import freetype
@@ -46,14 +47,19 @@ class SDFFont(object):
         self.filename = filename
         self.atlas = atlas
         self.glyphs = {}
-        face = freetype.Face(self.filename)
-        face.set_char_size(self._lowres_size*64)
-        metrics = face.size
-        self.ascender  = metrics.ascender/64.0
-        self.descender = metrics.descender/64.0
-        self.height    = metrics.height/64.0
-        self.linegap   = (self.height - self.ascender + self.descender)
-
+        if os.path.splitext(filename)[1] != '.pklfont':
+            face = freetype.Face(self.filename)
+            face.set_char_size(self._lowres_size*64)
+            metrics = face.size
+            self.ascender  = metrics.ascender/64.0
+            self.descender = metrics.descender/64.0
+            self.height    = metrics.height/64.0
+            self.linegap   = (self.height - self.ascender + self.descender)
+        else: # it's a pickled file, so we'll fill in details from outside
+            self.ascender = None
+            self.descender = None
+            self.height = None
+            self.linegap = None
 
     def __getitem__(self, charcode):
         if charcode not in self.glyphs.keys():
@@ -106,6 +112,8 @@ class SDFFont(object):
         return lowres_data, offset, advance
 
     def load(self, charcodes = ''):
+        if os.path.splitext(self.filename)[1] == '.pklfont':
+            return # using a cached font, so we don't have the original ttf
         face = freetype.Face(self.filename)
 
         for charcode in charcodes:

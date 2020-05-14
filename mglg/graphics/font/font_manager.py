@@ -7,7 +7,6 @@ import os
 import numpy as np
 from . atlas import Atlas
 from .sdf_font import SDFFont
-import importlib.resources as pkg_resources
 import pickle as pkl
 
 class FontManager(object):
@@ -38,17 +37,14 @@ class FontManager(object):
         Get a font from the cache, the local data directory or the distant server
         (in that order).
         """
-
         basename = os.path.basename(filename)
-        barename = os.path.splitext(basename)[0]
-        pklname = barename + '.pkl'
         glyphs = None
-        try:
-            with pkg_resources.open_binary('mglg.graphics.font.cache', pklname) as f:
+        other = None
+        if os.path.splitext(filename)[1] == '.pklfont':
+            with open(filename, 'rb') as f:
                 FontManager._atlas_sdf = pkl.load(f)
                 glyphs = pkl.load(f)
-        except FileNotFoundError:
-            pass
+                other = pkl.load(f)
 
         key = '%s' % (basename)
         if FontManager._atlas_sdf is None:
@@ -61,6 +57,12 @@ class FontManager(object):
         
         if glyphs is not None:
             cache[key].glyphs = glyphs
+        
+        if other is not None:
+            cache[key].ascender = other['ascender']
+            cache[key].descender = other['descender']
+            cache[key].height = other['height']
+            cache[key].linegap = other['linegap']
 
         return cache[key]
 

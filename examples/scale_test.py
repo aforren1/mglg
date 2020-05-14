@@ -25,7 +25,7 @@ if __name__ == '__main__':
     prt = Particle2D(win, num_particles=5e4, initial_scale_range=(0.2, 0.2),
                      final_scale_range=(0.2, 0.3), initial_alpha_range=(1,1),
                      final_alpha_range=(1,1))
-    font_path = op.join(op.dirname(__file__), 'UbuntuMono-B.ttf')
+    font_path = op.join(op.dirname(__file__), '../fonts/UbuntuMono-B.pklfont')
     txt = Text2D(win, 'A', font=font_path)
 
     # approx gamma correction
