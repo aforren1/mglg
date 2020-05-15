@@ -1,9 +1,12 @@
 import os.path
 import numpy as np
 from . glyph import Glyph
-import freetype
 from mglg.ext.sdf import compute_sdf
 
+try:
+    import freetype
+except ImportError:
+    pass
 # derived from
 # https://github.com/glumpy/glumpy/blob/c50daeca5b3f99161992062f771705be9b47f428/glumpy/graphics/text/sdf_font.py
 def bilinear_interpolate(im, x, y):
@@ -115,7 +118,6 @@ class SDFFont(object):
         if os.path.splitext(self.filename)[1] == '.pklfont':
             return # using a cached font, so we don't have the original ttf
         face = freetype.Face(self.filename)
-
         for charcode in charcodes:
             if charcode in self.glyphs.keys():
                 continue

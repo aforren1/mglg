@@ -25,8 +25,9 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="mglg",
-    version="0.1.3",
+    version="0.1.4a1",
     install_requires=requirements,
+    extras_require={'freetype': ['freetype-py']},
     author="Alex Forrence",
     author_email="alex.forrence@gmail.com",
     description="",
