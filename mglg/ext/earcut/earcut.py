@@ -1,7 +1,7 @@
 # original: https://github.com/joshuaskelly/earcut-python
 # very minor adjustments to work with numpy, AFAIK
 
-import math
+from math import inf
 __all__ = ['earcut', 'deviation', 'flatten']
 
 
@@ -302,7 +302,7 @@ def findHoleBridge(hole, outerNode):
     p = outerNode
     hx = hole.x
     hy = hole.y
-    qx = -math.inf
+    qx = -inf
     m = None
 
     # find a segment intersected by a ray from the hole's leftmost point to the left;
@@ -338,7 +338,7 @@ def findHoleBridge(hole, outerNode):
     stop = m
     mx = m.x
     my = m.y
-    tanMin = math.inf
+    tanMin = inf
     tan = None
 
     p = m.next
