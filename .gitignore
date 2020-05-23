@@ -12,3 +12,4 @@ _sdf.c
 particle.c
 easing.c
 dist/
+earcut.c
