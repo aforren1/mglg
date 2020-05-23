@@ -4,7 +4,7 @@ import moderngl as mgl
 from mglg.ext import earcut, flatten
 from mglg.graphics.drawable import Drawable2D
 from mglg.math.vector import Vec4
-from glm import vec4
+from glm import vec4, sin, cos
 from mglg.graphics.outline import generate_outline
 
 def is_cw(outline):
@@ -186,12 +186,15 @@ class Arrow(Shape2D):
     _vertices, _indices = _make_2d_indexed(arrow_vertices)
 
 
-def make_poly_outline(segments=64):
-    vertices = []
-    angle_increment = 2 * np.pi / segments
-    for i in range(1, segments + 1):
-        angle = i * angle_increment
-        vertices.append((np.cos(angle), np.sin(angle)))
+def make_poly_outline(segments=64, start=0, end=2*np.pi, endpoint=False):
+    vertices = [(cos(start), sin(start))]
+    angle_increment = (end - start) / segments
+    angle = start
+    if not endpoint:
+        segments -= 1
+    for i in range(segments):
+        angle += angle_increment
+        vertices.append((cos(angle), sin(angle)))
     return np.array(vertices) * 0.5
 
 
