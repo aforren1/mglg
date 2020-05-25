@@ -50,6 +50,7 @@ class SDFFont(object):
         self.filename = filename
         self.atlas = atlas
         self.glyphs = {}
+        self.is_pickled = False
         if os.path.splitext(filename)[1] != '.pklfont':
             face = freetype.Face(self.filename)
             face.set_char_size(self._lowres_size*64)
@@ -63,6 +64,7 @@ class SDFFont(object):
             self.descender = None
             self.height = None
             self.linegap = None
+            self.is_pickled = True
 
     def __getitem__(self, charcode):
         if charcode not in self.glyphs.keys():
@@ -115,7 +117,7 @@ class SDFFont(object):
         return lowres_data, offset, advance
 
     def load(self, charcodes = ''):
-        if os.path.splitext(self.filename)[-1] == '.pklfont':
+        if self.is_pickled:
             return # using a cached font, so we don't have the original ttf
         face = freetype.Face(self.filename)
         for charcode in charcodes:

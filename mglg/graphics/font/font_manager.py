@@ -17,9 +17,6 @@ class FontManager(object):
     way to get a font is to get it via its filename.
     """
 
-    # Default atlas
-    _atlas_sdf = None
-
     # Font cache
     _cache_sdf = {}
 
@@ -42,16 +39,14 @@ class FontManager(object):
         basename = os.path.basename(filename)
         glyphs = None
         other = None
+        atlas = np.zeros((cls.atlas_dim, cls.atlas_dim), np.float32).view(Atlas)
         if os.path.splitext(filename)[1] == '.pklfont':
             with open(filename, 'rb') as f:
-                FontManager._atlas_sdf = pkl.load(f)
+                atlas = pkl.load(f)
                 glyphs = pkl.load(f)
                 other = pkl.load(f)
 
         key = '%s' % (basename)
-        if FontManager._atlas_sdf is None:
-            FontManager._atlas_sdf = np.zeros((cls.atlas_dim, cls.atlas_dim), np.float32).view(Atlas)
-        atlas = FontManager._atlas_sdf
         cache = FontManager._cache_sdf
 
         if key not in cache.keys():
@@ -67,9 +62,3 @@ class FontManager(object):
             cache[key].linegap = other['linegap']
 
         return cache[key]
-
-    @property
-    def atlas_sdf(self):
-        if FontManager._atlas_sdf is None:
-            FontManager._atlas_sdf = np.zeros((self.atlas_dim, self.atlas_dim), np.float32).view(Atlas)
-        return FontManager._atlas_sdf

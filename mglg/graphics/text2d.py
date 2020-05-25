@@ -78,8 +78,7 @@ class Text2D(Drawable2D):
         self.font = fnt
         self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
         vertices, indices = self.bake(text)
-        manager = FontManager()
-        atlas = manager.atlas_sdf
+        atlas = fnt.atlas
         self.atlas = ctx.texture(atlas.shape[0:2], 1, atlas.view(np.ubyte), dtype='f4')
         self.atlas.filter = (mgl.LINEAR, mgl.LINEAR)
         vbo = ctx.buffer(vertices)
@@ -239,9 +238,8 @@ class DynamicText2D(Text2D):
         fnt = FontManager.get(font)
         self.font = fnt
         self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
-        manager = FontManager()
         self.prefetch(prefetch + text)
-        atlas = manager.atlas_sdf
+        atlas = fnt.atlas
         self.atlas = ctx.texture(atlas.shape[0:2], 1, atlas.view(np.ubyte), dtype='f4')
         self.atlas.filter = (mgl.LINEAR, mgl.LINEAR)
         n = expected_chars * 10 # reserve 10x expected number

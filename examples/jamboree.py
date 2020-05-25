@@ -50,7 +50,8 @@ if __name__ == '__main__':
     font_path = op.join(op.dirname(__file__), '..', 'fonts', 'UbuntuMono-B.pklfont')
     bases = Text2D(win, scale=(0.1, 0.1), fill_color=(1, 0.1, 0.1, 0.7),
                    text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4))
-    bases2 = Text2D(win, scale=(0.05, 0.05), fill_color=(0.1, 1, 0.1, 1),
+    font_path = op.join(op.dirname(__file__), '..', 'fonts', 'AlexBrush-Regular.pklfont')
+    bases2 = Text2D(win, scale=(0.15, 0.15), fill_color=(0.1, 1, 0.1, 1),
                     text='pequeño', font=font_path, position=(-0.4, 0), rotation=90)
 
     countup = DynamicText2D(win, text='0', scale=0.05, expected_chars=8,

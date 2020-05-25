@@ -2,8 +2,9 @@
 
 import argparse
 import os
+import numpy as np
 import mglg
-from mglg.graphics.font.font_manager import FontManager
+from mglg.graphics.font.atlas import Atlas
 from mglg.graphics.font.sdf_font import SDFFont
 import inspect
 from string import ascii_letters, digits, punctuation, whitespace
@@ -31,8 +32,7 @@ if __name__ == '__main__':
     out_path = os.path.join(cache_path, noext_nopath + '.pklfont')
     print('Output path: %s' % out_path)
 
-    manager = FontManager()
-    atlas = manager.atlas_sdf
+    atlas = np.zeros((512, 512), np.float32).view(Atlas)
     fnt = SDFFont(infile, atlas)
     fnt.load(ascii_alphanum)
 
