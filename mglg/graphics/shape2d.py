@@ -1,7 +1,7 @@
 import numpy as np
 
 import moderngl as mgl
-from mglg.ext import earcut, flatten
+from mglg.ext.earcut import earcut, flatten
 from mglg.graphics.drawable import Drawable2D
 from mglg.math.vector import Vec4
 from glm import vec4, sin, cos
