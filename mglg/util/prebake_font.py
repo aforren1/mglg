@@ -16,6 +16,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Pre-pickle glyph cache')
     parser.add_argument('infile', type=str, help='path to ttf')
     parser.add_argument('outpath', type=str, help='relative path for output storage')
+    parser.add_argument('--view', dest='view', default=False, action='store_true')
     args = parser.parse_args()
 
     infile = args.infile
@@ -40,6 +41,10 @@ if __name__ == '__main__':
 
     # protocol 4 will work for all the Python 3 versions we 
     # care about, and is not too much slower than 5 for this problem
+    if args.view:
+        import matplotlib.pyplot as plt
+        plt.imshow(atlas)
+        plt.show()
     with open(out_path, 'wb') as f:
         pkl.dump(atlas, f, protocol=4)
         pkl.dump(fnt.glyphs, f, protocol=4)

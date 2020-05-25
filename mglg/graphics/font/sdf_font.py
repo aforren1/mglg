@@ -115,7 +115,7 @@ class SDFFont(object):
         return lowres_data, offset, advance
 
     def load(self, charcodes = ''):
-        if os.path.splitext(self.filename)[1] == '.pklfont':
+        if os.path.splitext(self.filename)[-1] == '.pklfont':
             return # using a cached font, so we don't have the original ttf
         face = freetype.Face(self.filename)
         for charcode in charcodes:

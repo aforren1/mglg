@@ -1,3 +1,4 @@
+import os.path as op
 import numpy as np
 from mglg.ext.stb_image import load
 import moderngl as mgl
@@ -47,14 +48,13 @@ class Image2D(Drawable2D):
         super().__init__(window, *args, **kwargs)
         context = window.ctx
         self.shader = ImageShader(context)
-        image = load(image_path)
-        img_bytes = image.tobytes()
-        img_hash = hash(img_bytes)
-        if img_hash in texture_cache.keys():
-            self.texture = texture_cache[img_hash]
+        bn = op.basename(image_path)
+        if bn in texture_cache.keys():
+            self.texture = texture_cache[bn]
         else:
-            self.texture = context.texture(image.shape[0:2], 4, img_bytes)
-            texture_cache[img_hash] = self.texture
+            image = load(image_path)
+            self.texture = context.texture(image.shape[0:2], 4, image)
+            texture_cache[bn] = self.texture
         self.alpha = alpha
         self.mvp_unif = self.shader['mvp']
         self.alpha_unif = self.shader['alpha']

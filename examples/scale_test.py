@@ -35,7 +35,6 @@ if __name__ == '__main__':
     noncorr = [Vec4(0, 0, 0, 1), Vec4(0.25, 0.25, 0.25, 1), Vec4(0.5, 0.5, 0.5, 1),
                Vec4(0.75, 0.75, 0.75, 1), Vec4(1, 1, 1, 1)]
     corr = [r**tmp for r in noncorr]
-
     while not win.should_close:
         prt.spawn(10)
         for o, obj in zip(offsets, [check, sqr, prt, txt, cir, poly]):
