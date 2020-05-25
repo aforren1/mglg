@@ -13,3 +13,4 @@ particle.c
 easing.c
 dist/
 earcut.c
+stb_image.c

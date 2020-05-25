@@ -17,7 +17,11 @@ ext = [Extension('mglg.ext.sdf',
        Extension('mglg.graphics.easing',
                  sources=['mglg/graphics/easing.pyx']),
        Extension('mglg.ext.earcut.earcut',
-                 sources=['mglg/ext/earcut/earcut.py'])]
+                 sources=['mglg/ext/earcut/earcut.py']),
+       Extension('mglg.ext.stb_image',
+                 sources=['mglg/ext/stb_image/stb_image.pyx'],
+                 include_dirs=[inc_path],
+                 define_macros=defs)]
 
 with open("README.md", "r") as f:
     long_description = f.read()
@@ -27,7 +31,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="mglg",
-    version="0.1.5a2",
+    version="0.1.5a3",
     install_requires=requirements,
     extras_require={'freetype': ['freetype-py']},
     author="Alex Forrence",

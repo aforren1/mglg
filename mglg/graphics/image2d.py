@@ -1,6 +1,5 @@
 import numpy as np
-from PIL import Image
-
+from mglg.ext.stb_image import load
 import moderngl as mgl
 from mglg.graphics.drawable import Drawable2D
 # avoid making new textures if we already have the exact texture
@@ -48,13 +47,13 @@ class Image2D(Drawable2D):
         super().__init__(window, *args, **kwargs)
         context = window.ctx
         self.shader = ImageShader(context)
-        image = Image.open(image_path).convert('RGBA')
+        image = load(image_path)
         img_bytes = image.tobytes()
         img_hash = hash(img_bytes)
         if img_hash in texture_cache.keys():
             self.texture = texture_cache[img_hash]
         else:
-            self.texture = context.texture(image.size, 4, img_bytes)
+            self.texture = context.texture(image.shape[0:2], 4, img_bytes)
             texture_cache[img_hash] = self.texture
         self.alpha = alpha
         self.mvp_unif = self.shader['mvp']
