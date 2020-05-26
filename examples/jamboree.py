@@ -8,7 +8,7 @@ from mglg.graphics.win import Win
 import glm
 from mglg.graphics.drawable import DrawableGroup
 
-from mglg.graphics.shape2d import Square, Circle, Arrow, Polygon, Cross
+from mglg.graphics.shape2d import Rect, Circle, Arrow, Polygon, Cross, RoundedRect
 from mglg.graphics.image2d import Image2D, texture_cache
 from mglg.graphics.particle2d import Particle2D
 from mglg.graphics.stipple2d import StippleArrow
@@ -20,12 +20,14 @@ from mglg.util.profiler import Profiler
 if __name__ == '__main__':
     win = Win(vsync=1, screen=0, use_imgui=True)
 
-    sqr = Square(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
+    sqr = Rect(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
+    rr = RoundedRect(win, scale=(0.15, 0.1), fill_color=(0, 0.1, 0.7, 1), rotation=30,
+                     position=(0.3, -0.2), radii=(1, 0.2, 1, 0.2))
     circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1))
     arrow = Arrow(win, scale=(0.15, 0.1), fill_color=(0.9, 0.7, 0.2, 1))
     circle.position.x += 0.2
     arrow.position.x -= 0.2
-    sqr2 = Square(win, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 0.1, 0.6))
+    sqr2 = Rect(win, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 0.1, 0.6))
     poly = Polygon(win, segments=7, scale=(0.08, 0.08), position=(-0.2, -0.2),
                    fill_color=(0.9, 0.2, 0.2, 0.5), outline_color=(0.1, 0.1, 0.1, 1))
     crs = Cross(win, fill_color=(0.2, 0.1, 0.9, 0.7), is_outlined=False,
@@ -58,7 +60,7 @@ if __name__ == '__main__':
                             font=font_path, position=(0.6, 0.4),
                             prefetch='0123456789')
 
-    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs])
+    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, rr])
     pix = DrawableGroup([check, check2])
     prt = DrawableGroup([particles])
     stp = DrawableGroup([stiparrow])

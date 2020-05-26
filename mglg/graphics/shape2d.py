@@ -1,5 +1,5 @@
 import numpy as np
-
+from numpy import pi
 import moderngl as mgl
 from mglg.ext.earcut import earcut, flatten
 from mglg.graphics.drawable import Drawable2D
@@ -162,7 +162,7 @@ class Shape2D(Drawable2D):
                                    index_buffer=ibo)
 
 
-square_vertices = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]]) * 0.5
+rect_vertices = np.array([[-1, -1], [1, -1], [1, 1], [-1, 1]]) * 0.5
 cross_vertices = np.array([[-1, 0.2], [-0.2, 0.2], [-0.2, 1], [0.2, 1],
                            [0.2, 0.2], [1, 0.2], [1, -0.2], [0.2, -0.2],
                            [0.2, -1], [-0.2, -1], [-0.2, -0.2], [-1, -0.2]]) * 0.5
@@ -171,9 +171,9 @@ arrow_vertices = np.array([[-1, 0.4], [0, 0.4], [0, 0.8], [1, 0],
 line_vertices = np.array([[-0.5, 0], [0.5, 0]])
 
 
-class Square(Shape2D):
+class Rect(Shape2D):
     _static = True
-    _vertices, _indices = _make_2d_indexed(square_vertices)
+    _vertices, _indices = _make_2d_indexed(rect_vertices)
 
 
 class Cross(Shape2D):
@@ -186,7 +186,7 @@ class Arrow(Shape2D):
     _vertices, _indices = _make_2d_indexed(arrow_vertices)
 
 
-def make_poly_outline(segments=64, start=0, end=2*np.pi, endpoint=False):
+def make_poly_outline(segments=64, start=0, end=2*pi, endpoint=False):
     vertices = [(cos(start), sin(start))]
     angle_increment = (end - start) / segments
     angle = start
@@ -203,7 +203,6 @@ class Polygon(Shape2D):
         vertices = make_poly_outline(segments)
         super().__init__(window, vertices=vertices, *args, **kwargs)
 
-
 circle_vertices = make_poly_outline(256)
 
 
@@ -211,6 +210,25 @@ class Circle(Shape2D):
     _static = True
     _vertices, _indices = _make_2d_indexed(circle_vertices)
 
+
+def make_rounded_rect(radii=0.05, segments=16):
+    _radii = np.empty(4)
+    _radii[:] = radii # either 1 or 4-- any other will fail
+    corner1 = make_poly_outline(segments, start=0, end=pi/2, endpoint=True) * _radii[0]
+    corner2 = make_poly_outline(segments, start=pi/2, end=pi, endpoint=True) * _radii[1]
+    corner3 = make_poly_outline(segments, start=pi, end=3*pi/2, endpoint=True) * _radii[2]
+    corner4 = make_poly_outline(segments, start=3*pi/2, end=2*pi, endpoint=True) * _radii[3]
+    _radii /= 2
+    corner1 += 0.5 - _radii[0]
+    corner2 += (-0.5 + _radii[1]), 0.5 - _radii[1]
+    corner3 += -0.5 + _radii[2]
+    corner4 += 0.5 - _radii[3], (-0.5 + _radii[3])
+    return np.vstack((corner1, corner2, corner3, corner4))
+
+class RoundedRect(Shape2D):
+    def __init__(self, window, radii=0.05, segments=16, *args, **kwargs):
+        vertices = make_rounded_rect(radii, segments)
+        super().__init__(window, vertices=vertices, *args, **kwargs)
 
 if __name__ == '__main__':
     from mglg.graphics.drawable import DrawableGroup
@@ -220,30 +238,33 @@ if __name__ == '__main__':
     win = Win()
     #win.clear_color = 0,0,0,1
 
-    #sqr = Square(win, scale=(0.15, 0.1), outline_color=(0.7, 0.9, 0.2, 1), is_filled=False)
-    sqr = Shape2D(win, vertices=square_vertices*np.array([0.3, 0.05]), 
+    #sqr = Rect(win, scale=(0.15, 0.1), outline_color=(0.7, 0.9, 0.2, 1), is_filled=False)
+    sqr = Shape2D(win, vertices=rect_vertices*np.array([0.3, 0.05]), 
                   outline_color=(0.1, 0.9, 0.2, 1), 
                   fill_color=(0, 1, 1, 1), outline_thickness=0.01)
+    sqr4 = Rect(win, position=(-0.5, -0.3), scale=0.1, rotation=30, outline_color=(0, 0, 0, 1))
+    rr = RoundedRect(win, radii=[0.5, 0.2, 0.5, 0.2], fill_color=(1, 0.5, 0.5, 1),
+                     position=(-0.5, -0.3), scale=0.1, rotation=30)
     circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1), outline_color=(1, 1, 1, 0.5),
                     is_filled=False)
     arrow = Arrow(win, scale=(0.1, 0.1), fill_color=(0.9, 0.7, 0.2, 1), 
                   outline_thickness=0.1, outline_color=(1, 1, 1, 1))
     circle.position.x += 0.2
     arrow.position.x -= 0.2
-    sqr2 = Square(win, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 0.1, 0.6))
+    sqr2 = Rect(win, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 0.1, 0.6))
     poly = Polygon(win, segments=7, scale=(0.08, 0.08), position=(-0.2, -0.2),
                    fill_color=(0.9, 0.2, 0.2, 0.5), outline_color=(0.1, 0.1, 0.1, 1))
     crs = Cross(win, fill_color=(0.2, 0.1, 0.9, 0.7), is_outlined=True,
                 outline_thickness=0.02,
                 scale=(0.1, 0.10), position=(0.3, 0.3), outline_color=(0.5, 0.0, 0.0, 1))
     
-    sqr3 = Square(win, scale=(0.1, 0.1), fill_color=(0.5, 0.2, 0.9, 0.5), is_outlined=False,
+    sqr3 = Rect(win, scale=(0.1, 0.1), fill_color=(0.5, 0.2, 0.9, 0.5), is_outlined=False,
                   position=(-0.2, 0))
 
     # check that they *do* share the same vertex array
     #assert sqr.vao == sqr2.vao
 
-    dg = DrawableGroup([sqr3, sqr, sqr2, circle, arrow, poly, crs])
+    dg = DrawableGroup([sqr4, sqr3, sqr, sqr2, circle, arrow, poly, crs, rr])
 
     counter = 0
     for i in range(3000):

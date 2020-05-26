@@ -1,7 +1,7 @@
 
 if __name__ == '__main__':
     from mglg.graphics.win import Win
-    from mglg.graphics.shape2d import Square, Circle, Arrow, Polygon, Cross
+    from mglg.graphics.shape2d import Rect, Circle, Arrow, Polygon, Cross
     from mglg.graphics.image2d import Image2D
     from mglg.graphics.particle2d import Particle2D
     from mglg.graphics.text2d import Text2D
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     check_path = op.join(op.dirname(__file__), 'check_small.png')
     check = Image2D(win, check_path)
     
-    sqr = Square(win, fill_color=(0.7, 0.9, 0.2, 1), is_outlined=False)
+    sqr = Rect(win, fill_color=(0.7, 0.9, 0.2, 1), is_outlined=False)
     cir = Circle(win, fill_color=(0.9, 0.5, 0.2, 0.5), 
                  outline_color=(0.1, 0.9, 0.9, 0.5), outline_thickness=0.1)
     poly = Polygon(win, segments=7, fill_color=(0.9, 0.2, 0.2, 0.5), 
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     txt = Text2D(win, 'A', font=font_path)
 
     # approx gamma correction
-    x = Square(win, position=(0.7, 0), outline_color=(0, 1, 1, 1), scale=0.1)
+    x = Rect(win, position=(0.7, 0), outline_color=(0, 1, 1, 1), scale=0.1)
 
     tmp = 1/2.2
     noncorr = [Vec4(0, 0, 0, 1), Vec4(0.25, 0.25, 0.25, 1), Vec4(0.5, 0.5, 0.5, 1),

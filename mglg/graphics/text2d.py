@@ -297,7 +297,7 @@ if __name__ == '__main__':
     import os.path as op
     from timeit import default_timer
     from mglg.graphics.win import Win
-    from mglg.graphics.shape2d import Square
+    from mglg.graphics.shape2d import Rect
     from mglg.graphics.drawable import DrawableGroup
     from math import sin, cos
     win = Win()
@@ -314,7 +314,7 @@ if __name__ == '__main__':
                           outline_range=(0.7, 0.5), smoothness=0.04)
     print('startup time: %f' % (default_timer() - t0))
 
-    sqr = Square(win, scale=0.1)
+    sqr = Rect(win, scale=0.1)
 
     txt = DrawableGroup([bases, dynbs])
     count = 0
