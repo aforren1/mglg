@@ -10,7 +10,7 @@ inc_path = np.get_include()
 
 ext = [Extension('mglg.ext.sdf', 
                 sources=["mglg/ext/sdf/_sdf.pyx", "mglg/ext/sdf/sdf.c"]),
-       Extension('mglg.graphics.particle',
+       Extension('mglg.graphics._particle',
                  sources=['mglg/graphics/particle.pyx'],
                  include_dirs=[inc_path],
                  define_macros=defs),
@@ -31,7 +31,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="mglg",
-    version="0.1.5a5",
+    version="0.2.0a1",
     install_requires=requirements,
     extras_require={'freetype': ['freetype-py']},
     author="Alex Forrence",

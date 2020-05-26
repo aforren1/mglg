@@ -41,7 +41,7 @@ def ImageShader(context: mgl.Context):
     return image_shader
 
 
-class Image2D(Drawable2D):
+class Image(Drawable2D):
     vao = None
 
     def __init__(self, window, image_path, alpha=1.0, *args, **kwargs):

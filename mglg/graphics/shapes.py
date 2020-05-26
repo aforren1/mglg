@@ -74,7 +74,7 @@ def FlatShader(context):
         flat_shader = context.program(vertex_shader=flat_vert, fragment_shader=flat_frag)
     return flat_shader
 
-class Shape2D(Drawable2D):
+class Shape(Drawable2D):
     _vertices = None
     _indices = None
     _static = False  # user can subclass with `_static = True` to re-use VAO for all class instances
@@ -171,17 +171,17 @@ arrow_vertices = np.array([[-1, 0.4], [0, 0.4], [0, 0.8], [1, 0],
 line_vertices = np.array([[-0.5, 0], [0.5, 0]])
 
 
-class Rect(Shape2D):
+class Rect(Shape):
     _static = True
     _vertices, _indices = _make_2d_indexed(rect_vertices)
 
 
-class Cross(Shape2D):
+class Cross(Shape):
     _static = True
     _vertices, _indices = _make_2d_indexed(cross_vertices)
 
 
-class Arrow(Shape2D):
+class Arrow(Shape):
     _static = True
     _vertices, _indices = _make_2d_indexed(arrow_vertices)
 
@@ -198,7 +198,7 @@ def make_poly_outline(segments=64, start=0, end=2*pi, endpoint=False):
     return np.array(vertices) * 0.5
 
 
-class Polygon(Shape2D):
+class Polygon(Shape):
     def __init__(self, window, segments=32, *args, **kwargs):
         vertices = make_poly_outline(segments)
         super().__init__(window, vertices=vertices, *args, **kwargs)
@@ -206,7 +206,7 @@ class Polygon(Shape2D):
 circle_vertices = make_poly_outline(256)
 
 
-class Circle(Shape2D):
+class Circle(Shape):
     _static = True
     _vertices, _indices = _make_2d_indexed(circle_vertices)
 
@@ -225,7 +225,7 @@ def make_rounded_rect(radii=0.05, segments=16):
     corner4 += 0.5 - _radii[3], (-0.5 + _radii[3])
     return np.vstack((corner1, corner2, corner3, corner4))
 
-class RoundedRect(Shape2D):
+class RoundedRect(Shape):
     def __init__(self, window, radii=0.05, segments=16, *args, **kwargs):
         vertices = make_rounded_rect(radii, segments)
         super().__init__(window, vertices=vertices, *args, **kwargs)
@@ -239,7 +239,7 @@ if __name__ == '__main__':
     #win.clear_color = 0,0,0,1
 
     #sqr = Rect(win, scale=(0.15, 0.1), outline_color=(0.7, 0.9, 0.2, 1), is_filled=False)
-    sqr = Shape2D(win, vertices=rect_vertices*np.array([0.3, 0.05]), 
+    sqr = Shape(win, vertices=rect_vertices*np.array([0.3, 0.05]), 
                   outline_color=(0.1, 0.9, 0.2, 1), 
                   fill_color=(0, 1, 1, 1), outline_thickness=0.01)
     sqr4 = Rect(win, position=(-0.5, -0.3), scale=0.1, rotation=30, outline_color=(0, 0, 0, 1))

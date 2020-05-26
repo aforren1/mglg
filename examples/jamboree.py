@@ -8,11 +8,11 @@ from mglg.graphics.win import Win
 import glm
 from mglg.graphics.drawable import DrawableGroup
 
-from mglg.graphics.shape2d import Rect, Circle, Arrow, Polygon, Cross, RoundedRect
-from mglg.graphics.image2d import Image2D, texture_cache
-from mglg.graphics.particle2d import Particle2D
-from mglg.graphics.stipple2d import StippleArrow
-from mglg.graphics.text2d import Text2D, DynamicText2D
+from mglg.graphics.shapes import Rect, Circle, Arrow, Polygon, Cross, RoundedRect
+from mglg.graphics.image import Image, texture_cache
+from mglg.graphics.particles import Particles
+from mglg.graphics.stipples import StippleArrow
+from mglg.graphics.text import Text, DynamicText
 from mglg.util.profiler import Profiler
 # from toon.util import priority
 # import gamemode as gm
@@ -34,15 +34,15 @@ if __name__ == '__main__':
                 scale=(0.12, 0.10), position=(0.3, 0.3))
 
     check_path = op.join(op.dirname(__file__), 'check_small.png')
-    check = Image2D(win, check_path, position=(-0.2, 0.3),
+    check = Image(win, check_path, position=(-0.2, 0.3),
                     scale=(0.1, 0.1), rotation=70)
 
-    check2 = Image2D(win, check_path, position=(0.5, 0),
+    check2 = Image(win, check_path, position=(0.5, 0),
                      scale=(0.05, 0.05), rotation=0)
     # check that they *do* share the same vertex array
     assert sqr.vao == sqr2.vao
 
-    particles = Particle2D(win, scale=0.4, num_particles=5e4)
+    particles = Particles(win, scale=0.4, num_particles=5e4)
 
     stiparrow = StippleArrow(win, scale=(0.1, 0.1),
                              position=(0.2, -0.3), pattern=0xadfa)
@@ -50,13 +50,13 @@ if __name__ == '__main__':
     # bump up font size for crisper look
     # font_path = op.join(op.dirname(__file__), 'UbuntuMono-B.ttf')
     font_path = op.join(op.dirname(__file__), '..', 'fonts', 'UbuntuMono-B.pklfont')
-    bases = Text2D(win, scale=(0.1, 0.1), fill_color=(1, 0.1, 0.1, 0.7),
+    bases = Text(win, scale=(0.1, 0.1), fill_color=(1, 0.1, 0.1, 0.7),
                    text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4))
     font_path = op.join(op.dirname(__file__), '..', 'fonts', 'AlexBrush-Regular.pklfont')
-    bases2 = Text2D(win, scale=(0.15, 0.15), fill_color=(0.1, 1, 0.1, 1),
+    bases2 = Text(win, scale=(0.15, 0.15), fill_color=(0.1, 1, 0.1, 1),
                     text='pequeño', font=font_path, position=(-0.4, 0), rotation=90)
 
-    countup = DynamicText2D(win, text='0', scale=0.05, expected_chars=8,
+    countup = DynamicText(win, text='0', scale=0.05, expected_chars=8,
                             font=font_path, position=(0.6, 0.4),
                             prefetch='0123456789')
 

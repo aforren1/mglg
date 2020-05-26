@@ -2,8 +2,8 @@ import numpy as np
 
 import moderngl as mgl
 from mglg.graphics.drawable import Drawable2D
-from mglg.graphics.shape2d import _make_2d_indexed
-from mglg.graphics.shape2d import rect_vertices, line_vertices, arrow_vertices, circle_vertices
+from mglg.graphics.shapes import _make_2d_indexed
+from mglg.graphics.shapes import rect_vertices, line_vertices, arrow_vertices, circle_vertices
 from mglg.math.vector import Vec4
 
 # Stipple shader is from https://stackoverflow.com/a/55088683/2690232
@@ -62,7 +62,7 @@ def StippleShader(context: mgl.Context):
     return stipple_shader
 
 
-class Stipple2D(Drawable2D):
+class StippleShape(Drawable2D):
     def __init__(self, window, vertices=None,
                  pattern=0xff00, color=(1, 1, 1, 1),
                  *args, **kwargs):
@@ -100,17 +100,17 @@ class Stipple2D(Drawable2D):
         self._color.rgba = color
 
 
-class StippleRect(Stipple2D):
+class StippleRect(StippleShape):
     _vertices = np.array(rect_vertices, dtype='f4')
 
 
-class StippleLine(Stipple2D):
+class StippleLine(StippleShape):
     _vertices = np.array(line_vertices, dtype='f4')
 
 
-class StippleArrow(Stipple2D):
+class StippleArrow(StippleShape):
     _vertices = np.array(arrow_vertices, dtype='f4')
 
 
-class StippleCircle(Stipple2D):
+class StippleCircle(StippleShape):
     _vertices = np.array(circle_vertices, dtype='f4')

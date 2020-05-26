@@ -2,7 +2,7 @@ import numpy as np
 import moderngl as mgl
 from timeit import default_timer
 from mglg.graphics.drawable import Drawable2D
-from mglg.graphics.particle import ParticleEmitter
+from mglg.graphics._particle import ParticleEmitter
 
 pvert = """
 #version 330
@@ -67,7 +67,7 @@ def ParticleShader(context: mgl.Context):
     return particle_shader
 
 
-class Particle2D(Drawable2D):
+class Particles(Drawable2D):
     def __init__(self, win, num_particles=1e4, *args, **kwargs):
         super().__init__(win, *args, **kwargs)
         ctx = win.ctx
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
     win = Win(use_imgui=True)
 
-    part = Particle2D(win, scale=0.4, lifespan_range=(0.5, 0.8), 
+    part = Particles(win, scale=0.4, lifespan_range=(0.5, 0.8), 
                      extent_range=(0.5, 1),
                      extent_ease=SMOOTHERSTEP,
                      initial_scale_range=(0.01, 0.01),

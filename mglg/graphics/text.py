@@ -60,7 +60,7 @@ def SDFShader(context):
         sdf_shader = context.program(vertex_shader=vs, fragment_shader=fs)
     return sdf_shader
 
-class Text2D(Drawable2D):
+class Text(Drawable2D):
     def __init__(self, window, text, font, 
                  fill_color=(0, 1, 0, 1), outline_color=(1, 1, 1, 1),
                  smoothness = 0.04, outline_range=(0.6, 0.4),
@@ -220,7 +220,7 @@ class Text2D(Drawable2D):
         indices = indices.ravel()
         return vertices, indices
 
-class DynamicText2D(Text2D):
+class DynamicText(Text):
     def __init__(self, window, text='', font=None, 
                  fill_color=(0, 1, 0, 1), outline_color=(1, 1, 1, 1),
                  smoothness = 0.02, outline_range=(0.5, 0.3),
@@ -297,7 +297,7 @@ if __name__ == '__main__':
     import os.path as op
     from timeit import default_timer
     from mglg.graphics.win import Win
-    from mglg.graphics.shape2d import Rect
+    from mglg.graphics.shapes import Rect
     from mglg.graphics.drawable import DrawableGroup
     from math import sin, cos
     win = Win()
@@ -305,11 +305,11 @@ if __name__ == '__main__':
     #font_path = op.join(op.dirname(__file__), '..', '..', 'examples', 'UbuntuMono-B.ttf')
     font_path = op.join(op.dirname(__file__), '..', '..', 'fonts', 'UbuntuMono-B.pklfont')
     t0 = default_timer()
-    bases = Text2D(win, scale=0.1, fill_color=(1, 0.1, 0.1, 0.5), position=(0, 0),
+    bases = Text(win, scale=0.1, fill_color=(1, 0.1, 0.1, 0.5), position=(0, 0),
                    outline_color=(0.2, 0.2, 1, 0.8), text='Tengo un\ngatito pequeñito', 
                    font=font_path, anchor_x='right')
     
-    dynbs = DynamicText2D(win, scale=0.08, fill_color=(0.8, 0.8, 0.1, 1), font=font_path,
+    dynbs = DynamicText(win, scale=0.08, fill_color=(0.8, 0.8, 0.1, 1), font=font_path,
                           position=(0.3, 0.3), expected_chars=20,
                           outline_range=(0.7, 0.5), smoothness=0.04)
     print('startup time: %f' % (default_timer() - t0))
