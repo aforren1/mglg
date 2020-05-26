@@ -3,7 +3,8 @@ from glm import vec2, vec3, vec4
 # wrapping these allows us to set on swizzles
 # (not supported by glm, see e.g. https://github.com/g-truc/glm/issues/786)
 
-
+lookup = {'x': 0, 'y': 1, 'z': 2, 'w': 3,
+          'r': 0, 'g': 1, 'b': 2, 'a': 3}
 class Vec(object):
     def __setattr__(self, keys, vals):
         try:
@@ -14,40 +15,17 @@ class Vec(object):
         for i in range(len(keys)):
             k = keys[i]
             v = vals[i] if isiter else vals
-            self._swizzle(k, v)
-
-    def _swizzle(self, k, v):
-        raise ValueError('Missing implementation.')
+            self[lookup[k]] = v
 
 
 class Vec2(Vec, vec2):
-    def _swizzle(self, k, v):
-        if k in 'xr':
-            self[0] = v
-        elif k in 'yg':
-            self[1] = v
-
+    pass
 
 class Vec3(Vec, vec3):
-    def _swizzle(self, k, v):
-        if k in 'xr':
-            self[0] = v
-        elif k in 'yg':
-            self[1] = v
-        elif k in 'zb':
-            self[2] = v
-
+    pass
 
 class Vec4(Vec, vec4):
-    def _swizzle(self, k, v):
-        if k in 'xr':
-            self[0] = v
-        elif k in 'yg':
-            self[1] = v
-        elif k in 'zb':
-            self[2] = v
-        elif k in 'wa':
-            self[3] = v
+    pass
 
 
 if __name__ == '__main__':
