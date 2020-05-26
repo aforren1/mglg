@@ -8,7 +8,7 @@ from mglg.graphics.win import Win
 import glm
 from mglg.graphics.drawable import DrawableGroup
 
-from mglg.graphics.shapes import Rect, Circle, Arrow, Polygon, Cross, RoundedRect
+from mglg.graphics.shapes import Rect, Circle, Arrow, Polygon, Cross, RoundedRect, Shape, make_rounded_rect
 from mglg.graphics.image import Image, texture_cache
 from mglg.graphics.particles import Particles
 from mglg.graphics.stipples import StippleArrow
@@ -21,8 +21,14 @@ if __name__ == '__main__':
     win = Win(vsync=1, screen=0, use_imgui=True)
 
     sqr = Rect(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
-    rr = RoundedRect(win, scale=(0.15, 0.1), fill_color=(0, 0.1, 0.7, 1), rotation=30,
-                     position=(0.3, -0.2), radii=(1, 0.2, 1, 0.2))
+    rr = RoundedRect(win, scale=(0.2, 0.1), fill_color=(0, 0.1, 0.7, 1), rotation=30,
+                     position=(0.3, -0.2), radii=(1, 0.2, 1, 0.2), segments=32)
+    # prescaling the vertices leads to the right outline scaling
+    vs = make_rounded_rect(radii=(1, 0.2, 1, 0.2), segments=32)*(.2, .1)
+    rr2 = Shape(win, vertices=vs, 
+                fill_color=(0, 0.1, 0.7, 1), rotation=30,
+                position=(0.5, -0.2), outline_color=(0.5, .9, 0, 1),
+                outline_thickness=0.05*.15)
     circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1))
     arrow = Arrow(win, scale=(0.15, 0.1), fill_color=(0.9, 0.7, 0.2, 1))
     circle.position.x += 0.2
@@ -60,7 +66,7 @@ if __name__ == '__main__':
                             font=font_path, position=(0.6, 0.4),
                             prefetch='0123456789')
 
-    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, rr])
+    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, rr, rr2])
     pix = DrawableGroup([check, check2])
     prt = DrawableGroup([particles])
     stp = DrawableGroup([stiparrow])

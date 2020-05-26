@@ -110,7 +110,7 @@ class Shape(Drawable2D):
         self.is_outlined = is_outlined
         self._fill_color = Vec4(fill_color)
         self._outline_color = Vec4(outline_color)
-        self._outline_thickness = outline_thickness
+        self.outline_thickness = outline_thickness
         self.mvp_unif = shader['mvp']
         self.fill_unif = shader['fill_color']
         self.outline_unif = shader['outline_color']
@@ -126,7 +126,7 @@ class Shape(Drawable2D):
                 self.fill_unif.write(vec4(1, 1, 1, 0))
             if self.is_outlined:
                 self.outline_unif.write(self._outline_color)
-                self.thick_unif.value = self._outline_thickness
+                self.thick_unif.value = self.outline_thickness
             else:
                 self.outline_unif.write(self._fill_color)
             self.vao.render(mgl.TRIANGLES)
@@ -146,14 +146,6 @@ class Shape(Drawable2D):
     @outline_color.setter
     def outline_color(self, color):
         self._outline_color.rgba = color
-    
-    @property
-    def outline_thickness(self):
-        return self._outline_thickness
-
-    @outline_thickness.setter
-    def outline_thickness(self, value):
-        self._outline_thickness = value
 
     @classmethod
     def store_vaos(cls, ctx, shader, vbo, ibo):
@@ -227,8 +219,7 @@ def make_rounded_rect(radii=0.05, segments=16):
 
 class RoundedRect(Shape):
     def __init__(self, window, radii=0.05, segments=16, *args, **kwargs):
-        vertices = make_rounded_rect(radii, segments)
-        super().__init__(window, vertices=vertices, *args, **kwargs)
+        super().__init__(window, vertices=make_rounded_rect(radii, segments), *args, **kwargs)
 
 if __name__ == '__main__':
     from mglg.graphics.drawable import DrawableGroup
@@ -245,7 +236,18 @@ if __name__ == '__main__':
     sqr4 = Rect(win, position=(-0.5, -0.3), scale=0.1, rotation=30, outline_color=(0, 0, 0, 1))
     rr = RoundedRect(win, radii=[0.5, 0.2, 0.5, 0.2], fill_color=(1, 0.5, 0.5, 1),
                      position=(-0.5, -0.3), scale=0.1, rotation=30)
-    circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1), outline_color=(1, 1, 1, 0.5),
+
+    class Tmp(Shape):
+        def __init__(self, *args, **kwargs):
+            verts = make_rounded_rect(radii=(1, 0.2, 1, 0.2), segments=32)*kwargs['scale']
+            kwargs['scale'] = 1, 1
+            super().__init__(vertices=verts, *args, **kwargs)
+    rr2 = Tmp(win, scale=(0.1, 0.15), 
+                fill_color=(0, 0.1, 0.7, 1), rotation=30,
+                position=(0.5, -0.2), outline_color=(0.5, .9, 0, 1))
+    
+    vt = make_poly_outline(segments=128)
+    circle = Polygon(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1), outline_color=(1, 1, 1, 0.5),
                     is_filled=False)
     arrow = Arrow(win, scale=(0.1, 0.1), fill_color=(0.9, 0.7, 0.2, 1), 
                   outline_thickness=0.1, outline_color=(1, 1, 1, 1))
@@ -264,7 +266,7 @@ if __name__ == '__main__':
     # check that they *do* share the same vertex array
     #assert sqr.vao == sqr2.vao
 
-    dg = DrawableGroup([sqr4, sqr3, sqr, sqr2, circle, arrow, poly, crs, rr])
+    dg = DrawableGroup([sqr4, sqr3, sqr, sqr2, circle, arrow, poly, crs, rr, rr2])
 
     counter = 0
     for i in range(3000):
