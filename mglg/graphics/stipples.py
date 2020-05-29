@@ -84,9 +84,10 @@ class StippleShape(Drawable2D):
         self.mvp_unif = self.shader['mvp']
         self.color_unif = self.shader['color']
 
-    def draw(self):
+    def draw(self, vp=None):
         if self.visible:
-            mvp = self.win.vp * self.model_matrix
+            vp = vp if vp else self.win.vp
+            mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
             self.color_unif.write(self._color)
             self.vao.render(mgl.LINE_LOOP)

@@ -103,7 +103,7 @@ class Particles(Drawable2D):
         self._emitter.spawn(num_particles)
         self.visible = True
     
-    def draw(self):
+    def draw(self, vp=None):
         if self.visible:
             gpuview = self._emitter.update(self.dt)
             # ideally I'd return the particle count too,
@@ -114,7 +114,8 @@ class Particles(Drawable2D):
                 # we have at least one particle
                 win = self.win
                 self.texture.use()
-                self.u_vp.write(win.vp)
+                vp = vp if vp else self.win.vp
+                self.u_vp.write(vp)
                 self.u_g_pos.write(self.position)
                 self.u_g_scale.write(self.scale)
                 self.particle_vbo.write(gpuview)

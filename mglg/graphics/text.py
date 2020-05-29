@@ -92,10 +92,11 @@ class Text(Drawable2D):
         self.smooth_unif = self.shader['smoothness']
         self.outline_range_unif = self.shader['outline_range']
     
-    def draw(self):
+    def draw(self, vp=None):
         if self.visible:
             self.atlas.use()
-            mvp = self.win.vp * self.model_matrix
+            vp = vp if vp else self.win.vp
+            mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
             self.fill_unif.write(self._fill_color)
             self.outline_unif.write(self._outline_color)
@@ -276,10 +277,11 @@ class DynamicText(Text):
             self.ibo.write(indices)
             self._text = new_txt
     
-    def draw(self):
+    def draw(self, vp=None):
         if self.visible and self._text != '':
             self.atlas.use()
-            mvp = self.win.vp * self.model_matrix
+            vp = vp if vp else self.win.vp
+            mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
             self.fill_unif.write(self._fill_color)
             self.outline_unif.write(self._outline_color)

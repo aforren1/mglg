@@ -116,9 +116,10 @@ class Shape(Drawable2D):
         self.outline_unif = shader['outline_color']
         self.thick_unif = shader['thickness']
 
-    def draw(self):
+    def draw(self, vp=None):
         if self.visible:
-            mvp = self.win.vp * self.model_matrix
+            vp = vp if vp else self.win.vp
+            mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
             if self.is_filled:
                 self.fill_unif.write(self._fill_color)

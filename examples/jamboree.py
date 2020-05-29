@@ -13,6 +13,7 @@ from mglg.graphics.image import Image, texture_cache
 from mglg.graphics.particles import Particles
 from mglg.graphics.stipples import StippleArrow
 from mglg.graphics.text import Text, DynamicText
+from mglg.graphics.framebuffer import Framebuffer
 from mglg.util.profiler import Profiler
 # from toon.util import priority
 # import gamemode as gm
@@ -21,10 +22,10 @@ if __name__ == '__main__':
     win = Win(vsync=1, screen=0, use_imgui=True)
 
     sqr = Rect(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
-    rr = RoundedRect(win, scale=(0.2, 0.1), fill_color=(0, 0.1, 0.7, 1), rotation=30,
+    rr = RoundedRect(win, scale=(0.3, 0.1), fill_color=(0, 0.1, 0.7, 1), rotation=30,
                      position=(0.3, -0.2), radii=(1, 0.2, 1, 0.2), segments=32)
     # prescaling the vertices leads to the right outline scaling
-    vs = make_rounded_rect(radii=(1, 0.2, 1, 0.2), segments=32)*(.2, .1)
+    vs = make_rounded_rect(radii=(1, 0.2, 1, 0.2), segments=32)*(.3, .1)
     rr2 = Shape(win, vertices=vs, 
                 fill_color=(0, 0.1, 0.7, 1), rotation=30,
                 position=(0.5, -0.2), outline_color=(0.5, .9, 0, 1),
@@ -45,6 +46,8 @@ if __name__ == '__main__':
 
     check2 = Image(win, check_path, position=(0.5, 0),
                      scale=(0.05, 0.05), rotation=0)
+    fbo = Framebuffer(win, clear_color=(0, 0, 0.5), alpha=0.5,
+              position=(0.4, 0), scale=(0.2, 0.3))
     # check that they *do* share the same vertex array
     assert sqr.vao == sqr2.vao
 
@@ -92,6 +95,9 @@ if __name__ == '__main__':
         prt.draw()
         stp.draw()
         txt.draw()
+        with fbo:
+            dg.draw(fbo.vp)
+        fbo.draw()
         imgui.new_frame()
         imgui.show_demo_window()
         return counter

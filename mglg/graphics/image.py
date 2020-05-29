@@ -54,6 +54,7 @@ class Image(Drawable2D):
         else:
             image = load(image_path)
             self.texture = context.texture(image.shape[0:2], 4, image)
+            self.texture.filter = (mgl.LINEAR, mgl.LINEAR)
             texture_cache[bn] = self.texture
         self.alpha = alpha
         self.mvp_unif = self.shader['mvp']
@@ -69,10 +70,11 @@ class Image(Drawable2D):
             vbo = context.buffer(vertex_texcoord.view(np.ubyte))
             self.set_vao(context, self.shader, vbo)
 
-    def draw(self):
+    def draw(self, vp=None):
         if self.visible:
             self.texture.use()
-            mvp = self.win.vp * self.model_matrix
+            vp = vp if vp else self.win.vp
+            mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
             self.alpha_unif.value = self.alpha
             self.vao.render(mgl.TRIANGLE_STRIP)

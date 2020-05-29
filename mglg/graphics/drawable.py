@@ -10,7 +10,7 @@ class Drawable(abc.ABC):
         self.visible = visible
 
     @abc.abstractmethod
-    def draw(self):
+    def draw(self, vp=None):
         pass
         # if self.visible:
         #     ....
@@ -30,7 +30,7 @@ class DrawableGroup(list):
         super().__init__(*args, **kwargs)
         self.visible = True
 
-    def draw(self):
+    def draw(self, vp=None):
         if self.visible:
             for obj in self:
-                obj.draw()
+                obj.draw(vp)
