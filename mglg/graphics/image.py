@@ -67,7 +67,7 @@ class Image(Drawable2D):
                                            (0.5, -0.5), (0.5, 0.5)]
             vertex_texcoord['texcoord'] = [(0, 1), (0, 0),
                                            (1, 1), (1, 0)]
-            vbo = context.buffer(vertex_texcoord.view(np.ubyte))
+            vbo = context.buffer(vertex_texcoord)
             self.set_vao(context, self.shader, vbo)
 
     def draw(self, vp=None):

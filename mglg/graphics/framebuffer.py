@@ -31,7 +31,7 @@ class Framebuffer(Drawable2D):
                                            (-0.5, 0.5), (0.5, 0.5)]
             vertex_texcoord['texcoord'] = [(0, 0), (1, 0),
                                            (0, 1), (1, 1)]
-            vbo = ctx.buffer(vertex_texcoord.view(np.ubyte))
+            vbo = ctx.buffer(vertex_texcoord)
             self.set_vao(ctx, self.shader, vbo)
 
     def draw(self, vp=None):

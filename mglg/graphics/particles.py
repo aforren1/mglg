@@ -114,7 +114,7 @@ class Particles(Drawable2D):
                 # we have at least one particle
                 win = self.win
                 self.texture.use()
-                vp = vp if vp else self.win.vp
+                vp = vp if vp else win.vp
                 self.u_vp.write(vp)
                 self.u_g_pos.write(self.position)
                 self.u_g_scale.write(self.scale)
