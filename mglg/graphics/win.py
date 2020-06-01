@@ -17,7 +17,8 @@ atexit.register(glfw.terminate)
 
 
 class Win(object):
-    def __init__(self, vsync=1, screen=0, timer=default_timer, use_imgui=False):
+    def __init__(self, vsync=1, screen=0, timer=default_timer, use_imgui=False,
+                 hidden=False):
         # TODO: multi-display with shared context
         # from psychopy & moderngl-window
         # fullscreen stuff-- always
@@ -26,6 +27,7 @@ class Win(object):
             screen = 0  # default to screen 0 if no external monitors
         monitor = monitors[screen]
         video_mode = glfw.get_video_mode(monitor)
+        self._monitor = monitor
 
         self.width, self.height = video_mode.size
         self.size = self.width, self.height
@@ -48,9 +50,12 @@ class Win(object):
         glfw.window_hint(glfw.RED_BITS, video_mode.bits[0])
         glfw.window_hint(glfw.GREEN_BITS, video_mode.bits[1])
         glfw.window_hint(glfw.BLUE_BITS, video_mode.bits[2])
-        glfw.window_hint(glfw.AUTO_ICONIFY, 0)
+        glfw.window_hint(glfw.AUTO_ICONIFY, 1)
         glfw.window_hint(glfw.SRGB_CAPABLE, 1) # TODO: complete support
 
+        if hidden:
+            glfw.window_hint(glfw.VISIBLE, False)
+            monitor = None
         self._win = glfw.create_window(width=self.width, height=self.height,
                                        title='', monitor=monitor, share=None)
 
@@ -95,9 +100,12 @@ class Win(object):
 
     def flip(self):
         if self.use_imgui:
-            self.imrenderer.process_inputs()
-            imgui.render()
-            self.imrenderer.render(imgui.get_draw_data())
+            try:
+                self.imrenderer.process_inputs()
+                imgui.render()
+                self.imrenderer.render(imgui.get_draw_data())
+            except imgui.core.ImGuiError:
+                pass
         glfw.poll_events()
         glfw.swap_buffers(self._win)
         self.ctx.clear(*self._clear_color)
@@ -107,6 +115,12 @@ class Win(object):
 
     def close(self):
         glfw.set_window_should_close(self._win, True)
+    
+    def show(self):
+        glfw.show_window(self._win)
+        # now make fullscreen
+        glfw.set_window_monitor(self._win, self._monitor, 0, 0,
+                                self.width, self.height, self.frame_rate)
 
     @property
     def clear_color(self):
@@ -131,7 +145,14 @@ class Win(object):
 
 if __name__ == '__main__':
     from mglg.graphics.win import Win
-    win = Win(screen=0, vsync=1, use_imgui=True)
+    from mglg.graphics.shapes import Rect
+    from time import sleep
+    win = Win(screen=1, vsync=1, use_imgui=True, hidden=True)
+
+    rct = Rect(win, scale=0.1, fill_color=(.8, .3, .2, .5))
+
+    sleep(2)
+    win.show()
 
     counter = 0
     while not win.should_close:
@@ -143,6 +164,7 @@ if __name__ == '__main__':
             pass
             #win.should_close = True
             #win.use_imgui = not win.use_imgui
+        rct.draw()
         win.flip()
 
         #print(win.dt)
