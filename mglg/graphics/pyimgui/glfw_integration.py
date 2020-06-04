@@ -7,12 +7,17 @@ from imgui.integrations import compute_fb_scale
 
 class GlfwRenderer(ModernGLRenderer):
     # https://github.com/swistakm/pyimgui/blob/master/imgui/integrations/glfw.py#L11
-    # note the few callbacks that are passed through from our GLFW window
-    # (should do it properly...)
     def __init__(self, wnd):
         super(GlfwRenderer, self).__init__(wnd)
         self.window = wnd._win
         self._w = wnd
+
+        # scale fonts for high DPI
+        # https://pyimgui.readthedocs.io/en/latest/guide/using-fonts.html
+        win_w, win_h = glfw.get_window_size(self.window)
+        fb_w, fb_h = glfw.get_framebuffer_size(self.window)
+        self.font_scaling_factor = max(float(fb_w) / win_w, float(fb_h) / win_h)
+        self.io.font_global_scale /= self.font_scaling_factor
 
         glfw.set_key_callback(self.window, self.keyboard_callback)
         glfw.set_cursor_pos_callback(self.window, self.mouse_callback)
@@ -123,9 +128,21 @@ class GlfwRenderer(ModernGLRenderer):
 if __name__ == '__main__':
     from mglg.graphics.win import Win
     from timeit import default_timer
+    import os.path as op
+
+    path = op.dirname(__file__)
+    fontpath = op.join(path, '..', '..', '..', 'examples', 'UbuntuMono-B.ttf')
 
     win = Win(use_imgui=True)
 
+    io = imgui.get_io()
+    fnt = io.fonts
+    extra_font = fnt.add_font_from_file_ttf(fontpath,
+                                            30*win.imrenderer.font_scaling_factor,
+                                            fnt.get_glyph_ranges_latin())
+    win.imrenderer.refresh_font_texture()
+
+    print(win.imrenderer.font_scaling_factor)
     counter = 0
     while True:
         counter += 1
@@ -133,7 +150,10 @@ if __name__ == '__main__':
         #    win.mouse_visible = not win.mouse_visible
         # if counter % 40 == 0:
         #     win.use_imgui = not win.use_imgui
+        imgui.new_frame()
+        imgui.push_font(extra_font)
         imgui.show_demo_window()
+        imgui.pop_font()
         win.flip()
         # print(win.mouse_pos)
         if win.should_close:

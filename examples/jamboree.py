@@ -4,16 +4,17 @@ from timeit import default_timer
 import numpy as np
 import moderngl as mgl
 from math import sin, cos
-from mglg.graphics.win import Win
+from mglg.graphics import Win
 import glm
-from mglg.graphics.drawable import DrawableGroup
+from mglg.graphics import DrawableGroup
 
-from mglg.graphics.shapes import Rect, Circle, Arrow, Polygon, Cross, RoundedRect, Shape, make_rounded_rect
+from mglg.graphics import Rect, Circle, Arrow, Polygon, Cross, RoundedRect, Shape
+from mglg.graphics.shapes import make_rounded_rect
 from mglg.graphics.image import Image, texture_cache
-from mglg.graphics.particles import Particles
+from mglg.graphics import Particles
 from mglg.graphics.stipples import StippleArrow
-from mglg.graphics.text import Text, DynamicText
-from mglg.graphics.framebuffer import Framebuffer
+from mglg.graphics import Text, DynamicText
+from mglg.graphics import Framebuffer
 from mglg.util.profiler import Profiler
 # from toon.util import priority
 # import gamemode as gm
