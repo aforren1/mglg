@@ -133,7 +133,7 @@ if __name__ == '__main__':
     path = op.dirname(__file__)
     fontpath = op.join(path, '..', '..', '..', 'examples', 'UbuntuMono-B.ttf')
 
-    win = Win(use_imgui=True)
+    win = Win()
 
     io = imgui.get_io()
     fnt = io.fonts
@@ -154,6 +154,7 @@ if __name__ == '__main__':
         imgui.push_font(extra_font)
         imgui.show_demo_window()
         imgui.pop_font()
+        win.imrenderer.draw()
         win.flip()
         # print(win.mouse_pos)
         if win.should_close:

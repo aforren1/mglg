@@ -131,7 +131,7 @@ if __name__ == '__main__':
     from math import sin
     import imgui
 
-    win = Win(use_imgui=True)
+    win = Win()
 
     part = Particles(win, scale=0.4, lifespan_range=(0.5, 0.8), 
                      extent_range=(0.5, 1),

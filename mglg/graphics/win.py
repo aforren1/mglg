@@ -15,10 +15,15 @@ if not glfw.init():
     raise ValueError('GLFW init went terribly wrong?')
 atexit.register(glfw.terminate)
 
+class ImguiRenderer(GlfwRenderer):
+    def draw(self):
+        self.process_inputs()
+        imgui.render()
+        self.render(imgui.get_draw_data())
+    
 
 class Win(object):
-    def __init__(self, vsync=1, screen=0, timer=default_timer, use_imgui=False,
-                 hidden=False):
+    def __init__(self, vsync=1, screen=0, timer=default_timer, hidden=False):
         # TODO: multi-display with shared context
         # from psychopy & moderngl-window
         # fullscreen stuff-- always
@@ -88,10 +93,8 @@ class Win(object):
         self.should_close = False
         self.ctx.clear(*self.clear_color)
 
-        self.use_imgui = use_imgui
-
         imgui.create_context()
-        self.imrenderer = GlfwRenderer(self)
+        self.imrenderer = ImguiRenderer(self)
 
 
     def _on_key(self, win_ptr, key, scancode, action, modifiers):
@@ -99,13 +102,6 @@ class Win(object):
             self.should_close = True
 
     def flip(self):
-        if self.use_imgui:
-            try:
-                self.imrenderer.process_inputs()
-                imgui.render()
-                self.imrenderer.render(imgui.get_draw_data())
-            except imgui.core.ImGuiError:
-                pass
         glfw.poll_events()
         glfw.swap_buffers(self._win)
         self.ctx.clear(*self._clear_color)
@@ -128,7 +124,7 @@ class Win(object):
 
     @clear_color.setter
     def clear_color(self, val):
-        self._clear_color.rgb = val
+        self._clear_color.rgba = val
 
     @property
     def mouse_visible(self):
@@ -147,24 +143,23 @@ if __name__ == '__main__':
     from mglg.graphics.win import Win
     from mglg.graphics.shapes import Rect
     from time import sleep
-    win = Win(screen=1, vsync=1, use_imgui=True, hidden=True)
+    win = Win(screen=1, vsync=1, hidden=True)
 
     rct = Rect(win, scale=0.1, fill_color=(.8, .3, .2, .5))
-
-    sleep(2)
     win.show()
 
     counter = 0
+    imrenderer = win.imrenderer
     while not win.should_close:
-        if win.use_imgui:
-            imgui.new_frame()
-            imgui.show_demo_window()
+        imgui.new_frame()
+        imgui.show_demo_window()
         counter += 1
         if counter % 1000 == 0:
             pass
             #win.should_close = True
             #win.use_imgui = not win.use_imgui
         rct.draw()
+        imrenderer.draw()
         win.flip()
 
         #print(win.dt)

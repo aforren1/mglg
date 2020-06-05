@@ -17,7 +17,7 @@ class Framebuffer(Drawable2D):
         self.fbo = ctx.framebuffer(self.texture)
 
         cc = clear_color if clear_color else window.clear_color
-        self._clear_color = Vec4(cc, 1.0)
+        self._clear_color = Vec4(cc)
         self.alpha = alpha
         self.mvp_unif = self.shader['mvp']
         self.alpha_unif = self.shader['alpha']

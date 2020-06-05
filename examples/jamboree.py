@@ -20,7 +20,7 @@ from mglg.util.profiler import Profiler
 # import gamemode as gm
 
 if __name__ == '__main__':
-    win = Win(vsync=1, screen=0, use_imgui=True)
+    win = Win(vsync=1, screen=0)
 
     sqr = Rect(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
     rr = RoundedRect(win, scale=(0.3, 0.1), fill_color=(0, 0.1, 0.7, 1), rotation=30,
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     check2 = Image(win, check_path, position=(0.5, 0),
                      scale=(0.05, 0.05), rotation=0)
-    fbo = Framebuffer(win, clear_color=(0, 0, 0.5), alpha=0.5,
+    fbo = Framebuffer(win, clear_color=(0, 0, 0.8, 1), alpha=0.5,
               position=(0.4, 0), scale=(0.2, 0.3))
     # check that they *do* share the same vertex array
     assert sqr.vao == sqr2.vao
@@ -119,6 +119,7 @@ if __name__ == '__main__':
         imgui.plot_lines('GPU', prof.gpubuffer,
                             scale_min=0, scale_max=10, graph_size=(180, 100))
         imgui.end()
+        win.imrenderer.draw()
         win.flip()
         dts.append(win.dt)
         if win.should_close:
