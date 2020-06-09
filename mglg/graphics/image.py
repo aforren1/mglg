@@ -53,7 +53,7 @@ class Image(Drawable2D):
             self.texture = texture_cache[bn]
         else:
             image = load(image_path)
-            self.texture = context.texture(image.shape[0:2], 4, image)
+            self.texture = context.texture(image.shape[0:2], image.shape[2], image)
             self.texture.filter = (mgl.LINEAR, mgl.LINEAR)
             texture_cache[bn] = self.texture
         self.alpha = alpha
