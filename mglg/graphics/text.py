@@ -321,7 +321,7 @@ if __name__ == '__main__':
     
     dynbs = DynamicText(win, scale=0.2, fill_color=(0.8, 0.8, 0.1, 1), font=font_path,
                           position=(0.3, 0.3), expected_chars=20,
-                          outline_range=(0.7, 0.5), smoothness=0.04)
+                          outline_range=(0.6, 0.3), smoothness=0.02)
     print('startup time: %f' % (default_timer() - t0))
 
     sqr = Rect(win, scale=0.1)
@@ -329,10 +329,10 @@ if __name__ == '__main__':
     txt = DrawableGroup([bases, dynbs])
     count = 0
     for i in range(3000):
-        if i % 10 == 0:
+        if i % 50 == 0:
             dynbs.text = ascii_alphanum[(count) % (len(ascii_alphanum)-20)]
             count += 1
-            dynbs.scale = cos(i/100)*0.2
+            #dynbs.scale = cos(i/100)*0.2
         bases.rotation += 1
         bases.scale = sin(i/100) * 0.2 
         sqr.draw()
