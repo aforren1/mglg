@@ -94,8 +94,11 @@ class Text(Drawable2D):
     
     def draw(self, vp=None):
         if self.visible:
+            win = self.win
+            ctx = win.ctx
+            ctx.blend_func = mgl.ONE, mgl.ONE_MINUS_SRC_ALPHA
             self.atlas.use()
-            vp = vp if vp else self.win.vp
+            vp = vp if vp else win.vp
             mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
             self.fill_unif.write(self._fill_color)
@@ -103,6 +106,7 @@ class Text(Drawable2D):
             self.smooth_unif.value = self._smoothness
             self.outline_range_unif.write(self._outline_range)
             self.vao.render(mgl.TRIANGLES)
+            ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
 
     @property
     def fill_color(self):
@@ -279,8 +283,11 @@ class DynamicText(Text):
     
     def draw(self, vp=None):
         if self.visible and self._text != '':
+            win = self.win
+            ctx = win.ctx
+            ctx.blend_func = mgl.ONE, mgl.ONE_MINUS_SRC_ALPHA
             self.atlas.use()
-            vp = vp if vp else self.win.vp
+            vp = vp if vp else win.vp
             mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
             self.fill_unif.write(self._fill_color)
@@ -288,6 +295,7 @@ class DynamicText(Text):
             self.smooth_unif.value = self._smoothness
             self.outline_range_unif.write(self._outline_range)
             self.vao.render(mgl.TRIANGLES, vertices=self.num_vertices)
+            ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
     
     def prefetch(self, chars):
         # store these
@@ -307,11 +315,11 @@ if __name__ == '__main__':
     #font_path = op.join(op.dirname(__file__), '..', '..', 'examples', 'UbuntuMono-B.ttf')
     font_path = op.join(op.dirname(__file__), '..', '..', 'fonts', 'UbuntuMono-B.pklfont')
     t0 = default_timer()
-    bases = Text(win, scale=0.1, fill_color=(1, 0.1, 0.1, 0.5), position=(0, 0),
+    bases = Text(win, scale=0.3, fill_color=(1, 0.1, 0.1, 0.5), position=(0, 0),
                    outline_color=(0.2, 0.2, 1, 0.8), text='Tengo un\ngatito pequeñito', 
                    font=font_path, anchor_x='right')
     
-    dynbs = DynamicText(win, scale=0.08, fill_color=(0.8, 0.8, 0.1, 1), font=font_path,
+    dynbs = DynamicText(win, scale=0.2, fill_color=(0.8, 0.8, 0.1, 1), font=font_path,
                           position=(0.3, 0.3), expected_chars=20,
                           outline_range=(0.7, 0.5), smoothness=0.04)
     print('startup time: %f' % (default_timer() - t0))
@@ -325,7 +333,6 @@ if __name__ == '__main__':
             dynbs.text = ascii_alphanum[(count) % (len(ascii_alphanum)-20)]
             count += 1
             dynbs.scale = cos(i/100)*0.2
-            #dynbs.text = str(i)
         bases.rotation += 1
         bases.scale = sin(i/100) * 0.2 
         sqr.draw()
