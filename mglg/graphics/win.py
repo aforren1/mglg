@@ -93,7 +93,7 @@ class Win(object):
         self.should_close = False
         self.ctx.clear(*self.clear_color)
 
-        imgui.create_context()
+        self._imctx = imgui.create_context()
         self.imrenderer = ImguiRenderer(self)
 
 

@@ -44,6 +44,9 @@ class Profiler(object):
                 self.gpubuffer[idx] = gpu_time
                 self.worst_gpu = gpu_time if gpu_time > self.worst_gpu else self.worst_gpu
 
+    def reset(self):
+        self.cpubuffer[:] = 0
+        self.gpubuffer[:] = 0
 
     def __enter__(self):
         self.begin()
