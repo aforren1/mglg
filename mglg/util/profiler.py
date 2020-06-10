@@ -47,6 +47,8 @@ class Profiler(object):
     def reset(self):
         self.cpubuffer[:] = 0
         self.gpubuffer[:] = 0
+        self.worst_cpu = 0
+        self.worst_gpu = 0
 
     def __enter__(self):
         self.begin()
