@@ -79,7 +79,7 @@ cdef class ParticleEmitter:
                  tf lifespan_range=(0.05, 0.5), int max_particles=1000, 
                  double max_delay=0.05, *args, **kwargs):
         # set up the RNG
-        rng = np.random.RandomState()
+        rng = np.random.default_rng()
         unif = rng.uniform
         mp = max_particles
 
