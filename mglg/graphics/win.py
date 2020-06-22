@@ -55,7 +55,7 @@ class Win(object):
         glfw.window_hint(glfw.RED_BITS, video_mode.bits[0])
         glfw.window_hint(glfw.GREEN_BITS, video_mode.bits[1])
         glfw.window_hint(glfw.BLUE_BITS, video_mode.bits[2])
-        glfw.window_hint(glfw.AUTO_ICONIFY, 1)
+        glfw.window_hint(glfw.AUTO_ICONIFY, 0)
         glfw.window_hint(glfw.SRGB_CAPABLE, 1) # TODO: complete support
 
         if hidden:
