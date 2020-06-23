@@ -320,7 +320,7 @@ if __name__ == '__main__':
                           outline_color=(0, 0, 0, 1),
                           position=(0.3, 0.3), expected_chars=20,
                           smoothness=0.02,
-                          anchor_x='center', anchor_y='center')
+                          anchor_x='left', anchor_y='center')
     print('startup time: %f' % (default_timer() - t0))
 
     sqr = Rect(win, scale=0.2, position=(0.3, 0.3))
@@ -329,7 +329,7 @@ if __name__ == '__main__':
     count = 0
     for i in range(3000):
         if i % 20 == 0:
-            dynbs.text = ascii_alphanum[(count) % (len(ascii_alphanum)-20)]
+            dynbs.text = 'a' + ascii_alphanum[(count) % (len(ascii_alphanum)-20)] + '\n' + ascii_alphanum[(count+1) % (len(ascii_alphanum)-20)]
             count += 1
             #dynbs.scale = cos(i/100)*0.2
         #bases.rotation += 1

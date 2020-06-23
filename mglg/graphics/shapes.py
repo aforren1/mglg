@@ -130,6 +130,7 @@ class Shape(Drawable2D):
                 self.thick_unif.value = self.outline_thickness
             else:
                 self.outline_unif.write(self._fill_color)
+                self.thick_unif.value = 0
             self.vao.render(mgl.TRIANGLES)
 
     @property
