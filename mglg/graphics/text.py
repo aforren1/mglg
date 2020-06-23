@@ -217,11 +217,8 @@ class Text(Drawable2D):
         vertices['vertices'] += 0, dy
         # make sure it's 1D
         vertices = vertices.ravel()
-        # normalize to height (so vertices run from [-0.5, 0.5])
-        tmp = vertices['vertices'][:, 1]
-        mint = min(tmp)
-        maxt = max(tmp)
-        vertices['vertices'][...] = ((vertices['vertices'] - mint) / (maxt-mint)) - 0.5
+        # normalize to height
+        vertices['vertices'] /= font.height
         indices = indices.ravel()
         return vertices, indices
 
@@ -317,23 +314,25 @@ if __name__ == '__main__':
     t0 = default_timer()
     bases = Text(win, scale=0.3, fill_color=(1, 0.1, 0.1, 0.5), position=(0, 0),
                    outline_color=(0.2, 0.2, 1, 0.8), text='Tengo un\ngatito pequeñito', 
-                   font=font_path, anchor_x='right')
+                   font=font_path, anchor_x='left')
     
     dynbs = DynamicText(win, scale=0.2, fill_color=(0.8, 0.8, 0.1, 1), font=font_path,
+                          outline_color=(0, 0, 0, 1),
                           position=(0.3, 0.3), expected_chars=20,
-                          outline_range=(0.6, 0.3), smoothness=0.02)
+                          smoothness=0.02,
+                          anchor_x='center', anchor_y='center')
     print('startup time: %f' % (default_timer() - t0))
 
-    sqr = Rect(win, scale=0.1)
+    sqr = Rect(win, scale=0.2, position=(0.3, 0.3))
 
     txt = DrawableGroup([bases, dynbs])
     count = 0
     for i in range(3000):
-        if i % 50 == 0:
+        if i % 20 == 0:
             dynbs.text = ascii_alphanum[(count) % (len(ascii_alphanum)-20)]
             count += 1
             #dynbs.scale = cos(i/100)*0.2
-        bases.rotation += 1
+        #bases.rotation += 1
         bases.scale = sin(i/100) * 0.2 
         sqr.draw()
         txt.draw()
