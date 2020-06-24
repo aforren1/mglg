@@ -9,6 +9,7 @@ from mglg.graphics.font.sdf_font import SDFFont
 import inspect
 from string import ascii_letters, digits, punctuation, whitespace
 import pickle as pkl
+from stb.image import write_png_to_memory
 
 ascii_alphanum = ascii_letters + digits + punctuation + whitespace
 ascii_alphanum = ascii_alphanum + 'ÁÉÍÓÚÑÜáéíóúñü¿¡'
@@ -46,6 +47,7 @@ if __name__ == '__main__':
         plt.imshow(atlas)
         plt.show()
     with open(out_path, 'wb') as f:
-        pkl.dump(atlas, f, protocol=4)
+        mem = write_png_to_memory((255 * atlas[:, :, None]).astype('u1'))
+        pkl.dump(mem.tobytes(), f, protocol=4)
         pkl.dump(fnt.glyphs, f, protocol=4)
         pkl.dump(other, f, protocol=4)

@@ -8,6 +8,7 @@ import numpy as np
 from . atlas import Atlas
 from .sdf_font import SDFFont
 import pickle as pkl
+from stb.image import load_from_memory
 
 class FontManager(object):
     """
@@ -42,7 +43,8 @@ class FontManager(object):
         atlas = np.zeros((cls.atlas_dim, cls.atlas_dim), np.float32).view(Atlas)
         if os.path.splitext(filename)[1] == '.pklfont':
             with open(filename, 'rb') as f:
-                atlas = pkl.load(f)
+                atlas = load_from_memory(pkl.load(f))
+                atlas = atlas.astype('f4') / 255.0
                 glyphs = pkl.load(f)
                 other = pkl.load(f)
 

@@ -1,6 +1,6 @@
 import os.path as op
 import numpy as np
-from mglg.ext.stb_image import load
+from stb.image import load
 import moderngl as mgl
 from mglg.graphics.drawable import Drawable2D
 # avoid making new textures if we already have the exact texture
