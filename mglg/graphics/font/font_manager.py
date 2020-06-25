@@ -44,7 +44,7 @@ class FontManager(object):
         if os.path.splitext(filename)[1] == '.pklfont':
             with open(filename, 'rb') as f:
                 atlas = load_from_memory(pkl.load(f))
-                atlas = atlas.astype('f4') / 255.0
+                atlas = np.asarray(atlas).astype('f4') / 255.0
                 glyphs = pkl.load(f)
                 other = pkl.load(f)
 
