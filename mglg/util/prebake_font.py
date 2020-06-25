@@ -48,6 +48,6 @@ if __name__ == '__main__':
         plt.show()
     with open(out_path, 'wb') as f:
         mem = write_png_to_memory((255 * atlas[:, :, None]).astype('u1'))
-        pkl.dump(mem.tobytes(), f, protocol=4)
+        pkl.dump(bytes(mem), f, protocol=4)
         pkl.dump(fnt.glyphs, f, protocol=4)
         pkl.dump(other, f, protocol=4)
