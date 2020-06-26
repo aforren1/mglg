@@ -18,8 +18,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Pre-pickle glyph cache')
     parser.add_argument('infile', type=str, help='path to ttf')
     parser.add_argument('outpath', type=str, help='relative path for output storage')
+    parser.add_argument('--hires_size', type=int, default=256)
+    parser.add_argument('--lowres_size', type=int, default=38)
+    parser.add_argument('--padding', type=float, default=0.2)
+    parser.add_argument('--chars', type=str, default=ascii_alphanum)
     parser.add_argument('--view', dest='view', default=False, action='store_true')
     args = parser.parse_args()
+    hr = args.hires_size
+    lr = args.lowres_size
+    pd = args.padding
+    chars = args.chars
 
     infile = args.infile
     infile = os.path.join(os.getcwd(), infile)
@@ -34,8 +42,8 @@ if __name__ == '__main__':
     print('Output path: %s' % out_path)
 
     atlas = np.zeros((512, 512), np.float32).view(Atlas)
-    fnt = SDFFont(infile, atlas)
-    fnt.load(ascii_alphanum)
+    fnt = SDFFont(infile, atlas, hires_size=hr, lowres_size=lr, padding=pd)
+    fnt.load(chars)
 
     other = {'height': fnt.height, 'ascender': fnt.ascender,
              'descender': fnt.descender, 'linegap': fnt.linegap}

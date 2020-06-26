@@ -61,10 +61,13 @@ if __name__ == '__main__':
     # font_path = op.join(op.dirname(__file__), 'UbuntuMono-B.ttf')
     font_path = op.join(op.dirname(__file__), '..', 'fonts', 'UbuntuMono-B.pklfont')
     bases = Text(win, scale=(0.1, 0.1), fill_color=(1, 0.1, 0.1, 0.7),
+                   outline_color=(0, 0, 0, 1), outline_range=(0.6, 0.45),
                    text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4))
-    font_path = op.join(op.dirname(__file__), '..', 'fonts', 'AlexBrush-Regular.pklfont')
-    bases2 = Text(win, scale=(0.15, 0.15), fill_color=(0.1, 1, 0.1, 1),
-                    text='pequeño', font=font_path, position=(-0.4, 0), rotation=90)
+    font_path = op.join(op.dirname(__file__), '..', 'fonts', 'Roboto-Black.pklfont')
+    bases2 = Text(win, scale=.1, fill_color=(0.1, 1, 0.1, 0.5),
+                    text='Una pequeña llama\ncome bien.', font=font_path, position=(-0.3, 0),
+                    rotation=45, outline_range=(0.6, 0.45),
+                    outline_color=(0,0,0,1))
 
     countup = DynamicText(win, text='0', scale=0.05, expected_chars=8,
                             font=font_path, position=(0.6, 0.4),

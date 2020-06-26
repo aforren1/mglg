@@ -43,10 +43,10 @@ def zoom(Z, ratio):
 
 class SDFFont(object):
 
-    def __init__(self, filename, atlas):
-        self._hires_size = 256
-        self._lowres_size = 48
-        self._padding = 0.125
+    def __init__(self, filename, atlas, hires_size=256, lowres_size=38, padding=0.2):
+        self._hires_size = hires_size
+        self._lowres_size = lowres_size
+        self._padding = padding
         self.filename = filename
         self.atlas = atlas
         self.glyphs = {}

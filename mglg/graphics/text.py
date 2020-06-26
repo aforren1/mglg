@@ -227,7 +227,7 @@ class DynamicText(Text):
                  fill_color=(0, 1, 0, 1), outline_color=(1, 1, 1, 1),
                  smoothness = 0.02, outline_range=(0.5, 0.3),
                  anchor_x='center', anchor_y='center', 
-                 expected_chars=300, prefetch=ascii_alphanum, *args, **kwargs):
+                 expected_chars=300, prefetch='', *args, **kwargs):
         super(Drawable2D, self).__init__(window, *args, **kwargs)
         ctx = self.win.ctx
         self.shader = SDFShader(ctx)

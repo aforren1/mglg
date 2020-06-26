@@ -3,4 +3,4 @@ moderngl==5.6.0
 pyglm>=1.1.8
 glfw>=1.10.0
 imgui>=1.1.0
-stbpy == 0.0.3
+stbpy==0.0.3
