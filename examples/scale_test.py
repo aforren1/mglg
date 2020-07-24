@@ -5,7 +5,7 @@ if __name__ == '__main__':
     from mglg.graphics.image import Image
     from mglg.graphics.particles import Particles
     from mglg.graphics.text import Text
-    from mglg.math import Vec4
+    from glm import vec4
     import os.path as op
 
     win = Win(vsync=1, screen=0)
@@ -33,8 +33,8 @@ if __name__ == '__main__':
     x = Rect(win, position=(0.7, 0), outline_color=(0, 1, 1, 1), scale=0.1)
 
     tmp = 1/2.2
-    noncorr = [Vec4(0, 0, 0, 1), Vec4(0.25, 0.25, 0.25, 1), Vec4(0.5, 0.5, 0.5, 1),
-               Vec4(0.75, 0.75, 0.75, 1), Vec4(1, 1, 1, 1)]
+    noncorr = [vec4(0, 0, 0, 1), vec4(0.25, 0.25, 0.25, 1), vec4(0.5, 0.5, 0.5, 1),
+               vec4(0.75, 0.75, 0.75, 1), vec4(1, 1, 1, 1)]
     corr = [r**tmp for r in noncorr]
     while not win.should_close:
         heit.draw()

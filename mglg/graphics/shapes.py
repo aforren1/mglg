@@ -3,7 +3,7 @@ from numpy import pi
 import moderngl as mgl
 from mglg.ext.earcut import earcut, flatten
 from mglg.graphics.drawable import Drawable2D
-from mglg.math.vector import Vec4
+from glm import vec4
 from glm import vec4, sin, cos
 from mglg.graphics.outline import generate_outline
 
@@ -108,8 +108,8 @@ class Shape(Drawable2D):
 
         self.is_filled = is_filled
         self.is_outlined = is_outlined
-        self._fill_color = Vec4(fill_color)
-        self._outline_color = Vec4(outline_color)
+        self._fill_color = vec4(fill_color)
+        self._outline_color = vec4(outline_color)
         self.outline_thickness = outline_thickness
         self.mvp_unif = shader['mvp']
         self.fill_unif = shader['fill_color']

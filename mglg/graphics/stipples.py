@@ -4,7 +4,7 @@ import moderngl as mgl
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.shapes import _make_2d_indexed
 from mglg.graphics.shapes import rect_vertices, line_vertices, arrow_vertices, circle_vertices
-from mglg.math.vector import Vec4
+from glm import vec4
 
 # Stipple shader is from https://stackoverflow.com/a/55088683/2690232
 stipple_vert = """
@@ -76,7 +76,7 @@ class StippleShape(Drawable2D):
 
         vbo = context.buffer(self._vertices)
         self.vao = context.simple_vertex_array(self.shader, vbo, 'vertices')
-        self._color = Vec4(color)
+        self._color = vec4(color)
         self.pattern = pattern
         self.shader['u_resolution'].value = width, height
         self.shader['u_factor'].value = 2.0

@@ -1,7 +1,7 @@
 import numpy as np
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.image import ImageShader
-from mglg.math import Vec4
+from glm import vec4
 from moderngl import TRIANGLE_STRIP, LINEAR
 from glm import ortho
 
@@ -17,7 +17,7 @@ class Framebuffer(Drawable2D):
         self.fbo = ctx.framebuffer(self.texture)
 
         cc = clear_color if clear_color else window.clear_color
-        self._clear_color = Vec4(cc)
+        self._clear_color = vec4(cc)
         self.alpha = alpha
         self.mvp_unif = self.shader['mvp']
         self.alpha_unif = self.shader['alpha']

@@ -38,6 +38,7 @@ class ModernGLRenderer(object):
         self._vertex_buffer = None
         self._index_buffer = None
         self._vao = None
+        self._textures = {}
         self.wnd = win
         self.ctx = self.wnd.ctx
 
@@ -58,13 +59,23 @@ class ModernGLRenderer(object):
         self._create_device_objects()
         self.refresh_font_texture()
 
+    def register_texture(self, texture: moderngl.Texture):
+        """Make the imgui renderer aware of the texture"""
+        self._textures[texture.glo] = texture
+
+    def remove_texture(self, texture: moderngl.Texture):
+        """Remove the texture from the imgui renderer"""
+        del self._textures[texture.glo]
+
     def refresh_font_texture(self):
         width, height, pixels = self.io.fonts.get_tex_data_as_rgba32()
 
         if self._font_texture:
+            self.remove_texture(self._font_texture)
             self._font_texture.release()
 
         self._font_texture = self.ctx.texture((width, height), 4, data=pixels)
+        self.register_texture(self._font_texture)
         self.io.fonts.texture_id = self._font_texture.glo
         self.io.fonts.clear_tex_data()
 
@@ -118,15 +129,18 @@ class ModernGLRenderer(object):
             idx_ptr = (idx_type).from_address(commands.idx_buffer_data)
             self._vertex_buffer.write(vtx_ptr)
             self._index_buffer.write(idx_ptr)
-            # vtx_ptr = ctypes.cast(commands.vtx_buffer_data, ctypes.POINTER(ctypes.c_byte))
-            # idx_ptr = ctypes.cast(commands.idx_buffer_data, ctypes.POINTER(ctypes.c_byte))
-            # vtx_data = np.ctypeslib.as_array(vtx_ptr, (commands.vtx_buffer_size * imgui.VERTEX_SIZE,))
-            # idx_data = np.ctypeslib.as_array(idx_ptr, (commands.idx_buffer_size * imgui.INDEX_SIZE,))
-            # self._vertex_buffer.write(vtx_data)
-            # self._index_buffer.write(idx_data)
 
             idx_pos = 0
             for command in commands.commands:
+                texture = self._textures.get(command.texture_id)
+                if texture is None:
+                    raise ValueError((
+                        f"Texture {command.texture_id} is not registered. Please add to renderer using "
+                        "register_texture(..). "
+                        f"Current textures: {list(self._textures)}"
+                    ))
+                texture.use(0)
+
                 x, y, z, w = command.clip_rect
                 self.ctx.scissor = int(x), int(fb_height - w), int(z - x), int(w - y)
                 self._vao.render(moderngl.TRIANGLES, vertices=command.elem_count, first=idx_pos)

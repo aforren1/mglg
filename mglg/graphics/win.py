@@ -5,7 +5,7 @@ from timeit import default_timer
 import glfw
 import moderngl as mgl
 import glm
-from mglg.math.vector import Vec4
+from glm import vec4
 import imgui
 
 from mglg.graphics.pyimgui.glfw_integration import GlfwRenderer
@@ -80,7 +80,7 @@ class Win(object):
         self.ctx.enable(mgl.BLEND)
         self.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
         self.ctx.disable(mgl.DEPTH_TEST)
-        self._clear_color = Vec4(0.5, 0.5, 0.5, 1)
+        self._clear_color = vec4(0.5, 0.5, 0.5, 1)
 
         # other setup
         ratio = self.height/self.width

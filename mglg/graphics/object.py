@@ -1,13 +1,12 @@
-from mglg.math.vector import Vec2
-from glm import mat4, vec3, radians, translate, rotate, scale
+from glm import mat4, vec2, vec3, radians, translate, rotate, scale
 
 
 class Object2D(object):
     __slots__ = ('_position', 'rotation', '_scale')
     def __init__(self, position=(0, 0), rotation=0, scale=(1, 1), *args, **kwargs):
-        self._position = Vec2(position)
+        self._position = vec2(position)
         self.rotation = rotation
-        self._scale = Vec2(scale)
+        self._scale = vec2(scale)
 
     @property
     def model_matrix(self):

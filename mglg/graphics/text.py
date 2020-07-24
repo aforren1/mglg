@@ -3,7 +3,7 @@ import numpy as np
 from numpy import float32, uint32
 
 import moderngl as mgl
-from mglg.math.vector import Vec4, Vec2
+from glm import vec4, vec2
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.font.font_manager import FontManager
 
@@ -68,10 +68,10 @@ class Text(Drawable2D):
         super().__init__(window, *args, **kwargs)
         ctx = self.win.ctx
         self.shader = SDFShader(ctx)
-        self._fill_color = Vec4(fill_color)
-        self._outline_color = Vec4(outline_color)
+        self._fill_color = vec4(fill_color)
+        self._outline_color = vec4(outline_color)
         self._smoothness = smoothness
-        self._outline_range = Vec2(outline_range)
+        self._outline_range = vec2(outline_range)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
         fnt = FontManager.get(font)
@@ -231,10 +231,10 @@ class DynamicText(Text):
         super(Drawable2D, self).__init__(window, *args, **kwargs)
         ctx = self.win.ctx
         self.shader = SDFShader(ctx)
-        self._fill_color = Vec4(fill_color)
-        self._outline_color = Vec4(outline_color)
+        self._fill_color = vec4(fill_color)
+        self._outline_color = vec4(outline_color)
         self._smoothness = smoothness
-        self._outline_range = Vec2(outline_range)
+        self._outline_range = vec2(outline_range)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
         fnt = FontManager.get(font)
