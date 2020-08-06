@@ -54,18 +54,24 @@ void main()
 '''
 
 sdf_shader = None
+
+
 def SDFShader(context):
     global sdf_shader
     if sdf_shader is None:
         sdf_shader = context.program(vertex_shader=vs, fragment_shader=fs)
     return sdf_shader
 
+
 class Text(Drawable2D):
-    def __init__(self, window, text, font, 
+    def __init__(self, window, text, font,
                  fill_color=(0, 1, 0, 1), outline_color=(1, 1, 1, 1),
-                 smoothness = 0.04, outline_range=(0.6, 0.4),
-                 anchor_x='center', anchor_y='center', *args, **kwargs):
+                 smoothness=0.04, outline_range=(0.6, 0.4),
+                 anchor_x='center', anchor_y='center',
+                 alpha=1, *args, **kwargs):
         super().__init__(window, *args, **kwargs)
+        if not text:
+            raise RuntimeError('"text" must not be empty.')
         ctx = self.win.ctx
         self.shader = SDFShader(ctx)
         self._fill_color = vec4(fill_color)
@@ -79,7 +85,8 @@ class Text(Drawable2D):
         self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
         vertices, indices = self.bake(text)
         atlas = fnt.atlas
-        self.atlas = ctx.texture(atlas.shape[0:2], 1, atlas.view(np.ubyte), dtype='f4')
+        self.atlas = ctx.texture(atlas.shape[0:2], 1,
+                                 atlas.view(np.ubyte), dtype='f4')
         self.atlas.filter = (mgl.LINEAR, mgl.LINEAR)
         vbo = ctx.buffer(vertices)
         ibo = ctx.buffer(indices)
@@ -91,9 +98,13 @@ class Text(Drawable2D):
         self.outline_unif = self.shader['outline_color']
         self.smooth_unif = self.shader['smoothness']
         self.outline_range_unif = self.shader['outline_range']
-    
+        self._alpha = alpha
+        self._fill_color.a *= alpha
+        self._outline_color.a *= alpha
+
     def draw(self, vp=None):
-        if self.visible:
+        if (self.visible and
+                not (self._fill_color.a == 0 and self._outline_color.a == 0)):
             win = self.win
             ctx = win.ctx
             ctx.blend_func = mgl.ONE, mgl.ONE_MINUS_SRC_ALPHA
@@ -115,6 +126,7 @@ class Text(Drawable2D):
     @fill_color.setter
     def fill_color(self, color):
         self._fill_color.rgba = color
+        self._fill_color.a *= self.alpha
 
     @property
     def outline_color(self):
@@ -123,19 +135,30 @@ class Text(Drawable2D):
     @outline_color.setter
     def outline_color(self, color):
         self._outline_color.rgba = color
-    
+        self._outline_color.a *= self.alpha
+
+    @property
+    def alpha(self):
+        return self._alpha
+
+    @alpha.setter
+    def alpha(self, value):
+        self._alpha = value
+        self._fill_color.a *= value
+        self._outline_color.a *= value
+
     @property
     def smoothness(self):
         return self._smoothness
-    
+
     @smoothness.setter
     def smoothness(self, value):
         self._smoothness = value
-    
+
     @property
     def outline_range(self):
         return self._outline_range
-    
+
     @outline_range.setter
     def outline_range(self, value):
         self.outline_range.rg = value
@@ -222,11 +245,12 @@ class Text(Drawable2D):
         indices = indices.ravel()
         return vertices, indices
 
+
 class DynamicText(Text):
-    def __init__(self, window, text='', font=None, 
+    def __init__(self, window, text='', font=None,
                  fill_color=(0, 1, 0, 1), outline_color=(1, 1, 1, 1),
-                 smoothness = 0.02, outline_range=(0.5, 0.3),
-                 anchor_x='center', anchor_y='center', 
+                 smoothness=0.02, outline_range=(0.5, 0.3),
+                 anchor_x='center', anchor_y='center',
                  expected_chars=300, prefetch='', *args, **kwargs):
         super(Drawable2D, self).__init__(window, *args, **kwargs)
         ctx = self.win.ctx
@@ -242,10 +266,12 @@ class DynamicText(Text):
         self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
         self.prefetch(prefetch + text)
         atlas = fnt.atlas
-        self.atlas = ctx.texture(atlas.shape[0:2], 1, atlas.view(np.ubyte), dtype='f4')
+        self.atlas = ctx.texture(
+            atlas.shape[0:2], 1, atlas.view(np.ubyte), dtype='f4')
         self.atlas.filter = (mgl.LINEAR, mgl.LINEAR)
-        n = expected_chars * 10 # reserve 10x expected number
-        vert_bytes = n * 4 * 4 * 4 # chars x verts per char x floats per vert x bytes per float
+        n = expected_chars * 2  # reserve 2x expected number
+        # chars x verts per char x floats per vert x bytes per float
+        vert_bytes = n * 4 * 4 * 4
         ind_bytes = n * 6 * 4
         self.vbo = ctx.buffer(reserve=vert_bytes, dynamic=True)
         self.ibo = ctx.buffer(reserve=ind_bytes, dynamic=True)
@@ -277,9 +303,10 @@ class DynamicText(Text):
             self.vbo.write(vertices)
             self.ibo.write(indices)
             self._text = new_txt
-    
+
     def draw(self, vp=None):
-        if self.visible and self._text != '':
+        if (self.visible and self._text != '' and
+                not (self._fill_color.a == 0 and self._outline_color.a == 0)):
             win = self.win
             ctx = win.ctx
             ctx.blend_func = mgl.ONE, mgl.ONE_MINUS_SRC_ALPHA
@@ -293,12 +320,13 @@ class DynamicText(Text):
             self.outline_range_unif.write(self._outline_range)
             self.vao.render(mgl.TRIANGLES, vertices=self.num_vertices)
             ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
-    
+
     def prefetch(self, chars):
         # store these
         for charcode in chars:
             if charcode != '\n':
-                x = self.font[charcode]
+                self.font[charcode]
+
 
 if __name__ == '__main__':
     import os.path as op
@@ -310,17 +338,18 @@ if __name__ == '__main__':
     win = Win()
 
     #font_path = op.join(op.dirname(__file__), '..', '..', 'examples', 'UbuntuMono-B.ttf')
-    font_path = op.join(op.dirname(__file__), '..', '..', 'fonts', 'UbuntuMono-B.pklfont')
+    font_path = op.join(op.dirname(__file__), '..', '..',
+                        'fonts', 'UbuntuMono-B.pklfont')
     t0 = default_timer()
     bases = Text(win, scale=0.3, fill_color=(1, 0.1, 0.1, 0.5), position=(0, 0),
-                   outline_color=(0.2, 0.2, 1, 0.8), text='Tengo un\ngatito pequeñito', 
-                   font=font_path, anchor_x='left')
-    
+                 outline_color=(0.2, 0.2, 1, 0.8), text='Tengo un\ngatito pequeñito',
+                 font=font_path, anchor_x='left')
+
     dynbs = DynamicText(win, scale=0.2, fill_color=(0.8, 0.8, 0.1, 1), font=font_path,
-                          outline_color=(0, 0, 0, 1),
-                          position=(0.3, 0.3), expected_chars=20,
-                          smoothness=0.02,
-                          anchor_x='left', anchor_y='center')
+                        outline_color=(0, 0, 0, 1),
+                        position=(0.3, 0.3), expected_chars=20,
+                        smoothness=0.02,
+                        anchor_x='left', anchor_y='center')
     print('startup time: %f' % (default_timer() - t0))
 
     sqr = Rect(win, scale=0.2, position=(0.3, 0.3))
@@ -329,11 +358,12 @@ if __name__ == '__main__':
     count = 0
     for i in range(3000):
         if i % 20 == 0:
-            dynbs.text = 'a' + ascii_alphanum[(count) % (len(ascii_alphanum)-20)] + '\n' + ascii_alphanum[(count+1) % (len(ascii_alphanum)-20)]
+            dynbs.text = 'a' + ascii_alphanum[(count) % (len(ascii_alphanum)-20)] + \
+                '\n' + ascii_alphanum[(count+1) % (len(ascii_alphanum)-20)]
             count += 1
             #dynbs.scale = cos(i/100)*0.2
         #bases.rotation += 1
-        bases.scale = sin(i/100) * 0.2 
+        bases.scale = sin(i/100) * 0.2
         sqr.draw()
         txt.draw()
         win.flip()

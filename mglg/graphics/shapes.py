@@ -7,6 +7,7 @@ from glm import vec4
 from glm import vec4, sin, cos
 from mglg.graphics.outline import generate_outline
 
+
 def is_cw(outline):
     lo = len(outline)
     res = 0
@@ -25,7 +26,10 @@ def _make_2d_indexed(outline):
     verts, inds = generate_outline(outline, True)
     # run earcut on the inner part
     tmp = flatten(outline.reshape(1, -1, 2))
-    indices = np.array(earcut(tmp['vertices'], tmp['holes'], tmp['dimensions']), dtype=np.int32)
+    indices = np.array(earcut(tmp['vertices'],
+                              tmp['holes'],
+                              tmp['dimensions']),
+                       dtype=np.int32)
     # add to existing indices
     indices *= 2
     indices += 1
@@ -37,7 +41,7 @@ white = (1, 1, 1, 1)
 
 # 2d shapes using indexed triangles
 flat_frag = """
-#version 330
+# version 330
 flat in vec4 color;
 out vec4 f_color;
 void main()
@@ -46,7 +50,7 @@ void main()
 }"""
 
 flat_vert = """
-#version 330
+# version 330
 uniform mat4 mvp;
 uniform vec4 fill_color;
 uniform vec4 outline_color;
@@ -68,23 +72,28 @@ void main()
 """
 
 flat_shader = None
+
+
 def FlatShader(context):
     global flat_shader
     if flat_shader is None:
-        flat_shader = context.program(vertex_shader=flat_vert, fragment_shader=flat_frag)
+        flat_shader = context.program(vertex_shader=flat_vert,
+                                      fragment_shader=flat_frag)
     return flat_shader
+
 
 class Shape(Drawable2D):
     _vertices = None
     _indices = None
-    _static = False  # user can subclass with `_static = True` to re-use VAO for all class instances
+    # user can subclass with `_static = True` to re-use VAO for all class instances
+    _static = False
 
     def __init__(self, window,
                  vertices=None,
                  is_filled=True, is_outlined=True,
                  outline_thickness=0.05,
                  fill_color=white, outline_color=white,
-                 *args, **kwargs):
+                 alpha=1, *args, **kwargs):
         # context & shader go to Drawable,
         # kwargs should be position/ori/scale
         super().__init__(window, *args, **kwargs)
@@ -115,9 +124,13 @@ class Shape(Drawable2D):
         self.fill_unif = shader['fill_color']
         self.outline_unif = shader['outline_color']
         self.thick_unif = shader['thickness']
+        self._alpha = alpha
+        self._fill_color.a *= alpha
+        self._outline_color.a *= alpha
 
     def draw(self, vp=None):
-        if self.visible:
+        if (self.visible and
+                not (self._fill_color.a == 0 and self._outline_color.a == 0)):
             vp = vp if vp else self.win.vp
             mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
@@ -140,6 +153,7 @@ class Shape(Drawable2D):
     @fill_color.setter
     def fill_color(self, color):
         self._fill_color.rgba = color
+        self._fill_color.a *= self.alpha
 
     @property
     def outline_color(self):
@@ -148,6 +162,17 @@ class Shape(Drawable2D):
     @outline_color.setter
     def outline_color(self, color):
         self._outline_color.rgba = color
+        self._outline_color.a *= self.alpha
+
+    @property
+    def alpha(self):
+        return self._alpha
+
+    @alpha.setter
+    def alpha(self, value):
+        self._alpha = value
+        self._fill_color.a *= value
+        self._outline_color.a *= value
 
     @classmethod
     def store_vaos(cls, ctx, shader, vbo, ibo):
@@ -197,6 +222,7 @@ class Polygon(Shape):
         vertices = make_poly_outline(segments)
         super().__init__(window, vertices=vertices, *args, **kwargs)
 
+
 circle_vertices = make_poly_outline(256)
 
 
@@ -207,11 +233,15 @@ class Circle(Shape):
 
 def make_rounded_rect(radii=0.05, segments=16):
     _radii = np.empty(4)
-    _radii[:] = radii # either 1 or 4-- any other will fail
-    corner1 = make_poly_outline(segments, start=0, end=pi/2, endpoint=True) * _radii[0]
-    corner2 = make_poly_outline(segments, start=pi/2, end=pi, endpoint=True) * _radii[1]
-    corner3 = make_poly_outline(segments, start=pi, end=3*pi/2, endpoint=True) * _radii[2]
-    corner4 = make_poly_outline(segments, start=3*pi/2, end=2*pi, endpoint=True) * _radii[3]
+    _radii[:] = radii  # either 1 or 4-- any other will fail
+    corner1 = make_poly_outline(segments, start=0,
+                                end=pi/2, endpoint=True) * _radii[0]
+    corner2 = make_poly_outline(segments, start=pi / 2,
+                                end=pi, endpoint=True) * _radii[1]
+    corner3 = make_poly_outline(segments, start=pi,
+                                end=3*pi/2, endpoint=True) * _radii[2]
+    corner4 = make_poly_outline(segments, start=3 * pi / 2,
+                                end=2*pi, endpoint=True) * _radii[3]
     _radii /= 2
     corner1 += 0.5 - _radii[0]
     corner2 += (-0.5 + _radii[1]), 0.5 - _radii[1]
@@ -219,9 +249,11 @@ def make_rounded_rect(radii=0.05, segments=16):
     corner4 += 0.5 - _radii[3], (-0.5 + _radii[3])
     return np.vstack((corner1, corner2, corner3, corner4))
 
+
 class RoundedRect(Shape):
     def __init__(self, window, radii=0.05, segments=16, *args, **kwargs):
         super().__init__(window, vertices=make_rounded_rect(radii, segments), *args, **kwargs)
+
 
 if __name__ == '__main__':
     from mglg.graphics.drawable import DrawableGroup
@@ -229,29 +261,30 @@ if __name__ == '__main__':
     import glm
 
     win = Win()
-    #win.clear_color = 0,0,0,1
 
-    #sqr = Rect(win, scale=(0.15, 0.1), outline_color=(0.7, 0.9, 0.2, 1), is_filled=False)
-    sqr = Shape(win, vertices=rect_vertices*np.array([0.3, 0.05]), 
-                  outline_color=(0.1, 0.9, 0.2, 1), 
-                  fill_color=(0, 1, 1, 1), outline_thickness=0.01)
-    sqr4 = Rect(win, position=(-0.5, -0.3), scale=0.1, rotation=30, outline_color=(0, 0, 0, 1))
+    # sqr = Rect(win, scale=(0.15, 0.1), outline_color=(0.7, 0.9, 0.2, 1), is_filled=False)
+    sqr = Shape(win, vertices=rect_vertices*np.array([0.3, 0.05]),
+                outline_color=(0.1, 0.9, 0.2, 1),
+                fill_color=(0, 1, 1, 1), outline_thickness=0.01)
+    sqr4 = Rect(win, position=(-0.5, -0.3), scale=0.1,
+                rotation=30, outline_color=(0, 0, 0, 1))
     rr = RoundedRect(win, radii=[0.5, 0.2, 0.5, 0.2], fill_color=(1, 0.5, 0.5, 1),
                      position=(-0.5, -0.3), scale=0.1, rotation=30)
 
     class Tmp(Shape):
         def __init__(self, *args, **kwargs):
-            verts = make_rounded_rect(radii=(1, 0.2, 1, 0.2), segments=32)*kwargs['scale']
+            verts = make_rounded_rect(radii=(1, 0.2, 1, 0.2),
+                                      segments=32)*kwargs['scale']
             kwargs['scale'] = 1, 1
             super().__init__(vertices=verts, *args, **kwargs)
-    rr2 = Tmp(win, scale=(0.1, 0.15), 
-                fill_color=(0, 0.1, 0.7, 1), rotation=30,
-                position=(0.5, -0.2), outline_color=(0.5, .9, 0, 1))
-    
+    rr2 = Tmp(win, scale=(0.1, 0.15),
+              fill_color=(0, 0.1, 0.7, 1), rotation=30,
+              position=(0.5, -0.2), outline_color=(0.5, .9, 0, 1))
+
     vt = make_poly_outline(segments=128)
     circle = Polygon(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1), outline_color=(1, 1, 1, 0.5),
-                    is_filled=False)
-    arrow = Arrow(win, scale=(0.1, 0.1), fill_color=(0.9, 0.7, 0.2, 1), 
+                     is_filled=False)
+    arrow = Arrow(win, scale=(0.1, 0.1), fill_color=(0.9, 0.7, 0.2, 1),
                   outline_thickness=0.1, outline_color=(1, 1, 1, 1))
     circle.position.x += 0.2
     arrow.position.x -= 0.2
@@ -261,14 +294,15 @@ if __name__ == '__main__':
     crs = Cross(win, fill_color=(0.2, 0.1, 0.9, 0.7), is_outlined=True,
                 outline_thickness=0.02,
                 scale=(0.1, 0.10), position=(0.3, 0.3), outline_color=(0.5, 0.0, 0.0, 1))
-    
+
     sqr3 = Rect(win, scale=(0.1, 0.1), fill_color=(0.5, 0.2, 0.9, 0.5), is_outlined=False,
-                  position=(-0.2, 0))
+                position=(-0.2, 0))
 
     # check that they *do* share the same vertex array
-    #assert sqr.vao == sqr2.vao
+    # assert sqr.vao == sqr2.vao
 
-    dg = DrawableGroup([sqr4, sqr3, sqr, sqr2, circle, arrow, poly, crs, rr, rr2])
+    dg = DrawableGroup(
+        [sqr4, sqr3, sqr, sqr2, circle, arrow, poly, crs, rr, rr2])
 
     counter = 0
     for i in range(3000):

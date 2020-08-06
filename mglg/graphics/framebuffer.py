@@ -35,7 +35,7 @@ class Framebuffer(Drawable2D):
             self.set_vao(ctx, self.shader, vbo)
 
     def draw(self, vp=None):
-        if self.visible:
+        if self.visible and self.alpha > 0:
             self.texture.use()
             vp = vp if vp else self.win.vp
             mvp = vp * self.model_matrix

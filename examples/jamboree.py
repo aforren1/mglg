@@ -22,8 +22,8 @@ from mglg.util.profiler import Profiler
 if __name__ == '__main__':
     win = Win(vsync=1, screen=0)
 
-    sqr = Rect(win, scale=(0.15, 0.1), fill_color=(
-        0.7, 0.9, 0.2, 1), rotation=45)
+    sqr = Rect(win, scale=(0.15, 0.1),
+               fill_color=(0.7, 0.9, 0.2, 0), rotation=45)
     rr = RoundedRect(win, scale=(0.3, 0.1), fill_color=(0, 0.1, 0.7, 1), rotation=30,
                      position=(0.3, -0.2), radii=(1, 0.2, 1, 0.2), segments=32)
     # prescaling the vertices leads to the right outline scaling
@@ -32,7 +32,8 @@ if __name__ == '__main__':
                 fill_color=(0, 0.1, 0.7, 1), rotation=30,
                 position=(0.5, -0.2), outline_color=(0.5, .9, 0, 1),
                 outline_thickness=0.05*.15)
-    circle = Circle(win, scale=(0.15, 0.1), fill_color=(0.2, 0.9, 0.7, 1))
+    circle = Circle(win, scale=(0.15, 0.1),
+                    fill_color=(0.2, 0.9, 0.7, 1), alpha=0)
     arrow = Arrow(win, scale=(0.15, 0.1), fill_color=(0.9, 0.7, 0.2, 1))
     circle.position.x += 0.2
     arrow.position.x -= 0.2

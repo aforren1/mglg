@@ -54,6 +54,8 @@ void main()
 """
 
 stipple_shader = None
+
+
 def StippleShader(context: mgl.Context):
     global stipple_shader
     if stipple_shader is None:
@@ -85,7 +87,7 @@ class StippleShape(Drawable2D):
         self.color_unif = self.shader['color']
 
     def draw(self, vp=None):
-        if self.visible:
+        if self.visible and self._color.a > 0:
             vp = vp if vp else self.win.vp
             mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)

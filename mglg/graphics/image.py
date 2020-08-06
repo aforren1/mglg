@@ -33,10 +33,12 @@ void main()
 """
 
 image_shader = None
+
+
 def ImageShader(context: mgl.Context):
     global image_shader
     if image_shader is None:
-        image_shader = context.program(vertex_shader=image_vert, 
+        image_shader = context.program(vertex_shader=image_vert,
                                        fragment_shader=image_frag)
     return image_shader
 
@@ -53,7 +55,8 @@ class Image(Drawable2D):
             self.texture = texture_cache[bn]
         else:
             image = load(image_path)
-            self.texture = context.texture(image.shape[0:2], image.shape[2], image)
+            self.texture = context.texture(image.shape[0:2],
+                                           image.shape[2], image)
             self.texture.filter = (mgl.LINEAR, mgl.LINEAR)
             texture_cache[bn] = self.texture
         self.alpha = alpha
@@ -71,7 +74,7 @@ class Image(Drawable2D):
             self.set_vao(context, self.shader, vbo)
 
     def draw(self, vp=None):
-        if self.visible:
+        if self.visible and self.alpha > 0:
             self.texture.use()
             vp = vp if vp else self.win.vp
             mvp = vp * self.model_matrix
@@ -82,4 +85,5 @@ class Image(Drawable2D):
     @classmethod
     def set_vao(cls, context, shader, vbo):
         # re-use VAO
-        cls.vao = context.simple_vertex_array(shader, vbo, 'vertices', 'texcoord')
+        cls.vao = context.simple_vertex_array(shader, vbo,
+                                              'vertices', 'texcoord')
