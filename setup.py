@@ -8,8 +8,8 @@ from sys import platform
 defs = [("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
 inc_path = np.get_include()
 
-ext = [Extension('mglg.ext.sdf', 
-                sources=["mglg/ext/sdf/_sdf.pyx", "mglg/ext/sdf/sdf.c"]),
+ext = [Extension('mglg.ext.sdf',
+                 sources=["mglg/ext/sdf/_sdf.pyx", "mglg/ext/sdf/sdf.c"]),
        Extension('mglg.graphics._particle',
                  sources=['mglg/graphics/particle.pyx'],
                  include_dirs=[inc_path],
@@ -27,7 +27,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="mglg",
-    version="0.2.15",
+    version="0.2.16a1",
     install_requires=requirements,
     extras_require={'freetype': ['freetype-py']},
     author="Alex Forrence",
@@ -42,5 +42,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    ext_modules=cythonize(ext, compiler_directives={'language_level': 3}, annotate=True)
+    ext_modules=cythonize(ext,
+                          compiler_directives={'language_level': 3},
+                          annotate=True)
 )

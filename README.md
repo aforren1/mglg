@@ -1,3 +1,6 @@
+[![image](https://img.shields.io/pypi/v/mglg.svg)](https://pypi.python.org/pypi/mglg)
+![Build](https://github.com/aforren1/mglg/workflows/Build/badge.svg)
+
 Built-for-purpose, minimal 2D graphics library.
 
 Working on documentation, but the file [examples/jamboree.py](https://github.com/aforren1/mglg/blob/master/examples/jamboree.py) is pretty comprehensive.

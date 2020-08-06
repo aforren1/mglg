@@ -43,38 +43,46 @@ void main()
 
 # from https://stackoverflow.com/a/56923189/2690232
 # define normalized 2D gaussian
+
+
 def gaus2d(x=0, y=0, mx=0, my=0, sx=1, sy=1):
     return 1. / (2. * np.pi * sx * sy) * np.exp(-((x - mx)**2. / (2. * sx**2.) + (y - my)**2. / (2. * sy**2.)))
+
 
 def make_particle_texture():
     x = np.linspace(-5, 5, 64)
     y = np.linspace(-5, 5, 64)
-    x, y = np.meshgrid(x, y) # get 2D variables instead of 1D
+    x, y = np.meshgrid(x, y)  # get 2D variables instead of 1D
     z = gaus2d(x, y)
     z /= np.max(z)
     out = np.full((64, 64, 4), 1, dtype='f4')
-    out[:, :, 3] = z # only alpha channel should be fading
+    out[:, :, 3] = z  # only alpha channel should be fading
     return out
+
 
 texture_cache = {}
 
 particle_shader = None
+
+
 def ParticleShader(context: mgl.Context):
     global particle_shader
     if particle_shader is None:
-        particle_shader = context.program(vertex_shader=pvert, 
-                                       fragment_shader=pfrag)
+        particle_shader = context.program(vertex_shader=pvert,
+                                          fragment_shader=pfrag)
     return particle_shader
 
 
 class Particles(Drawable2D):
-    def __init__(self, win, num_particles=1e4, *args, **kwargs):
-        super().__init__(win, *args, **kwargs)
-        ctx = win.ctx
+    def __init__(self, window, num_particles=1e4, * args, **kwargs):
+        super().__init__(window, *args, **kwargs)
+        ctx = window.ctx
         self.prog = ParticleShader(ctx)
-        self._emitter = ParticleEmitter(max_particles=num_particles, *args, **kwargs)
+        self._emitter = ParticleEmitter(
+            max_particles=num_particles, *args, **kwargs)
         self.visible = False
-        self.particle_vbo = ctx.buffer(dynamic=True, reserve=int(28*num_particles))
+        self.particle_vbo = ctx.buffer(dynamic=True,
+                                       reserve=int(28*num_particles))
         # shared data
         vt = np.empty(4, dtype=[('vertices', '2f4'), ('texcoord', '2f4')])
         vt['vertices'] = [(-0.5, -0.5), (-0.5, 0.5), (0.5, -0.5), (0.5, 0.5)]
@@ -91,18 +99,19 @@ class Particles(Drawable2D):
         if imhash in texture_cache.keys():
             self.texture = texture_cache[imhash]
         else:
-            self.texture = ctx.texture(particle.shape[:2], 4, imbytes, dtype='f4')
+            self.texture = ctx.texture(particle.shape[:2], 4,
+                                       imbytes, dtype='f4')
             texture_cache[imhash] = self.texture
         # access uniforms
         self.u_vp = self.prog['vp']
         self.u_g_pos = self.prog['g_pos']
         self.u_g_scale = self.prog['g_scale']
-        self.dt = win.dt
+        self.dt = window.frame_period
 
     def spawn(self, num_particles):
         self._emitter.spawn(num_particles)
         self.visible = True
-    
+
     def draw(self, vp=None):
         if self.visible:
             gpuview = self._emitter.update(self.dt)
@@ -121,8 +130,9 @@ class Particles(Drawable2D):
                 self.particle_vbo.write(gpuview)
                 win.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE
                 self.vao.render(mgl.TRIANGLE_STRIP, instances=count)
-                #self.particle_vbo.orphan()                
+                # self.particle_vbo.orphan()
                 win.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
+
 
 if __name__ == '__main__':
     from mglg.graphics.win import Win
@@ -133,7 +143,7 @@ if __name__ == '__main__':
 
     win = Win()
 
-    part = Particles(win, scale=0.4, lifespan_range=(0.5, 0.8), 
+    part = Particles(win, scale=0.4, lifespan_range=(0.5, 0.8),
                      extent_range=(0.5, 1),
                      extent_ease=SMOOTHERSTEP,
                      initial_scale_range=(0.01, 0.01),
@@ -167,9 +177,9 @@ if __name__ == '__main__':
         imgui.begin('stats (milliseconds)')
         imgui.text('Worst CPU: %f' % prof.worst_cpu)
         imgui.plot_lines('CPU', prof.cpubuffer,
-                            scale_min=0, scale_max=2, graph_size=(180, 100))
+                         scale_min=0, scale_max=2, graph_size=(180, 100))
         imgui.text('Worst GPU: %f' % prof.worst_gpu)
         imgui.plot_lines('GPU', prof.gpubuffer,
-                            scale_min=0, scale_max=2, graph_size=(180, 100))
+                         scale_min=0, scale_max=2, graph_size=(180, 100))
         imgui.end()
         win.flip()

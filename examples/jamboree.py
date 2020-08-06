@@ -22,12 +22,13 @@ from mglg.util.profiler import Profiler
 if __name__ == '__main__':
     win = Win(vsync=1, screen=0)
 
-    sqr = Rect(win, scale=(0.15, 0.1), fill_color=(0.7, 0.9, 0.2, 1), rotation=45)
+    sqr = Rect(win, scale=(0.15, 0.1), fill_color=(
+        0.7, 0.9, 0.2, 1), rotation=45)
     rr = RoundedRect(win, scale=(0.3, 0.1), fill_color=(0, 0.1, 0.7, 1), rotation=30,
                      position=(0.3, -0.2), radii=(1, 0.2, 1, 0.2), segments=32)
     # prescaling the vertices leads to the right outline scaling
     vs = make_rounded_rect(radii=(1, 0.2, 1, 0.2), segments=32)*(.3, .1)
-    rr2 = Shape(win, vertices=vs, 
+    rr2 = Shape(win, vertices=vs,
                 fill_color=(0, 0.1, 0.7, 1), rotation=30,
                 position=(0.5, -0.2), outline_color=(0.5, .9, 0, 1),
                 outline_thickness=0.05*.15)
@@ -43,12 +44,12 @@ if __name__ == '__main__':
 
     check_path = op.join(op.dirname(__file__), 'check_small.png')
     check = Image(win, check_path, position=(-0.2, 0.3),
-                    scale=(0.1, 0.1), rotation=70)
+                  scale=(0.1, 0.1), rotation=70)
 
     check2 = Image(win, check_path, position=(0.5, 0),
-                     scale=(0.05, 0.05), rotation=0)
+                   scale=(0.05, 0.05), rotation=0)
     fbo = Framebuffer(win, clear_color=(0, 0, 0.8, 1), alpha=0.5,
-              position=(0.4, 0), scale=(0.2, 0.3))
+                      position=(0.4, 0), scale=(0.2, 0.3))
     # check that they *do* share the same vertex array
     assert sqr.vao == sqr2.vao
 
@@ -59,19 +60,21 @@ if __name__ == '__main__':
 
     # bump up font size for crisper look
     # font_path = op.join(op.dirname(__file__), 'UbuntuMono-B.ttf')
-    font_path = op.join(op.dirname(__file__), '..', 'fonts', 'UbuntuMono-B.pklfont')
+    font_path = op.join(op.dirname(__file__), '..',
+                        'fonts', 'UbuntuMono-B.pklfont')
     bases = Text(win, scale=(0.1, 0.1), fill_color=(1, 0.1, 0.1, 0.7),
-                   outline_color=(0, 0, 0, 1), outline_range=(0.6, 0.45),
-                   text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4))
-    font_path = op.join(op.dirname(__file__), '..', 'fonts', 'Roboto-Black.pklfont')
+                 outline_color=(0, 0, 0, 1), outline_range=(0.6, 0.45),
+                 text='Tengo un gatito pequeñito', font=font_path, position=(0, -0.4))
+    font_path = op.join(op.dirname(__file__), '..',
+                        'fonts', 'Roboto-Black.pklfont')
     bases2 = Text(win, scale=.1, fill_color=(0.1, 1, 0.1, 0.5),
-                    text='Una pequeña llama\ncome bien.', font=font_path, position=(-0.3, 0),
-                    rotation=45, outline_range=(0.6, 0.45),
-                    outline_color=(0,0,0,1))
+                  text='Una pequeña llama\ncome bien.', font=font_path, position=(-0.3, 0),
+                  rotation=45, outline_range=(0.6, 0.45),
+                  outline_color=(0, 0, 0, 1))
 
     countup = DynamicText(win, text='0', scale=0.05, expected_chars=8,
-                            font=font_path, position=(0.6, 0.4),
-                            prefetch='0123456789')
+                          font=font_path, position=(0.6, 0.4),
+                          prefetch='0123456789')
 
     dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, rr, rr2])
     pix = DrawableGroup([check, check2])
@@ -109,18 +112,22 @@ if __name__ == '__main__':
     counter = 0
     vals = []
     dts = []
+    dt = int(win.dt * 1000)
     for i in range(int(60 * 60 * 2)):
         with prof:
             counter = update(win, counter)
         imgui.set_next_window_position(10, 10)
         imgui.set_next_window_size(270, 300)
         imgui.begin('stats (milliseconds)')
-        imgui.text('Worst CPU: %f' % prof.worst_cpu)
-        imgui.plot_lines('CPU', prof.cpubuffer,
-                            scale_min=0, scale_max=30, graph_size=(180, 100))
-        imgui.text('Worst GPU: %f' % prof.worst_gpu)
-        imgui.plot_lines('GPU', prof.gpubuffer,
-                            scale_min=0, scale_max=10, graph_size=(180, 100))
+        imgui.text('Worst CPU: %f (min: %i, max: %i)' %
+                   (prof.worst_cpu, 0, dt * 2))
+        imgui.plot_lines('CPU',
+                         prof.cpubuffer, scale_min=0, scale_max=dt * 2,
+                         graph_size=(180, 100))
+        imgui.text('Worst GPU: %f (min: %i, max: %i)' %
+                   (prof.worst_gpu, 0, dt * 2))
+        imgui.plot_lines('GPU', prof.gpubuffer, scale_min=0,
+                         scale_max=dt*2, graph_size=(180, 100))
         imgui.end()
         win.imrenderer.draw()
         win.flip()

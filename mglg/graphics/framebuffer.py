@@ -5,10 +5,11 @@ from glm import vec4
 from moderngl import TRIANGLE_STRIP, LINEAR
 from glm import ortho
 
+
 class Framebuffer(Drawable2D):
     vao = None
 
-    def __init__(self, window, clear_color=None, alpha=1.0, *args, **kwargs):
+    def __init__(self, window, clear_color=0, alpha=1.0, *args, **kwargs):
         super().__init__(window, *args, **kwargs)
         ctx = window.ctx
         self.shader = ImageShader(ctx)
@@ -16,8 +17,7 @@ class Framebuffer(Drawable2D):
         self.texture.filter = (LINEAR, LINEAR)
         self.fbo = ctx.framebuffer(self.texture)
 
-        cc = clear_color if clear_color else window.clear_color
-        self._clear_color = vec4(cc)
+        self._clear_color = vec4(clear_color)
         self.alpha = alpha
         self.mvp_unif = self.shader['mvp']
         self.alpha_unif = self.shader['alpha']
@@ -46,7 +46,8 @@ class Framebuffer(Drawable2D):
     @classmethod
     def set_vao(cls, context, shader, vbo):
         # re-use VAO
-        cls.vao = context.simple_vertex_array(shader, vbo, 'vertices', 'texcoord')
+        cls.vao = context.simple_vertex_array(shader, vbo,
+                                              'vertices', 'texcoord')
 
     def use(self):
         self.fbo.clear(*self.clear_color)
@@ -65,10 +66,11 @@ class Framebuffer(Drawable2D):
     @property
     def clear_color(self):
         return self._clear_color
-    
+
     @clear_color.setter
     def clear_color(self, val):
-        self._clear_color.rgb = val
+        self._clear_color.rgba = val
+
 
 if __name__ == '__main__':
     from mglg.graphics.win import Win

@@ -15,15 +15,17 @@ if not glfw.init():
     raise ValueError('GLFW init went terribly wrong?')
 atexit.register(glfw.terminate)
 
+
 class ImguiRenderer(GlfwRenderer):
     def draw(self):
         self.process_inputs()
         imgui.render()
         self.render(imgui.get_draw_data())
-    
+
 
 class Win(object):
-    def __init__(self, vsync=1, screen=0, timer=default_timer, hidden=False):
+    def __init__(self, vsync=1, screen=0, timer=default_timer,
+                 hidden=False, clear_color=(0.5, 0.5, 0.5, 1)):
         # TODO: multi-display with shared context
         # from psychopy & moderngl-window
         # fullscreen stuff-- always
@@ -43,7 +45,8 @@ class Win(object):
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 4)
         glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 5)
         glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-        glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, False)  # turn on for mac compat
+        # turn on for mac compat
+        glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, False)
         glfw.window_hint(glfw.RESIZABLE, False)
         glfw.window_hint(glfw.DOUBLEBUFFER, True)
         glfw.window_hint(glfw.DEPTH_BITS, 0)  # 2d only?
@@ -56,7 +59,7 @@ class Win(object):
         glfw.window_hint(glfw.GREEN_BITS, video_mode.bits[1])
         glfw.window_hint(glfw.BLUE_BITS, video_mode.bits[2])
         glfw.window_hint(glfw.AUTO_ICONIFY, 0)
-        glfw.window_hint(glfw.SRGB_CAPABLE, 1) # TODO: complete support
+        glfw.window_hint(glfw.SRGB_CAPABLE, 1)  # TODO: complete support
 
         if hidden:
             glfw.window_hint(glfw.VISIBLE, False)
@@ -80,7 +83,7 @@ class Win(object):
         self.ctx.enable(mgl.BLEND)
         self.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
         self.ctx.disable(mgl.DEPTH_TEST)
-        self._clear_color = vec4(0.5, 0.5, 0.5, 1)
+        self._clear_color = vec4(clear_color)
 
         # other setup
         ratio = self.height/self.width
@@ -96,7 +99,6 @@ class Win(object):
         self._imctx = imgui.create_context()
         self.imrenderer = ImguiRenderer(self)
 
-
     def _on_key(self, win_ptr, key, scancode, action, modifiers):
         if key == glfw.KEY_ESCAPE:
             self.should_close = True
@@ -111,7 +113,7 @@ class Win(object):
 
     def close(self):
         glfw.set_window_should_close(self._win, True)
-    
+
     def show(self):
         glfw.show_window(self._win)
         # now make fullscreen
@@ -162,5 +164,5 @@ if __name__ == '__main__':
         imrenderer.draw()
         win.flip()
 
-        #print(win.dt)
+        # print(win.dt)
     win.close()
