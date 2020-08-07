@@ -33,6 +33,7 @@ uniform vec4 outline_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform sampler2D atlas_data;
 uniform float smoothness = 0.02;
 uniform vec2 outline_range = vec2(0.5, 0.3);
+uniform float alpha;
 
 in vec2 v_texcoord;
 out vec4 f_color;
@@ -41,6 +42,7 @@ void main()
 {
     float intensity = texture2D(atlas_data, v_texcoord).r;
     f_color = smoothstep(outline_range.x - smoothness, outline_range.x + smoothness, intensity) * fill_color;
+    f_color.a *= alpha;
 
     // outline
     if (outline_range.x > outline_range.y)
@@ -76,10 +78,11 @@ class Text(Drawable2D):
         self.shader = SDFShader(ctx)
         self._fill_color = vec4(fill_color)
         self._outline_color = vec4(outline_color)
-        self._smoothness = smoothness
+        self.smoothness = smoothness
         self._outline_range = vec2(outline_range)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
+        self.alpha = alpha
         fnt = FontManager.get(font)
         self.font = fnt
         self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
@@ -98,13 +101,10 @@ class Text(Drawable2D):
         self.outline_unif = self.shader['outline_color']
         self.smooth_unif = self.shader['smoothness']
         self.outline_range_unif = self.shader['outline_range']
-        self._alpha = alpha
-        self._fill_color.a *= alpha
-        self._outline_color.a *= alpha
+        self.alpha_unif = self.shader['alpha']
 
     def draw(self, vp=None):
-        if (self.visible and
-                not (self._fill_color.a == 0 and self._outline_color.a == 0)):
+        if (self.visible and self.alpha > 0):
             win = self.win
             ctx = win.ctx
             ctx.blend_func = mgl.ONE, mgl.ONE_MINUS_SRC_ALPHA
@@ -112,9 +112,10 @@ class Text(Drawable2D):
             vp = vp if vp else win.vp
             mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
+            self.alpha_unif.value = self.alpha
             self.fill_unif.write(self._fill_color)
             self.outline_unif.write(self._outline_color)
-            self.smooth_unif.value = self._smoothness
+            self.smooth_unif.value = self.smoothness
             self.outline_range_unif.write(self._outline_range)
             self.vao.render(mgl.TRIANGLES)
             ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
@@ -126,7 +127,6 @@ class Text(Drawable2D):
     @fill_color.setter
     def fill_color(self, color):
         self._fill_color.rgba = color
-        self._fill_color.a *= self.alpha
 
     @property
     def outline_color(self):
@@ -135,25 +135,6 @@ class Text(Drawable2D):
     @outline_color.setter
     def outline_color(self, color):
         self._outline_color.rgba = color
-        self._outline_color.a *= self.alpha
-
-    @property
-    def alpha(self):
-        return self._alpha
-
-    @alpha.setter
-    def alpha(self, value):
-        self._alpha = value
-        self._fill_color.a *= value
-        self._outline_color.a *= value
-
-    @property
-    def smoothness(self):
-        return self._smoothness
-
-    @smoothness.setter
-    def smoothness(self, value):
-        self._smoothness = value
 
     @property
     def outline_range(self):
@@ -258,17 +239,18 @@ class DynamicText(Text):
         self.shader = SDFShader(ctx)
         self._fill_color = vec4(fill_color)
         self._outline_color = vec4(outline_color)
-        self._smoothness = smoothness
+        self.smoothness = smoothness
         self._outline_range = vec2(outline_range)
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
+        self.alpha = alpha
         fnt = FontManager.get(font)
         self.font = fnt
         self._indexing = np.array([0, 1, 2, 0, 2, 3], dtype=uint32)
         self.prefetch(prefetch + text)
         atlas = fnt.atlas
-        self.atlas = ctx.texture(
-            atlas.shape[0:2], 1, atlas.view(np.ubyte), dtype='f4')
+        self.atlas = ctx.texture(atlas.shape[0:2], 1,
+                                 atlas.view(np.ubyte), dtype='f4')
         self.atlas.filter = (mgl.LINEAR, mgl.LINEAR)
         n = expected_chars * 2  # reserve 2x expected number
         # chars x verts per char x floats per vert x bytes per float
@@ -288,10 +270,8 @@ class DynamicText(Text):
         self.outline_unif = self.shader['outline_color']
         self.smooth_unif = self.shader['smoothness']
         self.outline_range_unif = self.shader['outline_range']
+        self.alpha_unif = self.shader['alpha']
         self.num_vertices = 0
-        self._alpha = alpha
-        self._fill_color.a *= alpha
-        self._outline_color.a *= alpha
 
     @property
     def text(self):
@@ -309,8 +289,7 @@ class DynamicText(Text):
             self._text = new_txt
 
     def draw(self, vp=None):
-        if (self.visible and self._text != '' and
-                not (self._fill_color.a == 0 and self._outline_color.a == 0)):
+        if (self.visible and self._text != '' and self.alpha > 0):
             win = self.win
             ctx = win.ctx
             ctx.blend_func = mgl.ONE, mgl.ONE_MINUS_SRC_ALPHA
@@ -318,9 +297,10 @@ class DynamicText(Text):
             vp = vp if vp else win.vp
             mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
+            self.alpha_unif.value = self.alpha
             self.fill_unif.write(self._fill_color)
             self.outline_unif.write(self._outline_color)
-            self.smooth_unif.value = self._smoothness
+            self.smooth_unif.value = self.smoothness
             self.outline_range_unif.write(self._outline_range)
             self.vao.render(mgl.TRIANGLES, vertices=self.num_vertices)
             ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA

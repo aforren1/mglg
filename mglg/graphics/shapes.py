@@ -55,6 +55,7 @@ uniform mat4 mvp;
 uniform vec4 fill_color;
 uniform vec4 outline_color;
 uniform float thickness;
+uniform float alpha;
 
 in vec2 vertices;
 in vec2 normal;
@@ -67,6 +68,7 @@ void main()
 {
     vec2 point_pos = vertices + mix(vec2(0, 0), normal * thickness * miter, outer);
     color = mix(fill_color, outline_color, outer);
+    color.a *= alpha;
     gl_Position = mvp * vec4(point_pos, 0.0, 1.0);
 }
 """
@@ -120,20 +122,19 @@ class Shape(Drawable2D):
         self._fill_color = vec4(fill_color)
         self._outline_color = vec4(outline_color)
         self.outline_thickness = outline_thickness
+        self.alpha = alpha
         self.mvp_unif = shader['mvp']
         self.fill_unif = shader['fill_color']
         self.outline_unif = shader['outline_color']
         self.thick_unif = shader['thickness']
-        self._alpha = alpha
-        self._fill_color.a *= alpha
-        self._outline_color.a *= alpha
+        self.alpha_unif = shader['alpha']
 
     def draw(self, vp=None):
-        if (self.visible and
-                not (self._fill_color.a == 0 and self._outline_color.a == 0)):
+        if (self.visible and self.alpha > 0):
             vp = vp if vp else self.win.vp
             mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)
+            self.alpha_unif.value = self.alpha
             if self.is_filled:
                 self.fill_unif.write(self._fill_color)
             else:
@@ -153,7 +154,6 @@ class Shape(Drawable2D):
     @fill_color.setter
     def fill_color(self, color):
         self._fill_color.rgba = color
-        self._fill_color.a *= self.alpha
 
     @property
     def outline_color(self):
@@ -162,17 +162,6 @@ class Shape(Drawable2D):
     @outline_color.setter
     def outline_color(self, color):
         self._outline_color.rgba = color
-        self._outline_color.a *= self.alpha
-
-    @property
-    def alpha(self):
-        return self._alpha
-
-    @alpha.setter
-    def alpha(self, value):
-        self._alpha = value
-        self._fill_color.a *= value
-        self._outline_color.a *= value
 
     @classmethod
     def store_vaos(cls, ctx, shader, vbo, ibo):
