@@ -78,8 +78,8 @@ class Particles(Drawable2D):
         super().__init__(window, *args, **kwargs)
         ctx = window.ctx
         self.prog = ParticleShader(ctx)
-        self._emitter = ParticleEmitter(
-            max_particles=num_particles, *args, **kwargs)
+        self._emitter = ParticleEmitter(max_particles=num_particles,
+                                        *args, **kwargs)
         self.visible = False
         self.particle_vbo = ctx.buffer(dynamic=True,
                                        reserve=int(28*num_particles))
