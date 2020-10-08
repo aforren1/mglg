@@ -14,7 +14,7 @@ int get_flip_time(_foo *res)
     DWM_TIMING_INFO dwmtiming;
     HRESULT rc;
 
-    DwmFlush();
+    DwmFlush(); // wait for queued DirectX changes
     while (1)
     {
         // TODO: use timeBeginPeriod(1) to better resolution

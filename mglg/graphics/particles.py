@@ -131,7 +131,7 @@ class Particles(Drawable2D):
                 win.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE
                 self.vao.render(mgl.TRIANGLE_STRIP, instances=count)
                 # self.particle_vbo.orphan()
-                win.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
+                win.ctx.blend_func = win.default_blend
 
 
 if __name__ == '__main__':

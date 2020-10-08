@@ -1,7 +1,9 @@
+from ctypes import c_byte
+
 import imgui
-import ctypes
 import moderngl
 import numpy as np
+
 
 class ModernGLRenderer(object):
     # https://github.com/moderngl/moderngl-window/blob/master/moderngl_window/integrations/imgui.py#L81
@@ -86,8 +88,10 @@ class ModernGLRenderer(object):
         )
         self.projMat = self._prog['ProjMtx']
         self._prog['Texture'].value = 0
-        self._vertex_buffer = self.ctx.buffer(reserve=imgui.VERTEX_SIZE * 65536, dynamic=True)
-        self._index_buffer = self.ctx.buffer(reserve=imgui.INDEX_SIZE * 65536, dynamic=True)
+        self._vertex_buffer = self.ctx.buffer(reserve=imgui.VERTEX_SIZE * 65536,
+                                              dynamic=True)
+        self._index_buffer = self.ctx.buffer(reserve=imgui.INDEX_SIZE * 65536,
+                                             dynamic=True)
         self._vao = self.ctx.vertex_array(
             self._prog,
             [
@@ -114,17 +118,18 @@ class ModernGLRenderer(object):
         )
 
         draw_data.scale_clip_rects(*io.display_fb_scale)
+        ctx = self.ctx
 
-        self.ctx.enable_only(moderngl.BLEND)
-        self.ctx.blend_equation = moderngl.FUNC_ADD
-        self.ctx.blend_func = moderngl.SRC_ALPHA, moderngl.ONE_MINUS_SRC_ALPHA
+        ctx.enable_only(moderngl.BLEND)
+        ctx.blend_equation = moderngl.FUNC_ADD
+        ctx.blend_func = moderngl.SRC_ALPHA, moderngl.ONE_MINUS_SRC_ALPHA
 
         self._font_texture.use()
 
         for commands in draw_data.commands_lists:
             # Create a numpy array mapping the vertex and index buffer data without copying it
-            vtx_type = ctypes.c_byte * commands.vtx_buffer_size * imgui.VERTEX_SIZE
-            idx_type = ctypes.c_byte * commands.idx_buffer_size * imgui.INDEX_SIZE
+            vtx_type = c_byte * commands.vtx_buffer_size * imgui.VERTEX_SIZE
+            idx_type = c_byte * commands.idx_buffer_size * imgui.INDEX_SIZE
             vtx_ptr = (vtx_type).from_address(commands.vtx_buffer_data)
             idx_ptr = (idx_type).from_address(commands.idx_buffer_data)
             self._vertex_buffer.write(vtx_ptr)
@@ -142,11 +147,14 @@ class ModernGLRenderer(object):
                 texture.use(0)
 
                 x, y, z, w = command.clip_rect
-                self.ctx.scissor = int(x), int(fb_height - w), int(z - x), int(w - y)
-                self._vao.render(moderngl.TRIANGLES, vertices=command.elem_count, first=idx_pos)
+                ctx.scissor = (int(x), int(fb_height - w),
+                               int(z - x), int(w - y))
+                self._vao.render(moderngl.TRIANGLES,
+                                 vertices=command.elem_count, first=idx_pos)
                 idx_pos += command.elem_count
 
-        self.ctx.scissor = None
+        ctx.blend_func = self.wnd.default_blend
+        ctx.scissor = None
 
     def _invalidate_device_objects(self):
         if self._font_texture:

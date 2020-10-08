@@ -2,6 +2,7 @@ import abc
 import numpy as np
 from mglg.graphics.object import Object2D
 
+
 class Drawable(abc.ABC):
     def __init__(self, window, visible=True, *args, **kwargs):
         # window should have moderngl context, width/height, and view*projection matrix
@@ -15,8 +16,10 @@ class Drawable(abc.ABC):
         # if self.visible:
         #     ....
 
+
 class Drawable2D(Drawable, Object2D):
     pass
+
 
 class DrawableGroup(list):
     # at this point, it's just a dumb list of things using the
@@ -28,7 +31,7 @@ class DrawableGroup(list):
     # the other benefit is toggling visibility for a large number of Drawables
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.visible = True
+        self.visible = kwargs.get('visible', True)
 
     def draw(self, vp=None):
         if self.visible:
