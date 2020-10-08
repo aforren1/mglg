@@ -130,7 +130,7 @@ class Shape(Drawable2D):
         self.alpha_unif = shader['alpha']
 
     def draw(self, vp=None):
-        if (self.visible and self.alpha > 0):
+        if self.visible and self.alpha > 0:
             vp = vp if vp else self.win.vp
             mvp = vp * self.model_matrix
             self.mvp_unif.write(mvp)

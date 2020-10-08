@@ -118,7 +118,7 @@ class Text(Drawable2D):
             self.smooth_unif.value = self.smoothness
             self.outline_range_unif.write(self._outline_range)
             self.vao.render(mgl.TRIANGLES)
-            ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
+            ctx.blend_func = win.default_blend
 
     @property
     def fill_color(self):
@@ -303,7 +303,7 @@ class DynamicText(Text):
             self.smooth_unif.value = self.smoothness
             self.outline_range_unif.write(self._outline_range)
             self.vao.render(mgl.TRIANGLES, vertices=self.num_vertices)
-            ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
+            ctx.blend_func = win.default_blend
 
     def prefetch(self, chars):
         # store these

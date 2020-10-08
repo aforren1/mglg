@@ -78,8 +78,8 @@ class Particles(Drawable2D):
         super().__init__(window, *args, **kwargs)
         ctx = window.ctx
         self.prog = ParticleShader(ctx)
-        self._emitter = ParticleEmitter(
-            max_particles=num_particles, *args, **kwargs)
+        self._emitter = ParticleEmitter(max_particles=num_particles,
+                                        *args, **kwargs)
         self.visible = False
         self.particle_vbo = ctx.buffer(dynamic=True,
                                        reserve=int(28*num_particles))
@@ -131,7 +131,7 @@ class Particles(Drawable2D):
                 win.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE
                 self.vao.render(mgl.TRIANGLE_STRIP, instances=count)
                 # self.particle_vbo.orphan()
-                win.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
+                win.ctx.blend_func = win.default_blend
 
 
 if __name__ == '__main__':

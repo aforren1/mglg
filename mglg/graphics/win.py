@@ -42,11 +42,11 @@ class Win(object):
         # Configure the OpenGL context
         glfw.window_hint(glfw.CONTEXT_CREATION_API, glfw.NATIVE_CONTEXT_API)
         glfw.window_hint(glfw.CLIENT_API, glfw.OPENGL_API)
-        glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 4)
-        glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 5)
+        glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
+        glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
         glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
         # turn on for mac compat
-        glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, False)
+        glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, True)
         glfw.window_hint(glfw.RESIZABLE, False)
         glfw.window_hint(glfw.DOUBLEBUFFER, True)
         glfw.window_hint(glfw.DEPTH_BITS, 0)  # 2d only?
@@ -81,8 +81,9 @@ class Win(object):
         self.ctx = mgl.create_context(require=int('%i%i0' % (major, minor)))
         self.ctx.viewport = (0, 0, self.width, self.height)
         self.ctx.enable(mgl.BLEND)
-        self.ctx.blend_func = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
-        self.ctx.disable(mgl.DEPTH_TEST)
+        self.default_blend = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
+        self.ctx.blend_func = self.default_blend
+        self.ctx.disable(mgl.DEPTH_TEST | mgl.CULL_FACE)
         self._clear_color = vec4(clear_color)
 
         # other setup
