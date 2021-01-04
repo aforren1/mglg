@@ -1,9 +1,8 @@
 import numpy as np
 from mglg.graphics.drawable import Drawable2D
 from mglg.graphics.image import ImageShader
-from glm import vec4
+from glm import vec4, ortho
 from moderngl import TRIANGLE_STRIP, LINEAR
-from glm import ortho
 
 
 class Framebuffer(Drawable2D):

@@ -50,7 +50,7 @@ class Win(object):
         glfw.window_hint(glfw.RESIZABLE, False)
         glfw.window_hint(glfw.DOUBLEBUFFER, True)
         glfw.window_hint(glfw.DEPTH_BITS, 0)  # 2d only?
-        glfw.window_hint(glfw.SAMPLES, 8)  # MSAA
+        glfw.window_hint(glfw.SAMPLES, 4)  # MSAA
         glfw.window_hint(glfw.STENCIL_BITS, 0)  # no need for stencil buffer
         glfw.window_hint(glfw.REFRESH_RATE, video_mode.refresh_rate)
         glfw.window_hint(glfw.DECORATED, 0)  # no decorations allowed

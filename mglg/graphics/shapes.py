@@ -3,7 +3,6 @@ from numpy import pi
 import moderngl as mgl
 from mglg.ext.earcut import earcut, flatten
 from mglg.graphics.drawable import Drawable2D
-from glm import vec4
 from glm import vec4, sin, cos
 from mglg.graphics.outline import generate_outline
 
