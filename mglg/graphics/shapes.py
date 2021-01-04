@@ -3,7 +3,6 @@ from numpy import pi
 import moderngl as mgl
 from mglg.ext.earcut import earcut, flatten
 from mglg.graphics.drawable import Drawable2D
-from glm import vec4
 from glm import vec4, sin, cos
 from mglg.graphics.outline import generate_outline
 
@@ -69,7 +68,7 @@ void main()
     vec2 point_pos = vertices + mix(vec2(0, 0), normal * thickness * miter, outer);
     color = mix(fill_color, outline_color, outer);
     color.a *= alpha;
-    gl_Position = mvp * vec4(point_pos, 0.0, 1.0);
+    gl_Position = mvp * vec4(point_pos, 1.0, 1.0);
 }
 """
 

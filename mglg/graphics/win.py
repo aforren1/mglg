@@ -49,8 +49,8 @@ class Win(object):
         glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, True)
         glfw.window_hint(glfw.RESIZABLE, False)
         glfw.window_hint(glfw.DOUBLEBUFFER, True)
-        glfw.window_hint(glfw.DEPTH_BITS, 0)  # 2d only?
-        glfw.window_hint(glfw.SAMPLES, 8)  # MSAA
+        glfw.window_hint(glfw.DEPTH_BITS, 8)  # 2d only?
+        glfw.window_hint(glfw.SAMPLES, 4)  # MSAA
         glfw.window_hint(glfw.STENCIL_BITS, 0)  # no need for stencil buffer
         glfw.window_hint(glfw.REFRESH_RATE, video_mode.refresh_rate)
         glfw.window_hint(glfw.DECORATED, 0)  # no decorations allowed
@@ -83,12 +83,12 @@ class Win(object):
         self.ctx.enable(mgl.BLEND)
         self.default_blend = mgl.SRC_ALPHA, mgl.ONE_MINUS_SRC_ALPHA
         self.ctx.blend_func = self.default_blend
-        self.ctx.disable(mgl.DEPTH_TEST | mgl.CULL_FACE)
+        self.ctx.disable(mgl.CULL_FACE)
         self._clear_color = vec4(clear_color)
 
         # other setup
         ratio = self.height/self.width
-        self.vp = glm.ortho(-0.5/ratio, 0.5/ratio, -0.5, 0.5)
+        self.vp = glm.ortho(-0.5/ratio, 0.5/ratio, -0.5, 0.5, -2, 2)
         self.frame_rate = video_mode.refresh_rate
         self.frame_period = 1/self.frame_rate
         self.timer = timer

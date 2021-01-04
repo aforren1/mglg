@@ -76,8 +76,22 @@ if __name__ == '__main__':
     countup = DynamicText(win, text='0', scale=0.05, expected_chars=8,
                           font=font_path, position=(0.6, 0.4),
                           prefetch='0123456789')
+    
+    s1 = Rect(win, scale=(0.05, 0.05), fill_color=(1, 0.1, 0.1, 1), 
+              position=(0.2, 0), depth=-1)
+    s2 = Rect(win, scale=(0.05, 0.05), fill_color=(0.1, 1, 0.1, 1), 
+              position=(0.175, 0.025), depth=0)
+    s3 = Rect(win, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 1, 1), 
+              position=(0.15, 0.05), depth=1)
 
-    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, rr, rr2])
+    x1 = Rect(win, scale=(0.05, 0.05), fill_color=(1, 0.1, 0.1, 1), 
+              position=(0.2, -0.1), depth=-1)
+    x2 = Rect(win, scale=(0.05, 0.05), fill_color=(0.1, 1, 0.1, 1), 
+              position=(0.175, -0.075), depth=0)
+    x3 = Rect(win, scale=(0.05, 0.05), fill_color=(0.1, 0.1, 1, 1), 
+              position=(0.15, -0.05), depth=1)
+
+    dg = DrawableGroup([sqr, sqr2, circle, arrow, poly, crs, rr, rr2, s3, s2, s1, x1, x2, x3])
     pix = DrawableGroup([check, check2])
     prt = DrawableGroup([particles])
     stp = DrawableGroup([stiparrow])

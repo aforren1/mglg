@@ -22,7 +22,7 @@ class Framebuffer(Drawable2D):
         self.mvp_unif = self.shader['mvp']
         self.alpha_unif = self.shader['alpha']
         ratio = self.scale.y / self.scale.x
-        self.vp = ortho(-0.5/ratio, 0.5/ratio, -0.5, 0.5)
+        self.vp = ortho(-0.5/ratio, 0.5/ratio, -0.5, 0.5, -2, 2)
 
         if not self.vao:
             vertex_texcoord = np.empty(4, dtype=[('vertices', np.float32, 2),
